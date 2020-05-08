@@ -37,8 +37,9 @@ jobs:
             apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
 
             # We will install local tools so add those to path.
-            echo "export PATH=.:$PATH" >> $BASH_ENV
+            echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
             mkdir target
+            mkdir tools
 
       - run: 
           name: Setup GCP Tooling
@@ -69,6 +70,7 @@ jobs:
       - run:
           name: Kubectl Setup
           command: |
+             cd tools
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
              kubectl --help
@@ -79,6 +81,7 @@ jobs:
       - run:
           name: Install Helm
           command: |
+             cd tools
              curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
              tar zxvf helm-v3.2.1-linux-amd64.tar.gz
              mv linux-amd64/helm .
