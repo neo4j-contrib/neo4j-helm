@@ -35,3 +35,6 @@ Session.vim
 **/charts/*.tgz
 
 .history
+
+# Packaged helm charts
+neo4j-*.tgz
