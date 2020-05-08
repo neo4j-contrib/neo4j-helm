@@ -6,14 +6,6 @@
 leverages data relationships as first-class entities, helping enterprises build
 intelligent applications to meet today’s evolving data challenges.
 
-## TL;DR;
-
-```bash
-$ helm install stable/neo4j
-```
-
-## Introduction
-
 This chart bootstraps a [Neo4j](https://github.com/neo4j/docker-neo4j)
 deployment on a [Kubernetes](http://kubernetes.io) cluster using the
 [Helm](https://helm.sh) package manager.
@@ -59,7 +51,7 @@ $ helm delete neo4j-helm --purge
 The command removes all the Kubernetes components associated with the chart and
 deletes the release.
 
-## Configuration
+## Helm Configuration
 
 The following table lists the configurable parameters of the Neo4j chart and
 their default values.
@@ -140,24 +132,14 @@ of Kubernetes
 - [How to Backup Neo4j Running in Kubernetes](https://medium.com/neo4j/how-to-backup-neo4j-running-in-kubernetes-3697761f229a)
 - [How to Restore Neo4j Backups on Kubernetes](https://medium.com/google-cloud/how-to-restore-neo4j-backups-on-kubernetes-and-gke-6841aa1e3961)
 
-## Upgrading
+## Versioning
 
 Version numbers here refer to helm chart versions, not Neo4j product versions.
 
-### To 3.0.0
+This repo contains version 3.0.0 of the helm chart, which supports Neo4j 4.0 going forward.  This helm chart is *not* backwards
+compatible with helm charts built for versions in the Neo4j 3.5 series.
 
-Backwards compatibility is not guaranteed unless you modify the labels used on the chart's deployments.
 The 2.0.0 chart was based around Neo4j's 3.5.x product series.  The 3.0 chart is based around Neo4j's 4.0.x product
 series, and there are *substantial differences* between these two.  Careful upgrade planning is advised before attempting
 to upgrade an existing chart.  Consult [the upgrade guide](https://neo4j.com/docs/operations-manual/current/upgrade/) and
 expect that additional configuration of this chart will be necessary.
-
-### To 2.0.0
-
-Backwards compatibility is not guaranteed unless you modify the labels used on the chart's deployments.
-Use the workaround below to upgrade from versions previous to 2.0.0. The following example assumes that the release name is neo4j:
-
-```console
-$ kubectl delete statefulset.apps neo4j-neo4j-core --cascade=false
-$ kubectl delete deployments.apps neo4j-neo4j-replica --cascade=false
-```
