@@ -52,6 +52,8 @@ jobs:
              gcloud container clusters create $CLUSTER-$CIRCLE_BUILD_NUM \
                 --zone "$ZONE" \
                 --project $PROJECT \
+                --no-enable-autoupgrade \
+                --enable-ip-alias \
                 --machine-type "n1-standard-1" \
                 --num-nodes "4" \
                 --max-nodes "10" \
@@ -65,7 +67,7 @@ jobs:
           command: |
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
-             ./kubectl --version
+             ./kubectl --help
 
       - run:
           name: Install Helm
