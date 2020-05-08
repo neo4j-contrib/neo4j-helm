@@ -122,7 +122,8 @@ jobs:
             echo "TEAR DOWN GKE INSTANCE"
             gcloud container clusters delete $CLUSTER-$CIRCLE_BUILD_NUM \
               --zone "$ZONE" \
-              --project $PROJECT
+              --project $PROJECT \
+              --quiet
 
       - store_artifacts:
           path: target/
