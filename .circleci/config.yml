@@ -40,10 +40,10 @@ jobs:
           name: Setup GCP Tooling
           command: |
             echo $GCLOUD_SERVICE_KEY > service-key.json
-            echo gcloud auth activate-service-account \
+            gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=service-key.json
-            echo gcloud auth configure-docker
+            gcloud auth configure-docker
       
       - run:
           name: GKE Setup / Auth
