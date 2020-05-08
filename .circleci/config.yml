@@ -68,6 +68,9 @@ jobs:
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
              ./kubectl --help
+             kubectl create clusterrolebinding cluster-admin-binding \
+                 --clusterrole cluster-admin \
+                 --user $(gcloud config get-value account)
 
       - run:
           name: Install Helm
