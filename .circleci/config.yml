@@ -108,6 +108,12 @@ jobs:
              helm install testrun $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
              
       - run:
+          name: Twiddling our Thumbs
+          command: |
+            sleep 120
+            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core"
+
+      - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
              NAMESPACE=default
