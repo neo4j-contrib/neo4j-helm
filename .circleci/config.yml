@@ -110,7 +110,7 @@ jobs:
       - run:
           name: Twiddling our Thumbs
           command: |
-            sleep 120
+            sleep 180
             kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core"
 
       - run:
@@ -123,9 +123,10 @@ jobs:
           name: Test
           command: |
             export PATH=.:$PATH
-            NAMESPACE=build-$CIRCLE_BUILD_NUM
-            NAME=testrun
-            echo "RUN TEST SCRIPT HERE TBD"
+            export RELEASE_NAMESPACE=default
+            export RELEASE_NAME=testrun
+            export CORE_REPLICAS=3
+            ./test.sh
 
       - run:
           name: Uninstall / Cleanup
