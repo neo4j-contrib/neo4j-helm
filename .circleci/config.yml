@@ -28,13 +28,13 @@ jobs:
             curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
             add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
+            apt-get update
             EXTRA_NEEDED_TOOLS="wget make gettext-base jq"
-            DOCKER="docker-ce docker-ce-cli containerd.io"
 
-            apt-get update && apt-get install -y \
-               google-cloud-sdk \
-               $DOCKER \
-               $EXTRA_NEEDED_TOOLS | tee target/setup.log
+            # Docker not yet needed....
+            # DOCKER="docker-ce docker-ce-cli containerd.io"
+
+            apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS | tee target/setup.log
 
       - run: 
           name: Setup GCP Tooling
