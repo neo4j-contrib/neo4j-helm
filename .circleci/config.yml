@@ -34,7 +34,7 @@ jobs:
             # Docker not yet needed....
             # DOCKER="docker-ce docker-ce-cli containerd.io"
 
-            apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS | tee target/setup.log
+            apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
 
       - run: 
           name: Setup GCP Tooling
