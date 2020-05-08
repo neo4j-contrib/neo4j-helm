@@ -34,7 +34,7 @@ jobs:
             apt-get update && apt-get install -y \
                google-cloud-sdk \
                $DOCKER \
-               $EXTRA_NEEDED_TOOLS
+               $EXTRA_NEEDED_TOOLS | tee target/setup.log
 
       - run: 
         name: Setup GCP Tooling
