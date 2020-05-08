@@ -1,5 +1,7 @@
 # Neo4j
 
+[![CircleCI](https://circleci.com/gh/neo4j-contrib/neo4j-helm.svg?style=svg)](https://circleci.com/gh/neo4j-contrib/neo4j-helm)
+
 [Neo4j](https://neo4j.com/) is a highly scalable native graph database that
 leverages data relationships as first-class entities, helping enterprises build
 intelligent applications to meet today’s evolving data challenges.

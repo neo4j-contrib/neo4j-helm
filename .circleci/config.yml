@@ -1,0 +1,148 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: debian:stretch
+
+    environment:
+      PROJECT: neo4j-helm
+      CLUSTER: ci-test
+      ZONE: us-central1-a
+      NODES: 3
+
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Tooling pre-requisites
+          command: |
+            # Secure software install
+            apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+            
+            # Google Cloud stuff
+            export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+            
+            # Docker stuff
+            curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+
+            apt-get update
+            EXTRA_NEEDED_TOOLS="wget make gettext-base jq"
+
+            # Docker not yet needed....
+            # DOCKER="docker-ce docker-ce-cli containerd.io"
+
+            apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
+
+            # We will install local tools so add those to path.
+            echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
+            mkdir target
+            mkdir tools
+
+      - run: 
+          name: Setup GCP Tooling
+          command: |
+            echo $GCLOUD_SERVICE_KEY > service-key.json
+            gcloud auth activate-service-account \
+                $GCLOUD_SERVICE_ACCOUNT \
+                --key-file=service-key.json
+            gcloud auth configure-docker
+      
+      - run:
+          name: GKE Setup / Auth
+          command: |
+             echo "GKE SETUP TBD"
+             gcloud container clusters create $CLUSTER-$CIRCLE_BUILD_NUM \
+                --zone "$ZONE" \
+                --project $PROJECT \
+                --no-enable-autoupgrade \
+                --enable-ip-alias \
+                --machine-type "n1-standard-1" \
+                --num-nodes "4" \
+                --max-nodes "10" \
+                --enable-autoscaling
+              gcloud container clusters get-credentials $CLUSTER-$CIRCLE_BUILD_NUM \
+                --zone $ZONE \
+                --project $PROJECT
+
+      - run:
+          name: Kubectl Setup
+          command: |
+             cd tools
+             curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+             chmod +x kubectl
+             kubectl --help
+             kubectl create clusterrolebinding cluster-admin-binding \
+                 --clusterrole cluster-admin \
+                 --user $(gcloud config get-value account)
+
+      - run:
+          name: Install Helm
+          command: |
+             cd tools
+             curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+             tar zxvf helm-v3.2.1-linux-amd64.tar.gz
+             mv linux-amd64/helm .
+             helm version
+
+      - run:
+          name: Build 
+          command: |
+             # Add cwd to path to pick up the helm binary we installed.
+             export PATH=.:$PATH
+             BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
+             echo "TBD.   Build $BUILD"
+
+      - run:
+          name: Install 
+          command: |
+             # Add cwd to path to pick up the helm binary we installed.
+             export PATH=.:$PATH
+             BUILD=$CIRCLE_BRANCH-$CIRCLE_SHA1
+             helm package .
+             chart_archive=$(ls neo4j*.tgz)
+             cp *.tgz target
+             echo "Installing $chart_archive"
+             helm install testrun $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
+             
+      - run:
+          name: Twiddling our Thumbs
+          command: |
+            sleep 180
+            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core"
+
+      - run:
+          name: Wait for GKE deployment to succeed and become ready
+          command: |
+             NAMESPACE=default
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
+
+      - run:
+          name: Test
+          command: |
+            export PATH=.:$PATH
+            export RELEASE_NAMESPACE=default
+            export RELEASE_NAME=testrun
+            export CORE_REPLICAS=3
+            chmod +x test.sh
+            ./test.sh
+
+      - run:
+          name: Uninstall / Cleanup
+          # Make sure to always run this, particularly if the test fails,
+          # to avoid clogging our cluster.
+          when: always
+          command: |
+            echo "TEAR DOWN GKE INSTANCE"
+            gcloud container clusters delete $CLUSTER-$CIRCLE_BUILD_NUM \
+              --zone "$ZONE" \
+              --project $PROJECT \
+              --quiet
+
+      - store_artifacts:
+          path: target/
+      
+      - store_artifacts:
+          path: .build/
