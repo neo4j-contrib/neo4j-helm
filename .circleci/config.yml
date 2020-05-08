@@ -36,6 +36,9 @@ jobs:
 
             apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
 
+            # We will install local tools so add those to path.
+            echo "export PATH=.:$PATH" >> $BASH_ENV
+
       - run: 
           name: Setup GCP Tooling
           command: |
@@ -67,7 +70,7 @@ jobs:
           command: |
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
-             ./kubectl --help
+             kubectl --help
              kubectl create clusterrolebinding cluster-admin-binding \
                  --clusterrole cluster-admin \
                  --user $(gcloud config get-value account)
@@ -78,7 +81,7 @@ jobs:
              curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
              tar zxvf helm-v3.2.1-linux-amd64.tar.gz
              mv linux-amd64/helm .
-             ./helm version
+             helm version
 
       - run:
           name: Build 
@@ -94,13 +97,13 @@ jobs:
              # Add cwd to path to pick up the helm binary we installed.
              export PATH=.:$PATH
              BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
-             ./helm install testrun . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword | tee -a target/INSTALL.txt
+             helm install testrun . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword | tee -a target/INSTALL.txt
 
       - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
              NAMESPACE=default
-             ./kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
 
       - run:
           name: Test
