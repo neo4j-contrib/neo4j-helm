@@ -79,7 +79,6 @@ jobs:
              tar zxvf helm-v3.2.1-linux-amd64.tar.gz
              mv linux-amd64/helm .
              ./helm version
-             ./helm init --client-only
 
       - run:
           name: Build 
@@ -95,13 +94,13 @@ jobs:
              # Add cwd to path to pick up the helm binary we installed.
              export PATH=.:$PATH
              BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
-             echo "TBD:  INSTALL $BUILD STEP " | tee -a target/INSTALL.txt
+             helm install testrun . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword | tee -a target/INSTALL.txt
 
       - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
-             NAMESPACE=build-$CIRCLE_BUILD_NUM
-             echo TBD ./kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
+             NAMESPACE=default
+             ./kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
 
       - run:
           name: Test
