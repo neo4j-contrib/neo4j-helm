@@ -97,10 +97,10 @@ jobs:
           command: |
              # Add cwd to path to pick up the helm binary we installed.
              export PATH=.:$PATH
-             BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
+             BUILD=$CIRCLE_BRANCH-$CIRCLE_SHA1
              helm package neo4j-$BUILD .
              cp *.tgz target
-             helm install testrun . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
+             helm install testrun neo4j-$BUILD --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
              
       - run:
           name: Wait for GKE deployment to succeed and become ready
