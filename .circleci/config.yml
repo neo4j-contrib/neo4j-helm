@@ -56,7 +56,7 @@ jobs:
                 --num-nodes "4" \
                 --max-nodes "10" \
                 --enable-autoscaling
-              gcloud container clusters get-credentials $CLUSTER \
+              gcloud container clusters get-credentials $CLUSTER-$CIRCLE_BUILD_NUM \
                 --zone $ZONE \
                 --project $PROJECT
 
@@ -65,7 +65,7 @@ jobs:
           command: |
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
-             ./kubectl config use-context neo4j
+             ./kubectl --version
 
       - run:
           name: Install Helm
