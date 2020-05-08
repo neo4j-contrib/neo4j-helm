@@ -34,7 +34,7 @@ is tailored specifically to GKE.
 To install the chart with the release name `neo4j-helm`:
 
 ```bash
-$ helm install my-neo4j stable/neo4j --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
+$ helm install --name my-neo4j stable/neo4j --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
 
 You must explicitly accept the neo4j license agreement for the installation to be successful.
