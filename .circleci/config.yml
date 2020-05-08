@@ -56,10 +56,9 @@ jobs:
                 --num-nodes "4" \
                 --max-nodes "10" \
                 --enable-autoscaling
-
-            gcloud container clusters get-credentials $CLUSTER \
-              --zone $ZONE \
-              --project $PROJECT
+              gcloud container clusters get-credentials $CLUSTER \
+                --zone $ZONE \
+                --project $PROJECT
 
       - run:
           name: Kubectl Setup
