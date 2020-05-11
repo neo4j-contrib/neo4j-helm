@@ -20,6 +20,7 @@ spec:
         app.kubernetes.io/name: {{ template "neo4j.name" . }}
         app.kubernetes.io/component: core
     spec:
+      serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
       containers:
       - name: {{ template "neo4j.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
@@ -50,6 +51,7 @@ spec:
             # is in the environment.
             # In this way we can give a single configmap to all 3 pods in a stateful
             # set, and still be able to do per-pod bespoke config.
+            export core_idx=$(hostname | sed 's|.*-||')
             export override_prefix=$(hostname | sed s/-/_/g)
             export HOST=$(hostname -f)
 
@@ -65,6 +67,7 @@ spec:
             NEO4J_SETTINGS[NEO4J_dbms_connector_https_advertised__address]=${NEO4J_dbms_connector_https_advertised__address:-$HOST}
             NEO4J_SETTINGS[NEO4J_causal__clustering_discovery__advertised__address]=${NEO4J_causal__clustering_discovery__advertised__address:-$HOST}
 
+            echo "Core id = $core_idx"
             echo "Configuration override prefix = $override_prefix"
 
             # Check to see if a particular env var has a host-specific override.  If it does,
@@ -98,9 +101,16 @@ spec:
 
             # These settings are *not* overrideable, because they must match the addresses the
             # core members see to avoid akka rejections, and to facilitate basic cluster formation.
-            export NEO4J_causal__clustering_discovery__advertised__address=$HOST:5000
-            export NEO4J_causal__clustering_transaction__advertised__address=$HOST:6000
-            export NEO4J_causal__clustering_raft__advertised__address=$HOST:7000
+            # K8S discovery requires an LB service per pod, and a service account with permissions to query the discovery API
+            export NEO4J_causal__clustering_kubernetes_label__selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE"
+            export NEO4J_causal__clustering_discovery__type=K8S
+            export NEO4J_causal__clustering_kubernetes_service__port__name="discovery"
+
+            # We advertise the discovery-lb addresses (see discovery-lb.yaml) because
+            export DISCOVERY_HOST="discovery-{{ template "neo4j.fullname" . }}-${core_idx}.{{ .Release.Namespace }}.svc.cluster.local"
+            export NEO4J_causal__clustering_discovery__advertised__address="$DISCOVERY_HOST:5000"
+            export NEO4J_causal__clustering_transaction__advertised__address="$DISCOVERY_HOST:6000"
+            export NEO4J_causal__clustering_raft__advertised__address="$DISCOVERY_HOST:7000"
 
             if [ "${AUTH_ENABLED:-}" == "true" ]; then
               export NEO4J_AUTH="neo4j/${NEO4J_SECRETS_PASSWORD}"
@@ -108,11 +118,11 @@ spec:
               export NEO4J_AUTH="none"
             fi
 
+            env > /environment.txt
+
+            # Once passed through to auth, unset this so Neo4j doesn't misinterpret it as config.
+            unset NEO4J_SECRETS_PASSWORD
             echo "Starting Neo4j CORE on $HOST"
-            
-            # For debugging only -- will be removed.
-            env | sort > environment.txt
-            
             exec /docker-entrypoint.sh "neo4j"
         ports:
         - containerPort: 5000

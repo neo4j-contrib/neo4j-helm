@@ -22,5 +22,4 @@ data:
   {{- if .Values.useAPOC }}
   NEO4JLABS_PLUGINS: "[\"apoc\"]"
   NEO4J_apoc_import_file_use__neo4j__config: "true"
-  NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
   {{- end }}

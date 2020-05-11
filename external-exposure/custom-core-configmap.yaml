@@ -21,7 +21,6 @@ data:
   NEO4J_dbms_jvm_additional: "-XX:+ExitOnOutOfMemoryError"
   NEO4JLABS_PLUGINS: "[\"apoc\"]"
   NEO4J_apoc_import_file_use__neo4j__config: "true"
-  NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_default__advertised__address: $ADDR0
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_connector_bolt_advertised__address: $ADDR0:7687
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_connector_http_advertised__address: $ADDR0:7474

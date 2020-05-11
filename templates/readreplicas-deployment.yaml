@@ -24,6 +24,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
         app.kubernetes.io/component: replica
     spec:
+      serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
       containers:
       - name: neo4j
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
