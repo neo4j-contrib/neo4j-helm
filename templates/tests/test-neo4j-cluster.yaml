@@ -14,6 +14,7 @@ spec:
   containers:
     - name: {{ .Release.Name }}-ui-test
       image: {{ .Values.testImage }}:{{ .Values.testImageTag }}
+      imagePullPolicy: Always
       env:
         - name: "STATEFULSET_NAME"
           value: "{{ template "neo4j.fullname" . }}"
@@ -26,24 +27,13 @@ spec:
             secretKeyRef:
               name: {{ template "neo4j.secrets.fullname" . }}
               key: neo4j-password
-      command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
+      command: ["/sbin/bats", "-t", "/tests/run.sh"]
       volumeMounts:
       - mountPath: /tests
         name: tests
         readOnly: true
-      - mountPath: /tools
-        name: tools
-  initContainers:
-  - name: test-framework
-    image: "dduportal/bats:0.4.0"
-    command: ["bash", "-c", "set -ex\ncp -R /usr/local/libexec/ /tools/bats/"]
-    volumeMounts:
-      - mountPath: "/tools"
-        name: tools
   volumes:
   - name: tests
     configMap:
       name: {{ template "neo4j.fullname" . }}-tests
-  - name: tools
-    emptyDir: {}
   restartPolicy: Never

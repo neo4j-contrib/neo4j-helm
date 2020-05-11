@@ -1,6 +1,4 @@
-FROM alpine
-
-MAINTAINER Lachlan Evenson <lachlan.evenson@gmail.com>
+FROM dduportal/bats:1.1.0
 
 ARG VCS_REF
 ARG BUILD_DATE
