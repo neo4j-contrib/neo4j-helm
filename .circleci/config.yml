@@ -126,8 +126,8 @@ jobs:
             export RELEASE_NAMESPACE=default
             export RELEASE_NAME=testrun
             export CORE_REPLICAS=3
-            chmod +x test.sh
-            ./test.sh
+            chmod +x test/test.sh
+            ./test/test.sh
 
       - run:
           name: Uninstall / Cleanup
