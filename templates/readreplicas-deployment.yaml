@@ -78,7 +78,8 @@ spec:
               export NEO4J_AUTH="none"
             fi
 
-            env > /environment.txt
+            # Once passed through to auth, unset this so Neo4j doesn't misinterpret it as config.
+            unset NEO4J_SECRETS_PASSWORD
             echo "Starting Neo4j READ_REPLICA on $HOST"
             exec /docker-entrypoint.sh "neo4j"
         ports:
@@ -95,6 +96,15 @@ spec:
         volumeMounts:
         - name: plugins
           mountPath: /plugins
+        readinessProbe:
+          tcpSocket:
+            port: 7687
+          initialDelaySeconds: 30
+          periodSeconds: 3
+        livenessProbe:
+          initialDelaySeconds: 60
+          tcpSocket:
+            port: 7687  
         resources:
 {{ toYaml .Values.readReplica.resources | indent 10 }}
 {{- if .Values.core.sidecarContainers }}
