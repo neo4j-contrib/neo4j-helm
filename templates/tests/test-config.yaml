@@ -9,7 +9,7 @@ metadata:
     app: {{ template "neo4j.name" . }}
 data:
   run.sh: |-
-    @test "Testing Neo4j cluster has quorum" {
+    @test "Testing Neo4j cluster has HTTP available" {
       echo "checking if the cluster is up"
       # path="data"
       for id in $(seq 0 $((CORE_REPLICAS - 1))); do
@@ -21,7 +21,7 @@ data:
         while true; do
           attempt=$[$attempt + 1]
           echo "Try $attempt: Connecting to $host:7474/"
-          run wget ${url} -qO- 2>&1
+          run curl ${url} 2>&1
           echo "Exit code: $status"
           [ $status -eq 0 ] && break
           [ "${attempt}" -ge "${attempts}" ] && exit 1

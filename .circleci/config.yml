@@ -122,12 +122,13 @@ jobs:
       - run:
           name: Test
           command: |
-            export PATH=.:$PATH
-            export RELEASE_NAMESPACE=default
-            export RELEASE_NAME=testrun
-            export CORE_REPLICAS=3
-            chmod +x test/test.sh
-            ./test/test.sh
+            helm test testrun
+
+      - run:
+          name: Test logs
+          when: always
+          command: |
+            kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=testrun" | tee -a target/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
