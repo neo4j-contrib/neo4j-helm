@@ -93,7 +93,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 install`. For example,
 
 ```bash
-$ helm install my-neo4j --set core.numberOfServers=5,readReplica.numberOfServers=3 stable/neo4j
+$ helm install my-neo4j --set core.numberOfServers=5,readReplica.numberOfServers=3 .
 ```
 
 The above command creates a cluster containing 5 core servers and 3 read
@@ -143,3 +143,9 @@ The 2.0.0 chart was based around Neo4j's 3.5.x product series.  The 3.0 chart is
 series, and there are *substantial differences* between these two.  Careful upgrade planning is advised before attempting
 to upgrade an existing chart.  Consult [the upgrade guide](https://neo4j.com/docs/operations-manual/current/upgrade/) and
 expect that additional configuration of this chart will be necessary.
+
+## Local Expansion
+
+```
+helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword . > expanded.yaml
+```
