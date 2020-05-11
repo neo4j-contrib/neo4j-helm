@@ -1,2 +1,4 @@
 .git 
 tools
+k8s-poc
+*.log
