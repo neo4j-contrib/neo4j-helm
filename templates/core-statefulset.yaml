@@ -58,6 +58,7 @@ spec:
             declare -A NEO4J_SETTINGS
 
             export NEO4J_dbms_directories_logs=/data/logs
+            # export NEO4J_dbms_logs_debug_level=DEBUG
 
             # HTTPS
             NEO4J_SETTINGS[dbms_connector_https_enabled]=true
@@ -119,8 +120,6 @@ spec:
             else
               export NEO4J_AUTH="none"
             fi
-
-            env > /environment.txt
 
             # Once passed through to auth, unset this so Neo4j doesn't misinterpret it as config.
             unset NEO4J_SECRETS_PASSWORD
