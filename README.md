@@ -53,6 +53,8 @@ For a complete list of configuration options, and ways of installing, please see
 
 ## Additional Documentation for Running Neo4j in Kubernetes
 
+- [External exposure of Neo4j clusters on Kubernetes](external-exposure/EXTERNAL-EXPOSURE.md) - how to use
+tools like Neo4j Browser and cypher-shell from clients originating outside of Kubernetes
 - [Neo4j Considerations in Orchestration Environments](https://medium.com/neo4j/neo4j-considerations-in-orchestration-environments-584db747dca5) which covers
 how the smart-client routing protocol that Neo4j uses interacts with Kubernetes networking.  Make sure to read this if you are trying to expose the Neo4j database outside
 of Kubernetes
@@ -61,15 +63,24 @@ of Kubernetes
 
 ## Versioning
 
-Version numbers here refer to helm chart versions, not Neo4j product versions.
+The versioning of this helm chart will follow Neo4j versions for simplicity.
 
-This repo contains version 3.0.0 of the helm chart, which supports Neo4j 4.0 going forward.  This helm chart is *not* backwards
-compatible with helm charts built for versions in the Neo4j 3.5 series.
+* Version 4.0.X.Y of the helm chart is compatible with Neo4j EE v4.0.*
+* Version 4.1.X.Y of the helm chart is compatible with Neo4j EE v4.1.*
+* (and so on)
 
-The 2.0.0 chart was based around Neo4j's 3.5.x product series.  The 3.0 chart is based around Neo4j's 4.0.x product
-series, and there are *substantial differences* between these two.  Careful upgrade planning is advised before attempting
-to upgrade an existing chart.  Consult [the upgrade guide](https://neo4j.com/docs/operations-manual/current/upgrade/) and
+The charts in this repository are for Neo4j 4.0 going forward.  There are previous available charts
+for the Neo4j 3.5 series, but there are *substantial differences* between the two versions.  Careful
+upgrade planning is advised before attempting to upgrade an existing chart.
+
+Consult [the upgrade guide](https://neo4j.com/docs/operations-manual/current/upgrade/) and
 expect that additional configuration of this chart will be necessary.
+
+## Helm Testing
+
+```
+helm test neo4j-helm
+```
 
 ## Local Expansion
 

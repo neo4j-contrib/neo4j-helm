@@ -9,6 +9,7 @@ MACHINE=n1-highmem-4
 NODES=4
 API=beta
 
+echo "Creating GKE cluster $CLUSTER..."
 gcloud beta container clusters create $CLUSTER \
     --zone "$ZONE" \
     --project $PROJECT \
@@ -18,7 +19,8 @@ gcloud beta container clusters create $CLUSTER \
     --no-enable-autoupgrade \
     --max-nodes "10" \
     --enable-autoscaling
-    
+
+echo "Fixing kubectl credentials to talk to $CLUSTER"
 gcloud container clusters get-credentials $CLUSTER \
    --zone $ZONE \
    --project $PROJECT
@@ -29,9 +31,9 @@ gcloud container clusters get-credentials $CLUSTER \
 
 # Bootstrap RBAC cluster-admin for your user.
 # More info: https://cloud.google.com/kubernetes-engine/docs/how-to/role-based-access-control
+echo "Creating cluster role binding for $CLUSTER"
 kubectl create clusterrolebinding cluster-admin-binding \
   --clusterrole cluster-admin --user $(gcloud config get-value account)
 
-# TO DELETE
-# helm del --purge mygraph
-# kubectl delete configmaps mygraph-neo4j-ubc
+echo "Done"
+exit 0
