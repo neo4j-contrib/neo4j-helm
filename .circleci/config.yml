@@ -9,6 +9,7 @@ jobs:
       CLUSTER: ci-test
       ZONE: us-central1-a
       NODES: 3
+      NAME: testrun
 
     steps:
       - checkout
@@ -49,24 +50,21 @@ jobs:
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=service-key.json
             gcloud auth configure-docker
-      
+
+      - run:
+        name: Kubectl Setup
+        command: |
+            cd tools
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+            chmod +x kubectl
+            kubectl --help
+                
       - run:
           name: GKE Setup / Auth
           command: |
              echo "GKE SETUP"
              export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
              ./test/provision-k8s.sh $CLUSTER_NAME
-
-      - run:
-          name: Kubectl Setup
-          command: |
-             cd tools
-             curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-             chmod +x kubectl
-             kubectl --help
-             kubectl create clusterrolebinding cluster-admin-binding \
-                 --clusterrole cluster-admin \
-                 --user $(gcloud config get-value account)
 
       - run:
           name: Install Helm
@@ -95,7 +93,7 @@ jobs:
              chart_archive=$(ls neo4j*.tgz)
              cp *.tgz target
              echo "Installing $chart_archive"
-             helm install testrun $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
+             helm install $NAME $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
              
       - run:
           name: Twiddling our Thumbs
@@ -107,18 +105,18 @@ jobs:
           name: Wait for GKE deployment to succeed and become ready
           command: |
              NAMESPACE=default
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch
 
       - run:
           name: Test
           command: |
-            helm test testrun
+            helm test $NAME
 
       - run:
           name: Test logs
           when: always
           command: |
-            kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=testrun" | tee -a target/TEST.txt
+            kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=$NAME" | tee -a target/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
