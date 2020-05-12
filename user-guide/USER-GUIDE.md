@@ -12,7 +12,24 @@ Neo4j Enterprise Edition (EE) is available to any existing enterprise license ho
 
 ## Installation
 
-The standard installation flow for Neo4j on GCP Marketplace is to simply follow the prompts, and fill out the following configuration options, which are described below.
+Specify each parameter using the `--set key=value[,key=value]` argument to `helm
+install`. For example,
+
+```bash
+$ helm install my-neo4j --set core.numberOfServers=3,readReplica.numberOfServers=3 .
+```
+
+The above command creates a cluster containing 3 core servers and 3 read
+replicas.
+
+Alternatively, a YAML file that specifies the values for the parameters can be
+provided while installing the chart. For example,
+
+```bash
+$ helm install --name neo4j-helm -f values.yaml .
+```
+
+> **Tip**: You can use the default [values.yaml](values.yaml)
 
 ## Helm Configuration
 
@@ -49,31 +66,7 @@ their default values.
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 
-The above parameters map to the env variables defined in the
-[Neo4j docker image](https://github.com/neo4j/docker-neo4j).
-
-Specify each parameter using the `--set key=value[,key=value]` argument to `helm
-install`. For example,
-
-```bash
-$ helm install my-neo4j --set core.numberOfServers=5,readReplica.numberOfServers=3 .
-```
-
-The above command creates a cluster containing 5 core servers and 3 read
-replicas.
-
-Alternatively, a YAML file that specifies the values for the parameters can be
-provided while installing the chart. For example,
-
-```bash
-$ helm install --name neo4j-helm -f values.yaml .
-```
-
-> **Tip**: You can use the default [values.yaml](values.yaml)
-
-Once you have all 3 pods in running, you can run the "test.sh" script in this directory, which will verify the role attached to each pod and also test recovery of a failed/deleted pod. This script requires that the $RELEASE_NAME environment variable be set, in order to access the pods, if you have specified a custom `namespace` or `replicas` value when installing you can set those via `RELEASE_NAMESPACE` and `CORE_REPLICAS` environment variables for this script.
-
-## Using Custom Configuration
+## Passing Custom Configuration as a ConfigMap
 
 The pods in two groups (Cores and read-replicas) are configured with regular ConfigMaps, which turn into environment variables.  Those
 environment variables configure the Neo4j pods according to [Neo4j environment variable configuration](https://neo4j.com/docs/operations-manual/current/docker/configuration/#docker-environment-variables).
