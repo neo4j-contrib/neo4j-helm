@@ -9,31 +9,6 @@ metadata:
     app: {{ template "neo4j.name" . }}
 data:
   run.sh: |-
-    @test "Testing Neo4j cluster has HTTP available" {
-      echo "checking if the cluster is up"
-      # path="data"
-      for id in $(seq 0 $((CORE_REPLICAS - 1))); do
-        host="${STATEFULSET_NAME}-core-$id.${STATEFULSET_NAME}.${NAMESPACE}.svc.cluster.local"
-        auth="neo4j:${NEO4J_SECRETS_PASSWORD}"
-        url="http://${auth}@${host}:7474/"
-        attempts=10
-        attempt=0
-        while true; do
-          attempt=$[$attempt + 1]
-          echo "Try $attempt: Connecting to $url"
-          wget ${url} -qO- 2>&1
-          if [ "$?" = 0 ] ; then
-            break
-          fi
-          if [ "${attempt}" -ge "${attempts}" ] ; then
-            echo "Too many attempts"
-            exit 1
-          fi
-          sleep 5
-        done
-      done
-    }
-
     @test "Testing Neo4j core servers are available" {
       echo "checking if nodes are available"
       path="manage/server/core/available"

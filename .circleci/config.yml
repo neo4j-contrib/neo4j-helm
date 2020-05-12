@@ -52,12 +52,12 @@ jobs:
             gcloud auth configure-docker
 
       - run:
-        name: Kubectl Setup
-        command: |
-            cd tools
-            curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-            chmod +x kubectl
-            kubectl --help
+          name: Kubectl Setup
+          command: |
+             cd tools
+             curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+             chmod +x kubectl
+             kubectl --help
                 
       - run:
           name: GKE Setup / Auth

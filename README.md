@@ -90,6 +90,9 @@ helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword
 
 ## Local Testing
 
+The following mini-script will provision a test cluster, monitor it for rollout, test it,
+report test results, and teardown / destroy PVCs.
+
 ```
 NAME=a
 helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword && \
