@@ -53,19 +53,9 @@ jobs:
       - run:
           name: GKE Setup / Auth
           command: |
-             echo "GKE SETUP TBD"
-             gcloud container clusters create $CLUSTER-$CIRCLE_BUILD_NUM \
-                --zone "$ZONE" \
-                --project $PROJECT \
-                --no-enable-autoupgrade \
-                --enable-ip-alias \
-                --machine-type "n1-standard-1" \
-                --num-nodes "4" \
-                --max-nodes "10" \
-                --enable-autoscaling
-              gcloud container clusters get-credentials $CLUSTER-$CIRCLE_BUILD_NUM \
-                --zone $ZONE \
-                --project $PROJECT
+             echo "GKE SETUP"
+             export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
+             ./test/provision-k8s.sh $CLUSTER_NAME
 
       - run:
           name: Kubectl Setup
