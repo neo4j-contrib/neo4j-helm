@@ -144,10 +144,10 @@ readReplica:
   #       curl -L https://somesite.com/path/to/plugin.jar -O
   #       cp plugin.jar /plugins/
 
-resources: {}
-# limits:
-#   cpu: 100m
-#   memory: 512Mi
-# requests:
-#   cpu: 100m
-#   memory: 512Mi
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2G
+  requests:
+    cpu: 500m
+    memory: 1G
