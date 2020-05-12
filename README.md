@@ -87,3 +87,17 @@ helm test neo4j-helm
 ```
 helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword . > expanded.yaml
 ```
+
+## Local Testing
+
+```
+NAME=a
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword && \
+kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
+helm test $NAME
+kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=$NAME"
+helm uninstall $NAME
+for idx in 0 1 2 ; do
+  kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
+done
+```

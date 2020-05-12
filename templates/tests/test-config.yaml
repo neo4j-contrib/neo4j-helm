@@ -20,11 +20,15 @@ data:
         attempt=0
         while true; do
           attempt=$[$attempt + 1]
-          echo "Try $attempt: Connecting to $host:7474/"
-          run curl ${url} 2>&1
-          echo "Exit code: $status"
-          [ $status -eq 0 ] && break
-          [ "${attempt}" -ge "${attempts}" ] && exit 1
+          echo "Try $attempt: Connecting to $url"
+          wget ${url} -qO- 2>&1
+          if [ "$?" = 0 ] ; then
+            break
+          fi
+          if [ "${attempt}" -ge "${attempts}" ] ; then
+            echo "Too many attempts"
+            exit 1
+          fi
           sleep 5
         done
       done
