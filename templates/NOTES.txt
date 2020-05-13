@@ -3,14 +3,16 @@
 ####   ERROR: Please set acceptLicenseAgreement to yes.        ####
 ###################################################################
 {{- else }}
-We'll need to wait a few seconds for the Neo4j cluster to form.
-We need to see this line in all of our pods' logs that look like this:
+We'll need to wait a few seconds for the Neo4j cluster to form.  If you'd like to track status
+and wait on your rollout to complete, run:
 
-> Remote interface available at http://neo-helm-neo4j-core-2.neo-helm-neo4j.default.svc.cluster.local:7474/
+$ kubectl rollout status --namespace $NAMESPACE StatefulSet/{{ template "neo4j.name" . }}-core --watch
+
+You can inspect your logs containers like so:
 
 We can see the content of the logs by running the following command:
 
-kubectl logs -l "app.kubernetes.io/name={{ template "neo4j.name" . }},app.kubernetes.io/component=core"
+$ kubectl logs -l "app.kubernetes.io/name={{ template "neo4j.name" . }},app.kubernetes.io/component=core"
 
 We can now run a query to find the topology of the cluster.
 

@@ -12,7 +12,6 @@ metadata:
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 data:
   run.sh: |-
-    set -x
     export PATH=/usr/bin:$PATH
     export host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
     export replica_host="$NAME-readreplica-svc.$NAMESPACE.svc.cluster.local"
@@ -49,12 +48,6 @@ data:
       echo "Sleeping; not up yet after $attempt attempts"
       sleep 5
     done
-
-    # At this point the service endpoint proves that at least one host is up.
-    # Provide just a bit more time for all of them to finish coming up because we'll
-    # be testing them individually.
-    echo "Waiting for formation to finish"
-    sleep 10
 
     # Pass index ID to get hostname for that pod.
     function core_hostname {
@@ -102,6 +95,31 @@ data:
         fail "$1" "$output"
       fi
     }
+
+    # At this point the service endpoint proves that at least one host is up.
+    # Provide just a bit more time for all of them to finish coming up because we'll
+    # be testing them individually.
+    echo "Waiting for formation to finish"
+    attempt=0
+    attempts=100
+    while true; do
+      attempt=$[$attempt + 1]
+      cypher "RETURN 1;"
+      if [ $? -eq 0 ] ; then
+        echo "✔️ Neo4j BOLT is up at attempt $attempt; BOLT port $PORT_BOLT"
+        break
+      fi
+
+      if [ $attempt -ge "$attempts" ]; then 
+        echo "❌ BOLT API seems not to be coming up, giving up after $attempts attempts"
+        exit 1
+      fi
+
+      echo "Sleeping; bolt not up yet after $attempt attempts"
+      sleep 5
+    done
+
+    echo "All pre-requisites met, beginning main testing"
 
     echo "Basic topology upfront"
     cypher "CALL dbms.cluster.overview();"
