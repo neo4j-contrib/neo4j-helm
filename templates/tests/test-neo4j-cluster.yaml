@@ -3,13 +3,13 @@ kind: Pod
 metadata:
   name: "{{ template "neo4j.fullname" . }}-service-test-{{ randAlphaNum 5 | lower }}"
   labels:
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
-    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/component: tester
   annotations:
-    "helm.sh/hook": test-success
+    "helm.sh/hook": test
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 spec:
   containers:

@@ -33,7 +33,9 @@ data:
           echo "SHOW DATABASES response:"
           echo $SHOW_DATABASES_RESPONSE
           didItWork=$(echo "${SHOW_DATABASES_RESPONSE}" | grep -i online)
-          [ "$?" = 0 ] && break
+          exitc=$?
+          echo "exitc=$exitc and diditwork=$didItWork"
+          [ "$exitc" = 0 ] && break          
           [ "${attempt}" -ge "${attempts}" ] && exit 1
           sleep 5
         done
