@@ -19,7 +19,7 @@ spec:
     imagePullPolicy: IfNotPresent
     env:
       - name: NAME
-        value: "{{ template "neo4j.fullname" . }}"
+        value: "{{ .Release.Name }}"
       - name: CORES
         value: "{{ .Values.core.numberOfServers }}"
       - name: READ_REPLICAS

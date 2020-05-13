@@ -14,7 +14,7 @@ data:
   run.sh: |-
     set -x
     export PATH=/usr/bin:$PATH
-    export host="$NAME.$NAMESPACE.svc.cluster.local"
+    export host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
     export replica_host="$NAME-readreplica-svc.$NAMESPACE.svc.cluster.local"
     echo "HOST $host"
     # This endpoint proves availability of the overall service
@@ -26,11 +26,6 @@ data:
     echo "AUTH $auth"
     echo "CORES $CORES"
     echo "RRs $READ_REPLICAS"
-
-    echo "TEST ENVIRONMENT"
-    env
-
-    ls -l /usr/bin/
 
     # When test resources are deployed cluster hasn't had a chance to form yet.
     # This polls in a loop waiting for cluster to become available, and gives up/fails
@@ -63,7 +58,8 @@ data:
 
     # Pass index ID to get hostname for that pod.
     function core_hostname {
-      echo "$NAME-core-$1.$NAME.$NAMESPACE.svc.cluster.local"
+      # Example: a-neo4j-core-0.a-neo4j.default.svc.cluster.local
+      echo "$NAME-neo4j-core-$1.$NAME-neo4j.$NAMESPACE.svc.cluster.local"
     }
 
     test_index=0
@@ -120,8 +116,8 @@ data:
     echo "TOPOLOGY $topology"
 
     # LEADERS
-    leaders=$(echo $topology | grep -o LEADER | wc -l)
-    test="Cluster has 1 leader"
+    leaders=$(echo $topology | grep 'system: "LEADER"' | wc -l)
+    test="Cluster has 1 system leader"
     if [ $leaders -eq 1 ] ; then
       succeed "$test"
     else
@@ -129,7 +125,7 @@ data:
     fi
 
     # FOLLOWERS
-    followers=$(echo $topology | grep -o FOLLOWER | wc -l)
+    followers=$(echo $topology | grep -o 'system: "FOLLOWER"' | wc -l)
     test="Cluster has 1-CORES followers"
     if [ $followers -eq $((CORES-1)) ] ; then
       succeed "$test"
