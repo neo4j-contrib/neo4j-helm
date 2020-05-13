@@ -1,22 +1,12 @@
-FROM dduportal/bats:1.1.0
+FROM launcher.gcr.io/google/debian9
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y bash curl wget gnupg apt-transport-https curl apt-utils jq
+RUN echo 'deb http://ftp.debian.org/debian stretch-backports main' | tee /etc/apt/sources.list.d/stretch-backports.list
+RUN apt-get update
+RUN apt-get install -y ca-certificates ca-certificates-java
+RUN curl https://debian.neo4j.com/neotechnology.gpg.key | apt-key add -
+RUN echo 'deb http://debian.neo4j.com stable latest' | tee -a /etc/apt/sources.list.d/neo4j.list
+RUN apt-get update
+RUN apt-get install -y cypher-shell=4.0.0 
 
-ARG VCS_REF
-ARG BUILD_DATE
-
-# Metadata
-LABEL org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/lachie83/k8s-kubectl" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.docker.dockerfile="/Dockerfile"
-
-ENV KUBE_LATEST_VERSION="v1.7.1"
-
-RUN apk add --update ca-certificates \
- && apk add --update -t deps curl \
- && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
- && chmod +x /usr/local/bin/kubectl \
- && apk del --purge deps \
- && rm /var/cache/apk/*
-
-ENTRYPOINT ["kubectl"]
-CMD ["help"]
+CMD ["/bin/bash"]

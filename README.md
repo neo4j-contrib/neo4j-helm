@@ -94,12 +94,13 @@ The following mini-script will provision a test cluster, monitor it for rollout,
 report test results, and teardown / destroy PVCs.
 
 ```
-NAME=a
+export NAME=a
+export NAMESPACE=default
 helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword && \
 kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
-helm test $NAME
-kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=$NAME"
+helm test $NAME --logs | tee testlog.txt
 helm uninstall $NAME
+sleep 20
 for idx in 0 1 2 ; do
   kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
 done

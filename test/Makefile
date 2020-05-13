@@ -1,6 +1,6 @@
 default: docker_build
 DOCKER_IMAGE ?= gcr.io/neo4j-helm/tester
-DOCKER_TAG ?= 3.0.0
+DOCKER_TAG ?= 4.0.0
 
 docker_build:
 	@docker build \

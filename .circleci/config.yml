@@ -10,6 +10,7 @@ jobs:
       ZONE: us-central1-a
       NODES: 3
       NAME: testrun
+      BUILD_ARTIFACTS: build
 
     steps:
       - checkout
@@ -39,7 +40,7 @@ jobs:
 
             # We will install local tools so add those to path.
             echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
-            mkdir target
+            mkdir $BUILD_ARTIFACTS
             mkdir tools
 
       - run: 
@@ -67,7 +68,7 @@ jobs:
              ./test/provision-k8s.sh $CLUSTER_NAME
 
       - run:
-          name: Install Helm
+          name: Install Helm Binaries
           command: |
              cd tools
              curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
@@ -76,47 +77,30 @@ jobs:
              helm version
 
       - run:
-          name: Build 
+          name: Package and Install Neo4j-Helm Chart
           command: |
-             # Add cwd to path to pick up the helm binary we installed.
-             export PATH=.:$PATH
-             BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
-             echo "TBD.   Build $BUILD"
-
-      - run:
-          name: Install 
-          command: |
-             # Add cwd to path to pick up the helm binary we installed.
-             export PATH=.:$PATH
-             BUILD=$CIRCLE_BRANCH-$CIRCLE_SHA1
              helm package .
              chart_archive=$(ls neo4j*.tgz)
-             cp *.tgz target
+             cp *.tgz $BUILD_ARTIFACTS/
              echo "Installing $chart_archive"
-             helm install $NAME $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
+             helm install $NAME $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
              
       - run:
           name: Twiddling our Thumbs
           command: |
             sleep 180
-            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core"
+            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
              NAMESPACE=default
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
 
       - run:
           name: Test
           command: |
-            helm test $NAME
-
-      - run:
-          name: Test logs
-          when: always
-          command: |
-            kubectl logs --tail=-1 -l "app.kubernetes.io/component=tester,app.kubernetes.io/instance=$NAME" | tee -a target/TEST.txt
+            helm test $NAME --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
@@ -131,7 +115,4 @@ jobs:
               --quiet
 
       - store_artifacts:
-          path: target/
-      
-      - store_artifacts:
-          path: .build/
+          path: build
