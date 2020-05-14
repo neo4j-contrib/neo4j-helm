@@ -98,6 +98,12 @@ jobs:
              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
 
       - run:
+          name: Cluster formation bug work-around (WIP)
+          command: |
+             echo "Waiting extra time as a work-around, to be removed pending other issue resolution"
+             sleep 180
+
+      - run:
           name: Test
           command: |
             helm test $NAME --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
