@@ -129,6 +129,7 @@ jobs:
           command: |
             echo "TEAR DOWN GKE INSTANCE"
             gcloud container clusters delete $CLUSTER-$CIRCLE_BUILD_NUM \
+              --async \
               --zone "$ZONE" \
               --project $PROJECT \
               --quiet
