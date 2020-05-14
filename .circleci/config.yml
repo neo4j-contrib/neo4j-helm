@@ -88,7 +88,7 @@ jobs:
       - run:
           name: Twiddling our Thumbs
           command: |
-            sleep 180
+            sleep 60
             kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
@@ -96,12 +96,6 @@ jobs:
           command: |
              NAMESPACE=default
              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
-
-      - run:
-          name: Cluster formation bug work-around (WIP)
-          command: |
-             echo "Waiting extra time as a work-around, to be removed pending other issue resolution"
-             sleep 180
 
       - run:
           name: Test
