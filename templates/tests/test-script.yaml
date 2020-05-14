@@ -152,7 +152,7 @@ data:
     fi
 
     # REPLICAS
-    read_replicas=$(echo $topology | grep -o READ_REPLICA | wc -l)
+    read_replicas=$(echo $topology | grep -o 'system: "READ_REPLICA"' | wc -l)
     test="Cluster has $READ_REPLICAS read replicas"
     if [ $read_replicas -eq $READ_REPLICAS ] ; then
       succeed "$test"

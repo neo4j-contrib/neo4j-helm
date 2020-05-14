@@ -77,30 +77,49 @@ jobs:
              helm version
 
       - run:
+          name: Create test namespace
+          command: |
+            cat <<EOF | kubectl apply -f -
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: ns-$CIRCLE_BUILD_NUM
+            EOF
+
+      - run:
           name: Package and Install Neo4j-Helm Chart
           command: |
+             NAMESPACE=ns-$CIRCLE_BUILD_NUM
              helm package .
              chart_archive=$(ls neo4j*.tgz)
              cp *.tgz $BUILD_ARTIFACTS/
              echo "Installing $chart_archive"
-             helm install $NAME $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
+             helm install $NAME $chart_archive \
+                 --namespace $NAMESPACE \
+                 --set acceptLicenseAgreement=yes \
+                 --set neo4jPassword=mySecretPassword \
+                 --set readReplica.numberOfServers=1 \
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
              
       - run:
           name: Twiddling our Thumbs
           command: |
             sleep 60
-            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            kubectl logs --namespace $NAMESPACE \
+              -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
-             NAMESPACE=default
+             NAMESPACE=ns-$CIRCLE_BUILD_NUM
              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
 
       - run:
           name: Test
           command: |
-            helm test $NAME --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            helm test $NAME --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
