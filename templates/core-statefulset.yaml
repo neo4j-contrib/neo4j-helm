@@ -145,12 +145,17 @@ spec:
         - name: plugins
           mountPath: /plugins
         readinessProbe:
+          initialDelaySeconds: 120
+          failureThreshold: 3
+          timeoutSeconds: 2
+          periodSeconds: 10
           tcpSocket:
-            port: 7687
-          initialDelaySeconds: 30
-          periodSeconds: 3
+            port: 7687 
         livenessProbe:
-          initialDelaySeconds: 60
+          initialDelaySeconds: 300
+          periodSeconds: 10
+          failureThreshold: 3
+          timeoutSeconds: 2
           tcpSocket:
             port: 7687
         resources:
