@@ -151,3 +151,24 @@ resources: {}
   # requests:
   #   cpu: 1000m
   #   memory: 1G
+
+# Readiness probes will send a kill signal to the container if
+# it fails enough times.  It's therefore very important
+# that initialDelaySeconds give the cluster time to form, because
+# if readiness probes start immediately after container start,
+# they may end up not forming quickly enough and getting killed.
+readinessProbe:
+  initialDelaySeconds: 120
+  failureThreshold: 3
+  timeoutSeconds: 2
+  periodSeconds: 10
+  tcpSocket:
+    port: 7687 
+
+livenessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 10
+  failureThreshold: 3
+  timeoutSeconds: 2
+  tcpSocket:
+    port: 7687
