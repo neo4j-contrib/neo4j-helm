@@ -9,6 +9,8 @@ jobs:
       CLUSTER: ci-test
       ZONE: us-central1-a
       NODES: 3
+      NAME: testrun
+      BUILD_ARTIFACTS: build
 
     steps:
       - checkout
@@ -38,7 +40,7 @@ jobs:
 
             # We will install local tools so add those to path.
             echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
-            mkdir target
+            mkdir $BUILD_ARTIFACTS
             mkdir tools
 
       - run: 
@@ -49,23 +51,6 @@ jobs:
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=service-key.json
             gcloud auth configure-docker
-      
-      - run:
-          name: GKE Setup / Auth
-          command: |
-             echo "GKE SETUP TBD"
-             gcloud container clusters create $CLUSTER-$CIRCLE_BUILD_NUM \
-                --zone "$ZONE" \
-                --project $PROJECT \
-                --no-enable-autoupgrade \
-                --enable-ip-alias \
-                --machine-type "n1-standard-1" \
-                --num-nodes "4" \
-                --max-nodes "10" \
-                --enable-autoscaling
-              gcloud container clusters get-credentials $CLUSTER-$CIRCLE_BUILD_NUM \
-                --zone $ZONE \
-                --project $PROJECT
 
       - run:
           name: Kubectl Setup
@@ -74,12 +59,16 @@ jobs:
              curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
              chmod +x kubectl
              kubectl --help
-             kubectl create clusterrolebinding cluster-admin-binding \
-                 --clusterrole cluster-admin \
-                 --user $(gcloud config get-value account)
+                
+      - run:
+          name: GKE Setup / Auth
+          command: |
+             echo "GKE SETUP"
+             export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
+             ./test/provision-k8s.sh $CLUSTER_NAME
 
       - run:
-          name: Install Helm
+          name: Install Helm Binaries
           command: |
              cd tools
              curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
@@ -88,46 +77,49 @@ jobs:
              helm version
 
       - run:
-          name: Build 
+          name: Create test namespace
           command: |
-             # Add cwd to path to pick up the helm binary we installed.
-             export PATH=.:$PATH
-             BUILD=-$CIRCLE_BRANCH-$CIRCLE_SHA1
-             echo "TBD.   Build $BUILD"
+            cat \<<EOF | kubectl apply -f -
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: ns-$CIRCLE_BUILD_NUM
+            EOF
 
       - run:
-          name: Install 
+          name: Package and Install Neo4j-Helm Chart
           command: |
-             # Add cwd to path to pick up the helm binary we installed.
-             export PATH=.:$PATH
-             BUILD=$CIRCLE_BRANCH-$CIRCLE_SHA1
+             NAMESPACE=ns-$CIRCLE_BUILD_NUM
              helm package .
              chart_archive=$(ls neo4j*.tgz)
-             cp *.tgz target
+             cp *.tgz $BUILD_ARTIFACTS/
              echo "Installing $chart_archive"
-             helm install testrun $chart_archive --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword -v 3 | tee -a target/INSTALL.txt
+             helm install $NAME $chart_archive \
+                 --namespace $NAMESPACE \
+                 --set acceptLicenseAgreement=yes \
+                 --set neo4jPassword=mySecretPassword \
+                 --set readReplica.numberOfServers=1 \
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
              
       - run:
           name: Twiddling our Thumbs
           command: |
-            sleep 180
-            kubectl logs -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core"
+            sleep 60
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            kubectl logs --namespace $NAMESPACE \
+              -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
           name: Wait for GKE deployment to succeed and become ready
           command: |
-             NAMESPACE=default
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/testrun-neo4j-core --watch
+             NAMESPACE=ns-$CIRCLE_BUILD_NUM
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
 
       - run:
           name: Test
           command: |
-            export PATH=.:$PATH
-            export RELEASE_NAMESPACE=default
-            export RELEASE_NAME=testrun
-            export CORE_REPLICAS=3
-            chmod +x test.sh
-            ./test.sh
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            helm test $NAME --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
@@ -137,12 +129,10 @@ jobs:
           command: |
             echo "TEAR DOWN GKE INSTANCE"
             gcloud container clusters delete $CLUSTER-$CIRCLE_BUILD_NUM \
+              --async \
               --zone "$ZONE" \
               --project $PROJECT \
               --quiet
 
       - store_artifacts:
-          path: target/
-      
-      - store_artifacts:
-          path: .build/
+          path: build

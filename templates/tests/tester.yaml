@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ template "neo4j.fullname" . }}-service-test-{{ randAlphaNum 5 | lower }}"
+  labels:
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/name: {{ template "neo4j.name" . }}
+    app.kubernetes.io/component: tester
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+spec:
+  containers:
+  - name: {{ .Release.Name }}-ui-test
+    image: {{ .Values.testImage }}:{{ .Values.testImageTag }}
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: NAME
+        value: "{{ .Release.Name }}"
+      - name: CORES
+        value: "{{ .Values.core.numberOfServers }}"
+      - name: READ_REPLICAS
+        value: "{{ .Values.readReplica.numberOfServers }}"
+      - name: NAMESPACE
+        value: "{{ .Release.Namespace }}"
+      - name: PORT_HTTP
+        value: "7474"
+      - name: PORT_BOLT
+        value: "7687"
+    volumeMounts:
+      - name: secret-volume
+        mountPath: /secret
+        readOnly: true
+      - name: config-volume
+        mountPath: /tester
+        readOnly: true
+    command: ["/bin/bash"]
+    args: ["/tester/run.sh"]
+  restartPolicy: Never
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: "{{ template "neo4j.secrets.fullname" . }}"
+        items:
+          - key: neo4j-password
+            path: neo4j-password
+    - name: config-volume
+      configMap:
+        name: "{{ .Release.Name }}-test-script"

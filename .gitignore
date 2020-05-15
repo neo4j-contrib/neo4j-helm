@@ -38,3 +38,6 @@ Session.vim
 
 # Packaged helm charts
 neo4j-*.tgz
+k8s-poc
+*.log
+expanded.yaml

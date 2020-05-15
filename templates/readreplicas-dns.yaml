@@ -1,3 +1,6 @@
+# This service is intended for clients running in kubernetes to connect to the
+# cluster replica set.  This distinguishes it from discovery-lb which is about 
+# cluster formation and internal communication.
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,8 +13,6 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   clusterIP: None
-  # This next line is critical:  cluster members cannot discover each other without published
-  # addresses, but without this, they can't get addresses unless they're ready (Catch-22)
   publishNotReadyAddresses: true 
   ports:
     - name: http
