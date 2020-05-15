@@ -19,6 +19,7 @@ The [User Guide](user-guide/USER-GUIDE.md) contains all the documentation for th
 Additional instructions, general documentation, and operational facets are covered in the following
 articles:
 
+- [Architectural Documentation describing how the helm chart is put together](https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing)
 - [External exposure of Neo4j clusters on Kubernetes](external-exposure/EXTERNAL-EXPOSURE.md) - how to use
 tools like Neo4j Browser and cypher-shell from clients originating outside of Kubernetes
 - [Neo4j Considerations in Orchestration Environments](https://medium.com/neo4j/neo4j-considerations-in-orchestration-environments-584db747dca5) which covers
