@@ -65,8 +65,8 @@ of Kubernetes
 
 The versioning of this helm chart will follow Neo4j versions for simplicity.
 
-* Version 4.0.X.Y of the helm chart is compatible with Neo4j EE v4.0.*
-* Version 4.1.X.Y of the helm chart is compatible with Neo4j EE v4.1.*
+* Version 4.0.X-Y of the helm chart is compatible with Neo4j EE v4.0.*
+* Version 4.1.X-Y of the helm chart is compatible with Neo4j EE v4.1.*
 * (and so on)
 
 The charts in this repository are for Neo4j 4.0 going forward.  There are previous available charts
