@@ -68,18 +68,29 @@ their default values.
 
 ## Memory Management
 
-The chart follows the same memory configuration settings as described in the [Memory Configuration](https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/) section of the Operations manual.  You may set any of the following settings:
+The chart follows the same memory configuration settings as described in the [Memory Configuration](https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/) section of the Operations manual.  
+
+### Default Approach
+
+Neo4j-helm behaves just like the regular Neo4j product.  No explicit heap or page cache is set.
+
+### Recommended Approach
+
+You may use the setting `dbms.memory.use_memrec=true` and this will run [neo4j-admin memrec](https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-memrec/) and use its recommendations.
+
+It's very important that you also specify CPU and memory resources on launch that are adequate to support the
+recommendations.  Crashing pods, "unscheduleable" errors, and other problems will result if the recommended amounts 
+of memory are higher than the Kubernetes requests/limits.
+
+### Custom Explicit Settings
+
+You may set any of the following settings:
 
 * `dbms.memory.heap.initial_size`
 * `dbms.memory.heap.max_size`
 * `dbms.memory.pagecache.size`
 
-Their meanings, formats, and defaults are the same as found in the operations manual.   Instead of using this setting, if you wish, 
-you can set `dbms.memory.use_memrec=true` and this will run [neo4j-admin memrec](https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-memrec/) and use its recommendations by default.
-
-If you use memrec it's very important that you also specify CPU and memory resources on launch that are adequate to support the
-recommendations.  Crashing pods and other problems will result if the recommended amounts of memory are higher than the Kubernetes
-requests/limits.
+Their meanings, formats, and defaults are the same as found in the operations manual.
 
 ## Monitoring Configuration
 
