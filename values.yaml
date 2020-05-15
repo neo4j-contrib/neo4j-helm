@@ -196,7 +196,7 @@ metrics:
 
 dbms:
   memory:
-    use_memrec: true
+    use_memrec: false
     heap:
       initial_size: ""
       max_size: ""
