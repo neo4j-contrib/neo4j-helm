@@ -193,3 +193,12 @@ metrics:
     interval: 3s
   jmx:
     enabled: true
+
+dbms:
+  memory:
+    use_memrec: false
+    heap:
+      initial_size: ""
+      max_size: ""
+    pagecache:
+      size: ""
