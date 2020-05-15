@@ -19,7 +19,8 @@ data:
     # In this way we can give a single configmap to all 3 pods in a stateful
     # set, and still be able to do per-pod bespoke config.
     export override_prefix=$(hostname | sed s/-/_/g)
-    export HOST=$(hostname -f)
+    # Ensure HOST is set, but take a default from the outer environment if present.
+    export HOST=${HOST:-$(hostname -f)}
 
     declare -A NEO4J_SETTINGS
 
@@ -32,7 +33,25 @@ data:
     NEO4J_SETTINGS[NEO4J_dbms_connector_bolt_advertised__address]=${NEO4J_dbms_connector_bolt_advertised__address:-$HOST:7687}
     NEO4J_SETTINGS[NEO4J_dbms_connector_http_advertised__address]=${NEO4J_dbms_connector_http_advertised__address:-$HOST:7474}
     NEO4J_SETTINGS[NEO4J_dbms_connector_https_advertised__address]=${NEO4J_dbms_connector_https_advertised__address:-$HOST:7473}
-    NEO4J_SETTINGS[NEO4J_causal__clustering_discovery__advertised__address]=${NEO4J_causal__clustering_discovery__advertised__address:-$HOST}
+    NEO4J_SETTINGS[NEO4J_causal__clustering_discovery__advertised__address]=${NEO4J_causal__clustering_discovery__advertised__address:-$HOST:5000}
+
+    neo4jAdminMemrec() {
+        echo "Calling neo4j-admin memrec to suggest memory settings"
+        # Neo4j-admin memrec outputs configuration like this: dbms.memory.heap.max_size=9000m
+        # with a lot of comments.  We strip the comments, then 
+        # process its output into a docker env var by following the Neo4j docker rules:
+        # underscores doubled, dots -> _
+        # So dbms.memory.heap.max_size=9000m => export NEO4J_dbms_memory_heap_max__size=9000m
+        for line in $(/var/lib/neo4j/bin/neo4j-admin memrec | grep -v '^\#' | sed 's/_/__/g' | sed 's/\./_/g' | sed 's/^/NEO4J_/g') ; do 
+            echo export $line ; 
+        done > /var/lib/neo4j/conf/memory-recommendations.sh
+
+        . /var/lib/neo4j/conf/memory-recommendations.sh
+    }
+
+    {{- if .Values.dbms.memory.use_memrec }}
+        neo4jAdminMemrec
+    {{- end }}
 
     echo "Configuration override prefix = $override_prefix"
 
@@ -54,8 +73,8 @@ data:
     # For each config item, set an env var to the appropriate
     # metadata value or default value.  This sets us up for envsubst
     for setting in "${!NEO4J_SETTINGS[@]}" ; do
-      echo setting $setting
-      echo default 
+      # echo setting $setting
+      # echo default 
       getSettingValue $setting "${NEO4J_SETTINGS[$setting]}"
       # echo "Setting $setting to $SETTING_VALUE"
 
