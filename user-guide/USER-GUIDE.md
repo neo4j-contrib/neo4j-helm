@@ -66,6 +66,17 @@ their default values.
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 
+## Monitoring Configuration
+
+This chart supports the same monitoring configuration settings as described in the 
+[Neo4j Operations Manual](https://neo4j.com/docs/operations-manual/current/monitoring/metrics/expose/).  These have been ommitted from the
+table above because they are documented in the operational manual, but here are three quick examples:
+
+* To publish prometheus metrics, `--set metrics.prometheus.enabled=true,metrics.prometheus.endpoint=localhost:2004`
+* To publish graphite metrics, `--set metrics.graphite.enabled=true,metrics.graphite.server=localhost:2003,metrics.graphite.interval=3s`
+* To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
+* To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
+
 ## Passing Custom Configuration as a ConfigMap
 
 The pods in two groups (Cores and read-replicas) are configured with regular ConfigMaps, which turn into environment variables.  Those
