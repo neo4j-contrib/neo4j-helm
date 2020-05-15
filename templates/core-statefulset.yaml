@@ -47,85 +47,19 @@ spec:
           - "/bin/bash"
           - "-c"
           - |
-            # Local hostname (graph-neo4j-core-0) converted to graph_neo4j_core_0
-            # So that if a var is defined graph_neo4j_core_0_MYSETTING
-            # its host-specific value will override whatever the default MYSETTING
-            # is in the environment.
-            # In this way we can give a single configmap to all 3 pods in a stateful
-            # set, and still be able to do per-pod bespoke config.
             export core_idx=$(hostname | sed 's|.*-||')
-            export override_prefix=$(hostname | sed s/-/_/g)
-            export HOST=$(hostname -f)
 
-            declare -A NEO4J_SETTINGS
-
-            export NEO4J_dbms_directories_logs=/data/logs
-            # export NEO4J_dbms_logs_debug_level=DEBUG
-
-            # HTTPS
-            NEO4J_SETTINGS[dbms_connector_https_enabled]=true
-            # Default settings values; either inherit from outward settings,
-            # or, lacking any definition, take the local host 
-            NEO4J_SETTINGS[NEO4J_dbms_default__advertised__address]=${NEO4J_dbms_default__advertised__address:-$HOST}
-            NEO4J_SETTINGS[NEO4J_dbms_connector_bolt_advertised__address]=${NEO4J_dbms_connector_bolt_advertised__address:-$HOST:7687}
-            NEO4J_SETTINGS[NEO4J_dbms_connector_http_advertised__address]=${NEO4J_dbms_connector_http_advertised__address:-$HOST:7474}
-            NEO4J_SETTINGS[NEO4J_dbms_connector_https_advertised__address]=${NEO4J_dbms_connector_https_advertised__address:-$HOST:7473}
-            NEO4J_SETTINGS[NEO4J_causal__clustering_discovery__advertised__address]=${NEO4J_causal__clustering_discovery__advertised__address:-$HOST}
-
-            echo "Core id = $core_idx"
-            echo "Configuration override prefix = $override_prefix"
-
-            # Check to see if a particular env var has a host-specific override.  If it does,
-            # return the override.  Otherwise return the default value.
-            getSettingValue() {
-              # Setting key: $1
-              # Default value: $2
-              # Return: modify $SETTING_VALUE
-              export override_varname=$override_prefix"_"$1
-              echo "Checking for override $override_varname"
-              if [ -z "${!override_varname}" ] ; then
-                  SETTING_VALUE=$2
-              else
-                  SETTING_VALUE=${!override_varname}
-              fi
-            }
-
-            # For each config item, set an env var to the appropriate
-            # metadata value or default value.  This sets us up for envsubst
-            for setting in "${!NEO4J_SETTINGS[@]}" ; do
-              echo setting $setting
-              echo default 
-              getSettingValue $setting "${NEO4J_SETTINGS[$setting]}"
-              echo "Setting $setting to $SETTING_VALUE"
-              echo ""
-
-              # Set the variable named setting to the result.
-              # See: https://stackoverflow.com/questions/9714902/how-to-use-a-variables-value-as-another-variables-name-in-bash
-              export $setting="$SETTING_VALUE"
-            done
-
-            # These settings are *not* overrideable, because they must match the addresses the
-            # core members see to avoid akka rejections, and to facilitate basic cluster formation.
-            # K8S discovery requires an LB service per pod, and a service account with permissions to query the discovery API
-            export NEO4J_causal__clustering_kubernetes_label__selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE"
-            export NEO4J_causal__clustering_discovery__type=K8S
-            export NEO4J_causal__clustering_kubernetes_service__port__name="discovery"
+            # Processes key configuration elements and exports env vars we need.
+            . /helm-init/init.sh
 
             # We advertise the discovery-lb addresses (see discovery-lb.yaml) because
+            # it is for internal cluster comms and is limited to private ports.
             export DISCOVERY_HOST="discovery-{{ template "neo4j.fullname" . }}-${core_idx}.{{ .Release.Namespace }}.svc.cluster.local"
             export NEO4J_causal__clustering_discovery__advertised__address="$DISCOVERY_HOST:5000"
             export NEO4J_causal__clustering_transaction__advertised__address="$DISCOVERY_HOST:6000"
             export NEO4J_causal__clustering_raft__advertised__address="$DISCOVERY_HOST:7000"
 
-            if [ "${AUTH_ENABLED:-}" == "true" ]; then
-              export NEO4J_AUTH="neo4j/${NEO4J_SECRETS_PASSWORD}"
-            else
-              export NEO4J_AUTH="none"
-            fi
-
-            # Once passed through to auth, unset this so Neo4j doesn't misinterpret it as config.
-            unset NEO4J_SECRETS_PASSWORD
-            echo "Starting Neo4j CORE on $HOST"
+            echo "Starting Neo4j CORE $core_idx on $HOST"
             exec /docker-entrypoint.sh "neo4j"
         ports:
         - containerPort: 5000
@@ -139,6 +73,8 @@ spec:
         - containerPort: 7687
           name: bolt
         volumeMounts:
+        - name: init-script
+          mountPath: /helm-init
         - name: datadir
           mountPath: "{{ .Values.core.persistentVolume.mountPath }}"
           {{- if .Values.core.persistentVolume.subPath }}
@@ -164,6 +100,9 @@ spec:
 {{ toYaml .Values.core.initContainers | indent 6 }}
 {{- end }}
       volumes:
+        - name: init-script
+          configMap: 
+            name: "{{ .Release.Name }}-init-script"
         {{- if not .Values.core.persistentVolume.enabled }}
         - name: datadir
           emptyDir: {}
