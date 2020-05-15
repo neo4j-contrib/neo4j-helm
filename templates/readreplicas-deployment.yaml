@@ -32,6 +32,8 @@ spec:
         # Most pod config is factored into a different configMap, which is user overrideable.
         envFrom:
           - configMapRef:
+              name: {{ template "neo4j.commonConfig.fullname" . }}
+          - configMapRef:
               {{- if .Values.readReplica.configMap }}
               name: "{{ .Values.readReplica.configMap }}"
               {{- else }}
