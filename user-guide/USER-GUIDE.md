@@ -6,6 +6,17 @@ Neo4j-helm allows users to deploy multi-node Neo4j Enterprise Causal Clusters to
 
 This guide is intended only as a supplement to the [Neo4j Operations Manual](https://neo4j.com/docs/operations-manual/4.0/?ref=googlemarketplace).   Neo4j-helm is essentially a docker container based deploy of Neo4j Causal Cluster.  As such, all of the information in the Operations Manual applies to its operation, and this guide will focus only on kubernetes-specific concerns.
 
+## Prerequisites
+
+* Kubernetes 1.6+ with Beta APIs enabled
+* Docker and kubectl installed locally
+* Helm >= 3.1 installed
+* PV provisioner support in the underlying infrastructure
+* Requires the following variables
+  You must add `acceptLicenseAgreement` in the values.yaml file and set it to `yes` or include `--set acceptLicenseAgreement=yes` in the command line of helm install to accept the license.
+* This chart requires that you have a license for Neo4j Enterprise Edition.  Trial licenses 
+[can be obtained here](https://neo4j.com/lp/enterprise-cloud/?utm_content=kubernetes)
+
 ## Licensing & Cost
 
 Neo4j Enterprise Edition (EE) is available to any existing enterprise license holder of Neo4j in a Bring Your Own License (BYOL) arrangement.  Neo4j EE is also available under evaluation licenses, contact Neo4j in order to obtain one.   There is no hourly or metered cost associated with using Neo4j EE for current license holders.
@@ -102,6 +113,11 @@ table above because they are documented in the operational manual, but here are 
 * To publish graphite metrics, `--set metrics.graphite.enabled=true,metrics.graphite.server=localhost:2003,metrics.graphite.interval=3s`
 * To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
 * To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
+
+## Data Persistence
+
+The most important data is kept in the `/data` volume attached to each of the core cluster members.  These in turn
+are mapped to PersistentVolumeClaims in Kubernetes, and they are *not* deleted when you run `helm uninstall mygraph`.
 
 ## Passing Custom Configuration as a ConfigMap
 
