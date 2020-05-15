@@ -19,15 +19,15 @@ data:
   NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: "3"
   NEO4J_causal__clustering_minimum__core__cluster__size__at__runtime: "2"
   NEO4J_dbms_jvm_additional: "-XX:+ExitOnOutOfMemoryError"
+  NEO4J_metrics_graphite_enabled: "{{ .Values.metrics.graphite.enabled }}"
+  NEO4J_metrics_graphite_server: "{{ .Values.metrics.graphite.server }}"
+  NEO4J_metrics_graphite_interval: "{{ .Values.metrics.graphite.interval }}"
+  NEO4J_metrics_prometheus_enabled: "{{ .Values.metrics.prometheus.enabled }}"
+  NEO4J_metrics_prometheus_endpoint: "{{ .Values.metrics.prometheus.endpoint }}"
+  NEO4J_metrics_csv_enabled: "{{ .Values.metrics.csv.enabled }}"
+  NEO4J_metrics_csv_interval: "{{ .Values.metrics.csv.interval }}"
+  NEO4J_metrics_jmx_enabled: "{{ .Values.metrics.jmx.enabled }}"
   {{- if .Values.useAPOC }}
   NEO4JLABS_PLUGINS: "[\"apoc\"]"
   NEO4J_apoc_import_file_use__neo4j__config: "true"
   {{- end }}
-  NEO4J_metrics_graphite_enabled: {{ .Values.metrics.graphite.enabled }}
-  NEO4J_metrics_graphite_server: {{ .Values.metrics.graphite.server }}
-  NEO4J_metrics_graphite_interval: {{ .Values.metrics.graphite.interval }}
-  NEO4J_metrics_prometheus_enabled: {{ .Values.metrics.prometheus.enabled }}
-  NEO4J_metrics_prometheus_endpoint: {{ .Values.metrics.prometheus.endpoint }}
-  NEO4J_metrics_csv_enabled: {{ .Values.metrics.csv.enabled }}
-  NEO4J_metrics_csv_interval: {{ .Values.metrics.csv.interval }}
-  NEO4J_metrics_jmx_enabled: {{ .Values.metrics.jmx.enabled }}
