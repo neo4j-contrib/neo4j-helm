@@ -24,7 +24,7 @@ To fix external clients, we need two things:
 1. The `dbms.connector.*_address` settings inside of each Neo4j node set to the externally routable address
 2. An externally valid DNS name or IP address that clients can connect to, that routes traffic to the kubernetes pod
 
-Some visual diagrams about what's going on [can be found here](https://docs.google.com/presentation/d/15c9XJ1qdR65UP6wfIDd4CLYHyRNmLNTZz5CV_527Bnk/edit?usp=sharing)
+Some visual diagrams about what's going on [can be found in the architectural documentation here](https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing).
 
 We're going to address point 1 with some special configuration of the Neo4j pods themselves.  I'll explain
 the Neo4j config bits first, and then we'll tie it together with the external.  The most complex bit of this
@@ -80,6 +80,17 @@ export IP1=34.71.151.230
 export IP2=35.232.116.39
 ```
 
+We will also need 3 exposure addresses that we want to advertise to the clients.  I'm going to set these
+to be the same as the IP addresses, but if you have mapped DNS, you could use DNS names instead here.
+
+It's important for later steps that we have *both* IPs *and* addresses, because they're used differently.
+
+```
+export ADDR0=$IP0
+export ADDR1=$IP1
+export ADDR2=$IP2
+```
+
 ### Per-Host Configuration
 
 Recall that the Helm chart will let us configure core nodes with a custom config map.   That's good.
@@ -88,8 +99,8 @@ So in the helm chart, we've divided the neo4j settings into basic settings, and 
 the custom configmap example, you'll see lines like this:
 
 ```
-$DEPLOYMENT_neo4j_core_0_NEO4J_dbms_default__advertised__address: $IP0
-$DEPLOYMENT_neo4j_core_1_NEO4J_dbms_default__advertised__address: $IP1
+$DEPLOYMENT_neo4j_core_0_NEO4J_dbms_default__advertised__address: $ADDR0
+$DEPLOYMENT_neo4j_core_1_NEO4J_dbms_default__advertised__address: $ADDR0
 ```
 
 In a minute, after expanding $DEPLOYMENT to be "graph", 
@@ -165,11 +176,11 @@ export DEPLOYMENT=graph
 # Reuse IP0, etc. from the earlier step here.
 # These *must be IP addresses* and not hostnames, because we're
 # assigning load balancer IP addresses to bind to.
-export CORE_IP_ADDRESSES=($IP0 $IP1 $IP2)
+export CORE_ADDRESSES=($IP0 $IP1 $IP2)
 
 for x in 0 1 2 ; do 
    export IDX=$x
-   export IP=${CORE_IP_ADDRESSES[$x]}
+   export IP=${CORE_ADDRESSES[$x]}
    echo $DEPLOYMENT with IDX $IDX and IP $IP ;
 
    cat external-exposure/load-balancer.yaml | envsubst | kubectl apply -f -

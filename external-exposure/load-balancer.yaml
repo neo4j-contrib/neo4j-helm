@@ -6,7 +6,6 @@ metadata:
     app.kubernetes.io/instance: $DEPLOYMENT
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: neo4j
-    helm.sh/chart: neo4j-3.0.0
     statefulset.kubernetes.io/pod-name: $DEPLOYMENT-neo4j-core-$IDX
   name: $DEPLOYMENT-neo4j-external-$IDX
 spec:

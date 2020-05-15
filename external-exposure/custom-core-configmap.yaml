@@ -1,6 +1,9 @@
 # This ConfigMap gets passed to all core cluster members to configure them.
 # Take note that some networking settings like internal hostname still get configured
 # when the pod starts, but most non-networking specific configs can be tailored here.
+#
+# When your pods start, you will inherit the config in common-configmap.yaml, so you don't
+# need to repeat any of that here, just focus on overrides that are different than what's there.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,19 +11,6 @@ metadata:
 data:
   NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
   NEO4J_dbms_mode: CORE
-  NUMBER_OF_CORES: "3"
-  AUTH_ENABLED: "true"
-  NEO4J_dbms_default__database: "neo4j"
-  NEO4J_causal__clustering_discovery__type: LIST
-  NEO4J_dbms_connector_bolt_listen__address: 0.0.0.0:7687
-  NEO4J_dbms_connector_http_listen__address: 0.0.0.0:7474
-  NEO4J_dbms_connector_https_listen__address: 0.0.0.0:7473
-  NEO4J_causal__clustering_initial__discovery__members: "${DEPLOYMENT}-neo4j-core-0.${DEPLOYMENT}-neo4j.${NAMESPACE}.svc.cluster.local:5000,${DEPLOYMENT}-neo4j-core-1.${DEPLOYMENT}-neo4j.${NAMESPACE}.svc.cluster.local:5000,${DEPLOYMENT}-neo4j-core-2.${DEPLOYMENT}-neo4j.${NAMESPACE}.svc.cluster.local:5000"
-  NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: "3"
-  NEO4J_causal__clustering_minimum__core__cluster__size__at__runtime: "2"
-  NEO4J_dbms_jvm_additional: "-XX:+ExitOnOutOfMemoryError"
-  NEO4JLABS_PLUGINS: "[\"apoc\"]"
-  NEO4J_apoc_import_file_use__neo4j__config: "true"
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_default__advertised__address: $ADDR0
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_connector_bolt_advertised__address: $ADDR0:7687
   ${DEPLOYMENT}_neo4j_core_0_NEO4J_dbms_connector_http_advertised__address: $ADDR0:7474
