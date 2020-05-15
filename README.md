@@ -96,7 +96,7 @@ report test results, and teardown / destroy PVCs.
 ```
 export NAME=a
 export NAMESPACE=default
-helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword && \
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set readReplica.numberOfServers=1 && \
 kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
 helm test $NAME --logs | tee testlog.txt
 helm uninstall $NAME

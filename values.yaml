@@ -172,3 +172,24 @@ livenessProbe:
   timeoutSeconds: 2
   tcpSocket:
     port: 7687
+
+## (OPTIONAL) Expose Neo4j metrics
+# The structure of this object matches the Neo4j config syntax
+# Found in chapter 13 of the operations manual:
+# https://neo4j.com/docs/operations-manual/current/monitoring/metrics/expose/
+metrics:
+  graphite:
+    enabled: false
+    server: localhost:2003
+    interval: 3s
+    # This will be set to the app name later.
+    # metrics.prefix=Neo4j_1   
+  prometheus:
+    ## Publish metrics for polling as Prometheus endpoint
+    enabled: false
+    endpoint: localhost:2004
+  csv:
+    enabled: true
+    interval: 3s
+  jmx:
+    enabled: true
