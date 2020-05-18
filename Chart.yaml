@@ -4,6 +4,10 @@ home: https://www.neo4j.com
 version: 4.0.4-1
 appVersion: 4.0.4
 description: Neo4j is the world's leading graph database
+keywords:
+  - graph
+  - database
+  - cypher
 icon: http://info.neo4j.com/rs/773-GON-065/images/neo4j_logo.png
 sources:
   - https://github.com/neo4j/neo4j
@@ -12,5 +16,7 @@ sources:
 maintainers:
   - name: moxious
     email: david.allen@neo4j.com
+  - name: bfeshti
+    email: bledi.feshti@neo4j.com
   - name: mneedham
     email: mark.needham@neo4j.com
