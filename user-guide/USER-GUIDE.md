@@ -40,7 +40,7 @@ provided while installing the chart. For example,
 $ helm install --name neo4j-helm -f values.yaml .
 ```
 
-> **Tip**: You can use the default [values.yaml](values.yaml)
+> **Tip**: You can use the default [values.yaml](../values.yaml)
 
 ## Helm Configuration
 
