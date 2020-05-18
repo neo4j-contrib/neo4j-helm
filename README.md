@@ -6,8 +6,10 @@ This repository contains a Helm chart that starts Neo4j >= 4.0 Enterprise Editio
 
 ## Quick Start
 
+Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) and copy the URL of the tgz package.
+
 ```bash
-$ helm install mygraph . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
+$ helm install mygraph RELEASE_URL --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
 
 When you're done:  `helm uninstall mygraph`.
@@ -15,6 +17,9 @@ When you're done:  `helm uninstall mygraph`.
 ## Documentation
 
 The [User Guide](user-guide/USER-GUIDE.md) contains all the documentation for this helm chart.
+
+The [Neo4j Community Site](https://community.neo4j.com/c/neo4j-graph-platform/cloud/76) is a great place to go for
+discussion and questions about Neo4j & Kubernetes.
 
 Additional instructions, general documentation, and operational facets are covered in the following
 articles:
