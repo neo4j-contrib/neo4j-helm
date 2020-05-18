@@ -75,6 +75,10 @@ jobs:
              tar zxvf helm-v3.2.1-linux-amd64.tar.gz
              mv linux-amd64/helm .
              helm version
+      
+      - run:
+          name: Lint
+          command: helm lint . 
 
       - run:
           name: Create test namespace
