@@ -71,6 +71,11 @@ for idx in 0 1 2 ; do
 done
 ```
 
+**If you are doing this with Azure** please note that the static IP addresses must be in the same 
+resource group as your kubernetes cluster, and can be created with 
+[az network public-ip create](https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az-network-public-ip-create) like this (just one single sample):
+`az network public-ip create -g resource_group_name -n core01 --sku standard --dns-name neo4jcore01 --allocation-method Static`
+
 For the remainder of this tutorial, let's assume that the core IP addresses I've allocated here are
 as follows; I'll refer to them as these environment variables:
 
