@@ -65,7 +65,7 @@ jobs:
           command: |
              echo "GKE SETUP"
              export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
-             ./test/provision-k8s.sh $CLUSTER_NAME
+             ./tools/test/provision-k8s.sh $CLUSTER_NAME
 
       - run:
           name: Install Helm Binaries
