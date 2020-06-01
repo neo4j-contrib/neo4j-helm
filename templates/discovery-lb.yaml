@@ -1,4 +1,4 @@
-# This creates a discovery LB for each member in the core set, and ties to 
+# This creates a discovery Service for each member in the core set, and ties to
 # the use of the Neo4j discovery type "K8S" with the configured selectors.
 {{- $dot := . }}
 {{- $times := int .Values.core.numberOfServers }}
@@ -16,9 +16,27 @@ metadata:
     helm.sh/chart: "{{ $dot.Chart.Name }}-{{ $dot.Chart.Version }}"
     app.kubernetes.io/name: {{ template "neo4j.name" $dot }}
     app.kubernetes.io/component: core
+{{- with $dot.Values.core.discoveryService.labels }}
+    {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with $dot.Values.core.discoveryService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 spec:
-  publishNotReadyAddresses: true
+{{- if (or (eq $dot.Values.core.discoveryService.type "ClusterIP") (empty $dot.Values.core.discoveryService.type)) }}
+  type: ClusterIP
+  clusterIP: None
+{{- else if eq $dot.Values.core.discoveryService.type "LoadBalancer" }}
   type: LoadBalancer
+  {{- with $dot.Values.core.discoveryService.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{ toYaml . | nindent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ $dot.Values.core.discoveryService.type }}
+{{- end }}
+  publishNotReadyAddresses: true
   ports:
     - name: discovery
       port: 5000
@@ -52,4 +70,4 @@ spec:
 {{- end }}
   selector:
     statefulset.kubernetes.io/pod-name: "{{ template "neo4j.fullname" $dot }}-core-{{ . }}"
-{{- end }}    
+{{- end }}

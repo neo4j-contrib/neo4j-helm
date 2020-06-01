@@ -67,6 +67,14 @@ their default values.
 | `core.persistentVolume.mountPath`     | Persistent Volume mount root path                                                                                                       | `/data`                                         |
 | `core.persistentVolume.subPath`       | Subdirectory of the volume to mount                                                                                                     | `nil`                                           |
 | `core.persistentVolume.annotations`   | Persistent Volume Claim annotations                                                                                                     | `{}`                                            |
+| `core.service.type` | Service type | `ClusterIP` |
+| `core.service.annotations` | Service annotations | `{}` |
+| `core.service.labels` | Custom Service labels | `{}` |
+| `core.service.loadBalancerSourceRanges` | List of IP CIDRs allowed access to LB (if `core.service.type: LoadBalancer`) | `[]` |
+| `core.discoveryService.type` | Service type | `ClusterIP` |
+| `core.discoveryService.annotations` | Service annotations | `{}` |
+| `core.discoveryService.labels` | Custom Service labels | `{}` |
+| `core.discoveryService.loadBalancerSourceRanges` | List of IP CIDRs allowed access to LB (if `core.discoveryService.type: LoadBalancer`) | `[]` |
 | `readReplica.configMap`               | Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used.            | `$NAME-neo4j-replica-config`                    |
 | `readReplica.numberOfServers`         | Number of machines in READ_REPLICA mode                                                                                                 | `0`                                             |
 | `readReplica.autoscaling.enabled`  | Enable horizontal pod autoscaler  | `false`  |
@@ -74,6 +82,10 @@ their default values.
 | `readReplica.autoscaling.minReplicas` | Min replicas for autoscaling  | `1`  |
 | `readReplica.autoscaling.maxReplicas`  | Max replicas for autoscaling  | `3` |
 | `readReplica.initContainers`          | Init containers to add to the replica pods. Example use case is a script that installs custom plugins/extensions                        | `{}`                                            |
+| `readReplica.service.type` | Service type | `ClusterIP` |
+| `readReplica.service.annotations` | Service annotations | `{}` |
+| `readReplica.service.labels` | Custom Service labels | `{}` |
+| `readReplica.service.loadBalancerSourceRanges` | List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`) | `[]` |
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 
