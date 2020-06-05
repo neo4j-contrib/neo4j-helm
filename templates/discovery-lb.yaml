@@ -18,7 +18,7 @@ metadata:
     app.kubernetes.io/component: core
 spec:
   publishNotReadyAddresses: true
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: discovery
       port: 5000
