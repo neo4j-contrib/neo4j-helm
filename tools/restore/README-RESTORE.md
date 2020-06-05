@@ -3,6 +3,10 @@
 This directory contains files necessary for restoring Neo4j Docker containers
 from google storage, or local files placed on the volume.
 
+**This approach assumes you have Google Cloud credentials and wish to store your backups
+on Google Cloud Storage**.  If this is not the case, you will need to adjust the restore
+script for your desired cloud storage method, but the approach will work for any backup location.
+
 ## Approach
 
 The restore container is used as an `initContainer` in the main cluster.  Prior to
@@ -21,7 +25,7 @@ First you want to create a kubernetes secret that contains the content of your a
 
 ```
 MY_SERVICE_ACCOUNT_KEY=$HOME/.google/my-service-key.json
-kubectl create secret generic restore-service-key \
+kubectl create secret generic neo4j-service-key \
    --from-file=credentials.json=$MY_SERVICE_ACCOUNT_KEY
 ```
 
@@ -55,7 +59,7 @@ coreInitContainers:
      volumeMounts:
      - name: datadir
        mountPath: /data
-     - name: restore-service-key
+     - name: neo4j-service-key
        mountPath: /auth
      env:
      - name: REMOTE_BACKUPSET

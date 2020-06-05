@@ -1,4 +1,4 @@
-# Sample pod to be applied manually when desired
+# Sample pod to be applied manually or scheduled when desired
 # Executes a backup against the DB when tailored to the right endpoint.
 # Copies resulting full backup to $BUCKET
 apiVersion: v1
@@ -26,18 +26,7 @@ spec:
   volumes:
   - name: creds
     secret:
-      secretName: neo4j-backup-sa
+      secretName: neo4j-service-key
       items:
       - key: credentials.json
         path: credentials.json
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "neo4j-backup-sa"
-  labels:
-    app.kubernetes.io/name: "neo4j-backup-sa"
-  annotations:
-    marketplace.cloud.google.com/verification: test
-data:
-  credentials.json: nMIIE
