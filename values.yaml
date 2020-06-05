@@ -103,9 +103,28 @@ core:
   #       curl -L https://somesite.com/path/to/plugin.jar -O
   #       cp plugin.jar /plugins/
 
+  ## This service is intended for clients running in kubernetes to connect to
+  ## the cluster.
+  ## Default: ClusterIP (headless)
+  service:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
+
+  ## This creates a discovery Service for each member in the core set, and ties
+  ## to the use of the Neo4j discovery type "K8S" with the configured selectors.
+  ## Default: ClusterIP (headless)
+  discoveryService:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
+
 # Read Replicas
 readReplica:
   # configMap: "my-custom-configmap"
+
   resources: {}
   # limits:
   #   cpu: 100m
@@ -113,6 +132,7 @@ readReplica:
   # requests:
   #   cpu: 100m
   #   memory: 512Mi
+
   autoscaling:
     enabled: false
     targetAverageUtilization: 70
@@ -143,6 +163,15 @@ readReplica:
   #     - |
   #       curl -L https://somesite.com/path/to/plugin.jar -O
   #       cp plugin.jar /plugins/
+
+  ## This service is intended for clients running in kubernetes to connect to
+  ## the cluster replica set.
+  ## Default: ClusterIP (headless)
+  service:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
 
 resources: {}
   # limits:
@@ -183,7 +212,7 @@ metrics:
     server: localhost:2003
     interval: 3s
     # This will be set to the app name later.
-    # metrics.prefix=Neo4j_1   
+    # metrics.prefix=Neo4j_1
   prometheus:
     ## Publish metrics for polling as Prometheus endpoint
     enabled: false
