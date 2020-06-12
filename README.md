@@ -96,10 +96,12 @@ report test results, and teardown / destroy PVCs.
 
 #### Standalone
 
+Standalone forms faster so we can manually lower the liveness/readiness timeouts.
+
 ```
 export NAME=a
 export NAMESPACE=default
-helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set core.standalone=true && \
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set core.standalone=true --set readinessProbe.initialDelaySeconds=20 --set livenessProbe.initialDelaySeconds=20 && \
 kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
 helm test $NAME --logs | tee testlog.txt
 helm uninstall $NAME
