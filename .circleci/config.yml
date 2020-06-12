@@ -118,13 +118,13 @@ jobs:
                  -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt
                      
 
-      - run:
-          name: Twiddling our Thumbs
-          command: |
-            sleep 10
-            NAMESPACE=ns-$CIRCLE_BUILD_NUM
-            kubectl logs --namespace $NAMESPACE \
-              -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
+      #- run:
+      #    name: Twiddling our Thumbs
+      #    command: |
+      #      sleep 60
+      #      NAMESPACE=ns-$CIRCLE_BUILD_NUM
+      #      kubectl logs --namespace $NAMESPACE \
+      #        -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
           name: Wait for GKE STANDALONE deployment to succeed and become ready
