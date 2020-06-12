@@ -83,12 +83,15 @@ data:
       export $setting="$SETTING_VALUE"
     done
 
+    {{- if not .Values.core.standalone }}
+    # This discovery mechanism only applies for clustered installs.
     # These settings are *not* overrideable, because they must match the addresses the
     # core members see to avoid akka rejections, and to facilitate basic cluster formation.
     # K8S discovery requires an LB service per pod, and a service account with permissions to query the discovery API
     export NEO4J_causal__clustering_kubernetes_label__selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE"
     export NEO4J_causal__clustering_discovery__type=K8S
     export NEO4J_causal__clustering_kubernetes_service__port__name="discovery"
+    {{- end }}
 
     if [ "${AUTH_ENABLED:-}" == "true" ]; then
       export NEO4J_AUTH="neo4j/${NEO4J_SECRETS_PASSWORD}"
