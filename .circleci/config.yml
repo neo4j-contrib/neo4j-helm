@@ -42,7 +42,7 @@ jobs:
             # We will install local tools so add those to path.
             echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
             mkdir $BUILD_ARTIFACTS
-            mkdir tools
+            mkdir -p tools
 
       - run: 
           name: Setup GCP Tooling
