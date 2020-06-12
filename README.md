@@ -8,6 +8,14 @@ This repository contains a Helm chart that starts Neo4j >= 4.0 Enterprise Editio
 
 Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) and copy the URL of the tgz package.
 
+### Standalone (single server)
+
+```bash
+$ helm install mygraph RELEASE_URL --set core.standalone=true --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
+```
+
+### Causal Clustere (3 core, 0 read replicas)
+
 ```bash
 $ helm install mygraph RELEASE_URL --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
@@ -86,6 +94,24 @@ helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword
 The following mini-script will provision a test cluster, monitor it for rollout, test it,
 report test results, and teardown / destroy PVCs.
 
+#### Standalone
+
+Standalone forms faster so we can manually lower the liveness/readiness timeouts.
+
+```
+export NAME=a
+export NAMESPACE=default
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set core.standalone=true --set readinessProbe.initialDelaySeconds=20 --set livenessProbe.initialDelaySeconds=20 && \
+kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
+helm test $NAME --logs | tee testlog.txt
+helm uninstall $NAME
+sleep 20
+for idx in 0 1 2 ; do
+  kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
+done
+```
+
+#### Causal Cluster
 ```
 export NAME=a
 export NAMESPACE=default

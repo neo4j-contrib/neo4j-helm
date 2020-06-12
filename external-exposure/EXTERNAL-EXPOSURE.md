@@ -222,7 +222,7 @@ After all of these steps, you should end up with a cluster properly exposed.   W
 like so, and connect to any of the 3 static IPs.
 
 ```
-export NEO4J_PASSWORD=$(kubectl get secrets graph-neo4j-secrets -o yaml | grep password | sed 's/.*: //' | base64 -D)
+export NEO4J_PASSWORD=$(kubectl get secrets graph-neo4j-secrets -o yaml | grep password | sed 's/.*: //' | base64 -d)
 cypher-shell -a neo4j://34.66.183.174:7687 -u neo4j -p "$NEO4J_PASSWORD"
 ```
 

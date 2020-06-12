@@ -1,3 +1,5 @@
+{{- if not .Values.core.standalone }}
+# The ReadReplica deployment only happens for clustered installs.
 apiVersion: "apps/v1"
 kind: Deployment
 metadata:
@@ -132,3 +134,4 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecret }}
 {{- end -}}
+{{- end }} # if not standalone mode

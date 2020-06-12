@@ -23,11 +23,16 @@ Neo4j Enterprise Edition (EE) is available to any existing enterprise license ho
 
 ## Installation
 
+*By default this command installs [Neo4j Causal Cluster](https://neo4j.com/docs/operations-manual/current/clustering/)*, but
+single-machine, standalone installs are supported.
+
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 install`. For example,
 
+### Causal Cluster
+
 ```bash
-$ helm install my-neo4j --set core.numberOfServers=3,readReplica.numberOfServers=3 .
+$ helm install my-neo4j --set core.numberOfServers=3,readReplica.numberOfServers=3,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
 ```
 
 The above command creates a cluster containing 3 core servers and 3 read
@@ -41,6 +46,19 @@ $ helm install --name neo4j-helm -f values.yaml .
 ```
 
 > **Tip**: You can use the default [values.yaml](../values.yaml)
+
+### Standalone (Single Machine)
+
+```bash
+$ helm install my-neo4j --set core.standalone=true,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
+```
+
+Important notes about standalone mode:
+
+1. When running in standalone mode, `core.numberOfServers` is *ignored* and you will get 1 server.
+2. Read replicas may only be used with causal cluster.  When running standalone, all read replica
+arguments are *ignored*.
+3. All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
 
 ## Helm Configuration
 
@@ -58,6 +76,7 @@ their default values.
 | `defaultDatabase`                     | The name of the default database to configure in Neo4j (dbms.default_database)                                                          | `neo4j`                                         |
 | `neo4jPassword`                       | Password to log in the Neo4J database if password is required                                                                           | (random string of 10 characters)                |
 | `core.configMap`                      | Configmap providing configuration for core cluster members.  If not specified, defaults that come with the chart will be used.          | `$NAME-neo4j-core-config`                       |
+| `core.standalone`                     | Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies. | false |
 | `core.numberOfServers`                | Number of machines in CORE mode                                                                                                         | `3`                                             |
 | `core.sideCarContainers`              | Sidecar containers to add to the core pod. Example use case is a sidecar which identifies and labels the leader when using the http API | `{}`                                            |
 | `core.initContainers`                 | Init containers to add to the core pod. Example use case is a script that installs custom plugins/extensions                            | `{}`                                            |
@@ -67,13 +86,25 @@ their default values.
 | `core.persistentVolume.mountPath`     | Persistent Volume mount root path                                                                                                       | `/data`                                         |
 | `core.persistentVolume.subPath`       | Subdirectory of the volume to mount                                                                                                     | `nil`                                           |
 | `core.persistentVolume.annotations`   | Persistent Volume Claim annotations                                                                                                     | `{}`                                            |
+| `core.service.type` | Service type | `ClusterIP` |
+| `core.service.annotations` | Service annotations | `{}` |
+| `core.service.labels` | Custom Service labels | `{}` |
+| `core.service.loadBalancerSourceRanges` | List of IP CIDRs allowed access to LB (if `core.service.type: LoadBalancer`) | `[]` |
+| `core.discoveryService.type` | Service type | `ClusterIP` |
+| `core.discoveryService.annotations` | Service annotations | `{}` |
+| `core.discoveryService.labels` | Custom Service labels | `{}` |
+| `core.discoveryService.loadBalancerSourceRanges` | List of IP CIDRs allowed access to LB (if `core.discoveryService.type: LoadBalancer`) | `[]` |
 | `readReplica.configMap`               | Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used.            | `$NAME-neo4j-replica-config`                    |
-| `readReplica.numberOfServers`         | Number of machines in READ_REPLICA mode                                                                                                 | `0`                                             |
+| `readReplica.numberOfServers`         | Number of machines in READ_REPLICA. May not be used with core.standalone=true mode                                                                                                 | `0`                                             |
 | `readReplica.autoscaling.enabled`  | Enable horizontal pod autoscaler  | `false`  |
 | `readReplica.autoscaling.targetAverageUtilization`  | Target CPU utilization  | `70`  |
 | `readReplica.autoscaling.minReplicas` | Min replicas for autoscaling  | `1`  |
 | `readReplica.autoscaling.maxReplicas`  | Max replicas for autoscaling  | `3` |
 | `readReplica.initContainers`          | Init containers to add to the replica pods. Example use case is a script that installs custom plugins/extensions                        | `{}`                                            |
+| `readReplica.service.type` | Service type | `ClusterIP` |
+| `readReplica.service.annotations` | Service annotations | `{}` |
+| `readReplica.service.labels` | Custom Service labels | `{}` |
+| `readReplica.service.loadBalancerSourceRanges` | List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`) | `[]` |
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 
@@ -101,7 +132,8 @@ You may set any of the following settings:
 * `dbms.memory.heap.max_size`
 * `dbms.memory.pagecache.size`
 
-Their meanings, formats, and defaults are the same as found in the operations manual.
+Their meanings, formats, and defaults are the same as found in the operations manual.  See the section
+"Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
 
 ## Monitoring Configuration
 
@@ -151,7 +183,7 @@ exposed externally.  See below for information on proxying and other limitations
 After installing, your cluster will start with a strong password that was randomly generated in the startup process.   This is stored in a kubernetes secret that is attached to your deployment.   Given a deployment named “my-graph”, you can find the password as the “neo4j-password” key under the mygraph-neo4j-secrets configuration item in Kubernetes.   The password is base64 encoded, and can be recovered as plaintext by authorized users with this command:
 
 ```
-export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -D)
+export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
 ```
 
 This password applies for the base administrative user named “neo4j”.
