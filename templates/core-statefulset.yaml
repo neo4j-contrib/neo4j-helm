@@ -5,7 +5,11 @@ metadata:
 spec:
   podManagementPolicy: Parallel
   serviceName: {{ template "neo4j.fullname" . }}
+  {{- if .Values.core.standalone }}
+  replicas: 1
+  {{- else }}
   replicas: {{ .Values.core.numberOfServers }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name | quote }}
