@@ -1,7 +1,11 @@
 # This creates a discovery Service for each member in the core set, and ties to
 # the use of the Neo4j discovery type "K8S" with the configured selectors.
+# Done as many times as there are core machines, or just once if standalone.
 {{- $dot := . }}
 {{- $times := int .Values.core.numberOfServers }}
+{{- if .Values.core.standalone }}
+{{- $times := int 1 }}
+{{- end }}
 {{- range untilStep 0 $times 1 }}
 ---
 apiVersion: v1
