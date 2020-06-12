@@ -11,7 +11,7 @@ RUN echo "deb http://httpredir.debian.org/debian stretch-backports main" | tee -
 RUN echo "neo4j-enterprise neo4j/question select I ACCEPT" | debconf-set-selections
 RUN echo "neo4j-enterprise neo4j/license note" | debconf-set-selections
 
-RUN apt-get update && apt-get install -y neo4j-enterprise=1:4.0.4
+RUN apt-get update && apt-get install -y neo4j-enterprise=1:4.0.5
 RUN apt-get install -y google-cloud-sdk
 
 RUN mkdir /data

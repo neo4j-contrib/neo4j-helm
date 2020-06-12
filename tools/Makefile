@@ -3,7 +3,7 @@ REGISTRY = gcr.io/neo4j-helm
 TEST_IMAGE ?= $(REGISTRY)/tester
 BACKUP_IMAGE ?= $(REGISTRY)/backup
 RESTORE_IMAGE ?= $(REGISTRY)/restore
-DOCKER_TAG ?= 4.0.0
+DOCKER_TAG ?= `cat ../Chart.yaml | grep version | sed 's/.*: //'`
 
 docker_build: 
 	docker build \
