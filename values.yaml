@@ -34,7 +34,7 @@ authEnabled: true
 ## Defaults to a random 10-character alphanumeric string if not set and authEnabled is true
 # neo4jPassword:
 
-# Specify cluster domain (used eg. as suffix in definition of NEO4J_causal__clustering_initial__discovery__members environment variable)
+# Specify cluster domain (used eg. as suffix in the eventual internal hostnames)
 clusterDomain: "cluster.local"
 
 # Specs for the images used for running tests against the Helm package
@@ -53,6 +53,7 @@ defaultDatabase: "neo4j"
 # Cores
 core:
   # configMap: "my-custom-configmap"
+  standalone: false
   numberOfServers: 3
   persistentVolume:
     ## whether or not persistence is enabled
@@ -186,6 +187,9 @@ resources: {}
 # that initialDelaySeconds give the cluster time to form, because
 # if readiness probes start immediately after container start,
 # they may end up not forming quickly enough and getting killed.
+# DEPENDENCY:  If you're running in standalone mode, the single machine
+# starts much faster.  You could set initialDelaySeconds to something like
+# 30 and it would be OK for a stand-alone machine, but not for a cluster.
 readinessProbe:
   initialDelaySeconds: 120
   failureThreshold: 3
