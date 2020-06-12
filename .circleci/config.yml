@@ -130,7 +130,7 @@ jobs:
           name: Wait for GKE STANDALONE deployment to succeed and become ready
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
-              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_STANDALONE-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
+              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_STANDALONE-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait-standalone.txt
       
       # We're going to test standalone first because it forms faster than cluster.  In the background,
       # cluster is still forming....
@@ -144,13 +144,13 @@ jobs:
           name: Wait for GKE CLUSTERED deployment to succeed and become ready
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-cluster-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_CLUSTERED-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait-cluster.txt
 
       - run:
           name: Test
           command: |
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
-            helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
+            helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-CLUSTER.txt
 
       - run:
           name: Uninstall / Cleanup
