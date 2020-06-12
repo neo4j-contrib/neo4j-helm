@@ -9,7 +9,8 @@ jobs:
       CLUSTER: ci-test
       ZONE: us-central1-a
       NODES: 3
-      NAME: testrun
+      NAME_CLUSTERED: testrunc
+      NAME_STANDALONE: testrunsa
       BUILD_ARTIFACTS: build
 
     steps:
@@ -97,33 +98,59 @@ jobs:
              helm package .
              chart_archive=$(ls neo4j*.tgz)
              cp *.tgz $BUILD_ARTIFACTS/
-             echo "Installing $chart_archive"
-             helm install $NAME $chart_archive \
+
+             echo "Installing $chart_archive (CAUSAL CLUSTER TEST SCENARIO)"
+             helm install $NAME_CLUSTERED $chart_archive \
                  --namespace $NAMESPACE \
                  --set acceptLicenseAgreement=yes \
                  --set neo4jPassword=mySecretPassword \
                  --set readReplica.numberOfServers=1 \
-                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
-             
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-cluster.txt
+
+             echo "Installing $chart_archive (STANDALONE SCENARIO)"
+             helm install $NAME_STANDALONE $chart_archive \
+                 --namespace $NAMESPACE \
+                 --set acceptLicenseAgreement=yes \
+                 --set readinessProbe.initialDelaySeconds=20 \
+                 --set livenessProbe.initialDelaySeconds=20 \
+                 --set neo4jPassword=mySecretPassword \
+                 --set core.standalone=true \
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt
+                     
+
       - run:
           name: Twiddling our Thumbs
           command: |
-            sleep 60
+            sleep 10
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl logs --namespace $NAMESPACE \
               -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
-          name: Wait for GKE deployment to succeed and become ready
+          name: Wait for GKE STANDALONE deployment to succeed and become ready
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_STANDALONE-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
+      
+      # We're going to test standalone first because it forms faster than cluster.  In the background,
+      # cluster is still forming....
+      - run: 
+          name: Test STANDALONE
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              helm test $NAME_STANDALONE --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-STANDALONE.txt
+
+      - run:
+          name: Wait for GKE CLUSTERED deployment to succeed and become ready
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-cluster-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
 
       - run:
           name: Test
           command: |
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
-            helm test $NAME --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
+            helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
 
       - run:
           name: Uninstall / Cleanup
