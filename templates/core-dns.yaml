@@ -42,6 +42,9 @@ spec:
     - name: https
       port: 7473
       targetPort: 7473
+    - name: backup
+      port: 6362
+      targetPort: 6362
   selector:
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}

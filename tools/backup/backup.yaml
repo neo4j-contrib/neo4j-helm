@@ -4,15 +4,18 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: neo4j-backup
+  name: graph-backup
 spec:
   restartPolicy: Never
   containers:
-    - name: neo4j-backup
+    - name: graph-backup
       image: gcr.io/neo4j-helm/backup:4.0.5-1
+      imagePullPolicy: Always
       env:
+      # Addr must include a host and port, but no scheme.  See the --from parameter here:
+      # See https://neo4j.com/docs/operations-manual/current/backup/performing/
       - name: NEO4J_ADDR
-        value: "a-neo4j.default.svc.cluster.local"
+        value: "backuptest-neo4j.default.svc.cluster.local:6362"
       - name: BUCKET
         value: gs://graph-backup-storage
       - name: DATABASE

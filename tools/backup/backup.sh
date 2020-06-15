@@ -37,7 +37,7 @@ if [ $? -ne 0 ] ; then
     echo "Ensure GOOGLE_APPLICATION_CREDENTIALS is appropriately set."
 fi
 
-echo "=============== Neo4j Backup ==============================="
+echo "=============== Neo4j Backup (4.0 series) ==================="
 echo "Beginning backup from $NEO4J_ADDR to /data/$BACKUP_SET"
 echo "Using heap size $HEAP_SIZE and page cache $PAGE_CACHE"
 echo "To google storage bucket $BUCKET using credentials located at $GOOGLE_APPLICATION_CREDENTIALS"
@@ -47,8 +47,13 @@ neo4j-admin backup \
     --from="$NEO4J_ADDR" \
     --backup-dir=/data \
     --database=$DATABASE \
-    --name="$BACKUP_SET" \
-    --pagecache=$PAGE_CACHE
+    --pagecache=$PAGE_CACHE \
+    --verbose
+
+if [ $? -ne 0 ] ; then
+   echo "BACKUP FAILED"
+   exit 1
+fi
 
 echo "Backup size:"
 du -hs "/data/$BACKUP_SET"
