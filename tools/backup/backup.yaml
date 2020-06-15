@@ -9,14 +9,16 @@ spec:
   restartPolicy: Never
   containers:
     - name: neo4j-backup
-      image: gcr.io/neo4j-helm/backup:4.0.0
+      image: gcr.io/neo4j-helm/backup:4.0.5-1
       env:
       - name: NEO4J_ADDR
-        value: "neo4j-lsgm-neo4j-core-0.neo4j-lsgm-neo4j.default.svc.cluster.local"
+        value: "a-neo4j.default.svc.cluster.local"
       - name: BUCKET
-        value: gs://tmp-k8s-backup-storage
+        value: gs://graph-backup-storage
+      - name: DATABASE
+        value: neo4j
       - name: BACKUP_NAME
-        value: my-data
+        value: neo4j
       - name: GOOGLE_APPLICATION_CREDENTIALS
         value: /auth/credentials.json
       volumeMounts:

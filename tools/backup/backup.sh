@@ -5,6 +5,11 @@ if [ -z $NEO4J_ADDR ] ; then
     exit 1
 fi
 
+if [ -z $DATABASE ] ; then
+    echo "You must specify a DATABASE env var"
+    exit 1
+fi
+
 if [ -z $BUCKET ]; then
     echo "You must specify a BUCKET address such as gs://my-backups/"
     exit 1
@@ -19,7 +24,7 @@ if [ -z $PAGE_CACHE ]; then
 fi
 
 if [ -z $BACKUP_NAME ]; then
-    export BACKUP_NAME=graph.db-backup
+    export BACKUP_NAME=neo4j-backup
 fi
 
 BACKUP_SET="$BACKUP_NAME-$(date "+%Y-%m-%d-%H:%M:%S")"
@@ -41,6 +46,7 @@ echo "============================================================"
 neo4j-admin backup \
     --from="$NEO4J_ADDR" \
     --backup-dir=/data \
+    --database=$DATABASE \
     --name="$BACKUP_SET" \
     --pagecache=$PAGE_CACHE
 

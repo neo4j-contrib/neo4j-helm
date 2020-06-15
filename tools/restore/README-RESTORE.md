@@ -54,7 +54,7 @@ set correctly given the way you created your secret.
 ```
 coreInitContainers: 
    - name: restore-from-file
-     image: gcr.io/neo4j-helm/restore:4.0.0
+     image: gcr.io/neo4j-helm/restore:4.0.5
      imagePullPolicy: Always
      volumeMounts:
      - name: datadir

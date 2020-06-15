@@ -124,3 +124,19 @@ for idx in 0 1 2 ; do
   kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
 done
 ```
+
+## Internal Tooling
+
+This repo contains internal tooling containers for backup, restore, and test of
+the helm chart.
+
+### Building the Containers
+
+If you want to push your own docker containers, make sure that the registry in 
+the Makefile is set to somewhere you have permissions on.
+
+```
+cd tools
+make docker_build
+make docker_push
+```

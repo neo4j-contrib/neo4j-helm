@@ -17,9 +17,31 @@ kubectl create secret generic neo4j-service-key \
    --from-file=credentials.json=$MY_SERVICE_ACCOUNT_KEY
 ```
 
-### 
+The backup container is going to take this kubernetes secret
+(named `neo4j-service-key`) and is going to mount it as a file
+inside of the backup container (`/auth/credentials.json`).  That
+file will then be used to authenticate the storage client that we
+need to upload the backupset to cloud storage when it's complete.
 
-See backup.yaml for an example.   
+### Running a Backup
+
+See backup.yaml for an example.   You must have first created a `neo4j-service-key`
+secret in the same namespace as your Neo4j is running.
+
+**Required environment variables**
+
+* `NEO4J_ADDR` pointing to an address where your cluster is running, ideally the
+discovery address.
+* `BUCKET` where you want the backup copied to.  It should be `gs://bucketname`
+
+**Optional environment variables**
+
+* `BACKUP_NAME` - the name of the backupset as a file.  (Default: neo4j)
+* `DATABASE` - the database to back up.  (Default: neo4j)
+
+```
+kubectl apply -f backup.yaml --namespace my-neo4j-namespace
+```
 
 The "credentials.json" file must be a base64-encoded version of a service key JSON that has permissions to write to the targeted google storage bucket.  The example provided is non-functional, and you must substitute your own.  To determine an appropriate value, perform the following:
 
