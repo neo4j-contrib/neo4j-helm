@@ -1,37 +1,38 @@
 # Sample pod to be applied manually or scheduled when desired
 # Executes a backup against the DB when tailored to the right endpoint.
 # Copies resulting full backup to $BUCKET
-apiVersion: v1
-kind: Pod
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: graph-backup
 spec:
-  restartPolicy: Never
-  containers:
-    - name: graph-backup
-      image: gcr.io/neo4j-helm/backup:4.0.5-1
-      imagePullPolicy: Always
-      env:
-      # Addr must include a host and port, but no scheme.  See the --from parameter here:
-      # See https://neo4j.com/docs/operations-manual/current/backup/performing/
-      - name: NEO4J_ADDR
-        value: "backuptest-neo4j.default.svc.cluster.local:6362"
-      - name: BUCKET
-        value: gs://graph-backup-storage
-      - name: DATABASE
-        value: neo4j
-      - name: BACKUP_NAME
-        value: neo4j
-      - name: GOOGLE_APPLICATION_CREDENTIALS
-        value: /auth/credentials.json
-      volumeMounts:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: graph-backup
+          image: gcr.io/neo4j-helm/backup:4.0.5-1
+          imagePullPolicy: Always
+          env:
+          # Addr must include a host and port, but no scheme.  See the --from parameter here:
+          # See https://neo4j.com/docs/operations-manual/current/backup/performing/
+          - name: NEO4J_ADDR
+            value: "a-neo4j.default.svc.cluster.local:6362"
+          - name: BUCKET
+            value: gs://graph-backup-storage
+          - name: DATABASE
+            value: neo4j,system
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /auth/credentials.json
+          volumeMounts:
+          - name: creds
+            mountPath: /auth
+            readOnly: true
+      volumes:
       - name: creds
-        mountPath: /auth
-        readOnly: true
-  volumes:
-  - name: creds
-    secret:
-      secretName: neo4j-service-key
-      items:
-      - key: credentials.json
-        path: credentials.json
+        secret:
+          secretName: neo4j-service-key
+          items:
+          - key: credentials.json
+            path: credentials.json
