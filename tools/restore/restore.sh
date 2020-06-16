@@ -74,6 +74,12 @@ function restore_database {
     # backup if preferred. The -m flag downloads in parallel if possible.
     gsutil -m cp -r "$REMOTE_BACKUPSET" "$RESTORE_ROOT"
 
+    if [ $? -ne 0 ] ; then
+        echo "Copy remote backupset $REMOTE_BACKUPSET FAILED"
+        echo "Cannot restore $db"
+        return
+    fi
+
     echo "Backup size pre-uncompress:"
     du -hs "$RESTORE_ROOT"
     ls -l "$RESTORE_ROOT"
@@ -90,7 +96,8 @@ function restore_database {
 
         if [ $? -ne 0 ] ; then
             echo "Failed to unarchive target backup set"
-            exit 1
+            echo "FAILED TO RESTORE $db"
+            return
         fi
 
         # foo.tar.gz untars/zips to a directory called foo.
@@ -108,7 +115,8 @@ function restore_database {
         
         if [ $? -ne 0 ]; then 
             echo "Failed to unzip target backup set"
-            exit 1
+            echo "FAILED TO RESTORE $db"
+            return
         fi
 
         # Remove file extension, get to directory name  
@@ -140,7 +148,8 @@ function restore_database {
     echo "Dry-run command"
     echo neo4j-admin restore \
         --from="$RESTORE_FROM" \
-        --database=graph.db $FORCE_FLAG
+        --database="$db" $FORCE_FLAG \
+        --verbose
 
     # This data is output because of the way neo4j-admin works.  It writes the restored set to
     # /var/lib/neo4j by default.  This can fail if volumes aren't sized appropriately, so this 
@@ -151,16 +160,18 @@ function restore_database {
     echo "Now restoring"
     neo4j-admin restore \
         --from="$RESTORE_FROM" \
-        --database=graph.db $FORCE_FLAG
+        --database="$db" $FORCE_FLAG \
+        --verbose
 
     RESTORE_EXIT_CODE=$?
 
     if [ "$RESTORE_EXIT_CODE" -ne 0 ]; then 
         echo "Restore process failed; will not continue"
-        exit $RESTORE_EXIT_CODE
+        echo "Failed to restore $db"
+        return $RESTORE_EXIT_CODE
     fi
 
-    echo "Rehoming database"
+    echo "Rehoming database $db"
     echo "Restored to:"
     ls -l /var/lib/neo4j/data/databases
 
@@ -172,29 +183,31 @@ function restore_database {
     # Optional: you can move the database out of the way to preserve the data just in case,
     # but we don't do it this way because for large DBs this will just rapidly fill the disk
     # and cause out of disk errors.
-    if [ -d "/data/databases/graph.db" ] ; then
-    if [ "$FORCE_OVERWRITE" = "true" ] ; then
-        echo "Removing previous database because FORCE_OVERWRITE=true"
-        rm -rf /data/databases/graph.db
-    fi
+    if [ -d "/data/databases/$db" ] ; then
+        if [ "$FORCE_OVERWRITE" = "true" ] ; then
+            echo "Removing previous database because FORCE_OVERWRITE=true"
+            rm -rf "/data/databases/$db"
+        fi
     fi
 
-    mv /var/lib/neo4j/data/databases/graph.db /data/databases/
+    mv "/var/lib/neo4j/data/databases/$db" /data/databases/
 
     # Modify permissions/group, because we're running as root.
     chown -R neo4j /data/databases
     chgrp -R neo4j /data/databases
 
     echo "Final permissions"
-    ls -al /data/databases/graph.db
+    ls -al "/data/databases/$db"
 
     echo "Final size"
-    du -hs /data/databases/graph.db
+    du -hs "/data/databases/$db"
 
     if [ "$PURGE_ON_COMPLETE" = true ] ; then
         echo "Purging backupset from disk"
         rm -rf "$RESTORE_ROOT"
     fi
+
+    echo "RESTORE OF $db COMPLETE"
 }
 
 echo "Activating google credentials before beginning"
