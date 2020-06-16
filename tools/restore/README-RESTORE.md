@@ -7,6 +7,11 @@ from google storage, or local files placed on the volume.
 on Google Cloud Storage**.  If this is not the case, you will need to adjust the restore
 script for your desired cloud storage method, but the approach will work for any backup location.
 
+**This approach works only for Neo4j 4.0+**.   The tools and the
+DBMS itself changed quite a lot between 3.5 and 4.0, and the approach
+here will likely not work for older databases without substantial 
+modification.
+
 ## Approach
 
 The restore container is used as an `initContainer` in the main cluster.  Prior to
@@ -19,6 +24,7 @@ the `backup` container in this same code repository.  We recommend you use that 
 inspect the `restore.sh` script, because it needs to make certain assumptions about
 directory structure that come out of archived backups in order to restore properly.
 
+
 ### Create a service key secret to access cloud storage
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
@@ -29,15 +35,21 @@ kubectl create secret generic neo4j-service-key \
    --from-file=credentials.json=$MY_SERVICE_ACCOUNT_KEY
 ```
 
+The restore container is going to take this kubernetes secret
+(named `neo4j-service-key`) and is going to mount it as a file
+inside of the backup container (`/auth/credentials.json`).  That
+file will then be used to authenticate the storage client that we
+need to upload the backupset to cloud storage when it's complete.
+
 In `values.yaml`, then configure the secret you set here like so:
 
 ```
-# maintenanceServiceKeySecret=restore-service-key
+restoreSecret=neo4j-service-key
 ```
 
-This setting allows the core and read replica nodes to access that service key
+This allows the core and read replica nodes to access that service key
 as a volume.  That volume being present within the containers is necessary for the
-next step.
+next step, and will be mounted as `/auth/credentials.json` inside the container.
 
 If this service key secret is not in place, the auth information will not be able to be mounted as
 a volume in the initContainer, and your pods may get stuck/hung at "ContainerCreating" phase.
@@ -54,7 +66,7 @@ set correctly given the way you created your secret.
 ```
 coreInitContainers: 
    - name: restore-from-file
-     image: gcr.io/neo4j-helm/restore:4.0.5
+     image: gcr.io/neo4j-helm/restore:4.0.5-1
      imagePullPolicy: Always
      volumeMounts:
      - name: datadir
@@ -62,10 +74,10 @@ coreInitContainers:
      - name: neo4j-service-key
        mountPath: /auth
      env:
-     - name: REMOTE_BACKUPSET
-       value: gs://my-google-storage-bucket/my-backupset.tar.gz
-     - name: BACKUP_SET_DIR
-       value: my-backup-set
+     - name: BUCKET
+       value: gs://my-google-storage-bucket/
+     - name: DATABASE
+       value: neo4j,system
      - name: GOOGLE_APPLICATION_CREDENTIALS
        value: /auth/credentials.json
      - name: FORCE_OVERWRITE
@@ -79,20 +91,25 @@ the core nodes will replicate the data to the read replicas.   This will work ju
 
 ## Parameters
 
-- `GOOGLE_APPLICATION_CREDENTIALS` - path to a file with a JSON service account key (see credentials below)
-- `REMOTE_BACKUPSET` the URL of the backupset, of the form `gs://my-bucket/my-backup.tar.gz` where the backup set resides.
-- `BACKUP_SET_DIR` - (optional).  If you used the backup container that comes with this repo, then this is not needed.  If you made your own backup, this should contain the name of the directory that the compressed backup set expands to.  This is intended to handle relative paths within the compressed set.  For example if your backup set `foo.tar.gz` decompresses to `myData/mySet/*` files, then you would set `BACKUP_SET_DIR=myData/mySet` (the relative path) so that the restore utility knows the right directory to point at after the set is uncompressed.
+### Required
+
+- `GOOGLE_APPLICATION_CREDENTIALS` - path to a file with a JSON service account key (see credentials below).   Defaults to /auth/credentials.json
+- `BUCKET` - the storage bucket where backups are located, e.g. `gs://my-bucket`
+- `DATABASE` - comma-separated list of databases to restore, e.g. neo4j,system
+* `TIMESTAMP` - this defaults to "latest".  See the backup container's documentation
+on the latest pointer.  But you may set this to a particular timestamp to restore
+that exact moment in time.   This timestamp must match the filename in storage.
+So if you want to restore the backup set at `neo4j-2020-06-16-12:32:57.tar.gz	` then
+the TIMESTAMP would be `2020-06-16-12:32:57`.
+
+### Optional
 - `PURGE_ON_COMPLETE` (defaults to true).  If this is set to the value "true", the restore process will remove the restore artifacts from disk.  With any other 
 value, they will be left in place.  This is useful for debugging restores, to 
 see what was copied down from cloud storage and how it was expanded.
-
-The restore container can detect .tar.gz and .zip compressed backups and deal with them appropriately, as well as uncompressed directory backup sets.
-
-## Optional Parameters
-
 - `FORCE_OVERWRITE` if this is the value "true", then the restore process will overwrite and
 destroy any existing data that is on the volume.  Take care when using this in combination with
-persistent volumes.  The default is false; if data already exists on the drive, the restore operation will likely fail but preserve your data.
+persistent volumes.  The default is false; if data already exists on the drive, the restore operation will fail but preserve your data.  **You must set this to true
+if you want restore to work over-top of an existing database**.
 
 **Warnings**
 
@@ -115,22 +132,8 @@ cluster comes live, it will be populated with the data.
 
 ## Limitations
 
-As of Neo4j 4.0 series, data backups do not include authorization information for your cluster.
-That is, usernames/passwords associated with the graph are not included in the backup, and hence
-are not restored when you restore.
-
-This is something to be aware of; when launching a cluster typically you're providing startup auth
-information and separate configuration anyway.  If you create users, groups, and roles you may want
-to separately take copies of the auth files so that they can be restored when your cluster starts up.
-Alternatively, users may configure their systems to use LDAP providers in which case there is no need
-to backup any auth information.
-
-## Ongoing Maintenance
-
-In general we'd recommend taking regular full backups, and restoring from those.
-
-## Limitations
-
+- If you want usernames, passwords, and permissions to be restored, you must include
+a restore of the system graph.
 - Container has not yet been tested with incremental backups
 - For the time being, only google storage as a cloud storage option is implemented, 
 but adapting this approach to S3 or other storage should be fairly straightforward with modifications to `restore.sh`
