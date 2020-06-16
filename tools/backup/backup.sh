@@ -23,6 +23,11 @@ if [ -z $PAGE_CACHE ]; then
     export PAGE_CACHE=4G
 fi
 
+if [ -z $GOOGLE_APPLICATION_CREDENTIALS ] ; then
+    echo "Setting default google credential location to /auth/credentials.json"
+    export GOOGLE_APPLICATION_CREDENTIALS=/auth/credentials.json
+fi
+
 function backup_database {   
     db=$1
 
