@@ -50,6 +50,8 @@ useAPOC: "true"
 # See https://neo4j.com/docs/operations-manual/current/manage-databases/introduction/#manage-databases-default
 defaultDatabase: "neo4j"
 
+# restoreSecret=neo4j-service-key
+
 # Cores
 core:
   # configMap: "my-custom-configmap"
