@@ -153,6 +153,7 @@ jobs:
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
               helm install standalone-backup tools/backup \
+                --namespace $NAMESPACE \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.default.svc.cluster.local:6362 \
                 --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
                 --set database="neo4j\,system" \
@@ -177,7 +178,7 @@ jobs:
             # build number, we should be good.
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl logs --namespace $NAMESPACE \
-              -l "app.kubernetes.io/component=backup" | tee -a $BUILD_ARTIFACTS/startlogs.txt
+              -l "app.kubernetes.io/component=backup" | tee -a $BUILD_ARTIFACTS/backup.log
 
             gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
             gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
