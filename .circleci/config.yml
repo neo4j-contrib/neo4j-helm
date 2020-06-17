@@ -171,6 +171,7 @@ jobs:
 
       - run: 
           name: Verify that backup succeeded
+          command: |
             # If "latest" backup pointer files exist in a dir that is specific to this
             # build number, we should be good.
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
