@@ -5,3 +5,11 @@ bucket: gs://graph-backup-storage/city-graph/
 database: neo4j,system
 credentials: /auth/credentials.json
 secretName: neo4j-service-key
+pageCache: 2G
+heapSize: 2G
+fallbackToFull: "true"
+checkConsistency: "true"
+checkIndexes: "true"
+checkGraph: "true"
+checkLabelScanStore: "true"
+checkPropertyOwners: "false"
