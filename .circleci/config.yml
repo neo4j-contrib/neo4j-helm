@@ -155,7 +155,7 @@ jobs:
               helm install standalone-backup tools/backup \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.default.svc.cluster.local:6362 \
                 --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
-                --set database=neo4j,system \
+                --set database="neo4j\,system" \
                 --set secretName=neo4j-service-key
 
       - run:
