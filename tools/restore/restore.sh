@@ -27,7 +27,7 @@ if [ -z $PURGE_ON_COMPLETE ]; then
 fi
 
 function restore_database {
-    db = $1
+    db=$1
 
     echo "=============== Neo4j Restore ==============================="
     echo "Beginning restore process of $db"
@@ -36,6 +36,7 @@ function restore_database {
     echo "BUCKET=$BUCKET"
     echo "FORCE_OVERWRITE=$FORCE_OVERWRITE"
     echo "PURGE_ON_COMPLETE=$PURGE_ON_COMPLETE"
+    echo "Starting point database contents: "
     ls /data/databases
     echo "============================================================"
 
@@ -100,8 +101,8 @@ function restore_database {
             return
         fi
 
-        # foo.tar.gz untars/zips to a directory called foo.
-        UNTARRED_BACKUP_DIR=${BACKUP_FILENAME%.tar.gz}
+        # foo-$TIMESTAMP.tar.gz untars/zips to a directory called foo.
+        UNTARRED_BACKUP_DIR=$db
 
         if [ -z $BACKUP_SET_DIR ] ; then
             echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
@@ -124,7 +125,7 @@ function restore_database {
 
         if [ -z $BACKUP_SET_DIR ] ; then
             echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
-            RESTORE_FROM="$RESTORE_ROOT/data/$UNZIPPED_BACKUP_DIR"
+            RESTORE_FROM="$RESTORE_ROOT/data/$db"
         else
             RESTORE_FROM="$RESTORE_ROOT/$BACKUP_SET_DIR"
         fi
@@ -139,9 +140,7 @@ function restore_database {
     echo "UNZIPPED_BACKUP_DIR=$UNZIPPED_BACKUP_DIR"
     echo "RESTORE_FROM=$RESTORE_FROM"
 
-    echo "Set to restore from $RESTORE_FROM"
-    echo "Post uncompress backup size:"
-    ls -al "$RESTORE_ROOT"
+    echo "Set to restore from $RESTORE_FROM - size on disk:"
     du -hs "$RESTORE_FROM"
 
     cd /data && \
