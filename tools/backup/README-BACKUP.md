@@ -63,15 +63,33 @@ need to upload the backupset to cloud storage when it's complete.
 
 ### Running a Backup
 
-See backup.yaml for an example.   You must have first created a `neo4j-service-key`
+The backup method is itself a mini-helm chart, and so to run a backup, you just
+do this as a minimal required example:
+
+```
+helm install my-backup-deployment . \
+    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
+    --set bucket=gs://my-bucket/ \
+    --set database=neo4j,system \
+    --set secretName=neo4j-service-key
+``` 
+
+from within the tools/backup directory
+where the chart resides.  You must have first created a `neo4j-service-key`
 secret in the same namespace as your Neo4j is running.
 
-**Required environment variables**
+If all goes well, after a period of time when the Kubernetes Job is complete, you
+will simply see the backup files appear in the designated bucket.
 
-* `NEO4J_ADDR` pointing to an address where your cluster is running, ideally the
+**If your backup does not appear, consult the job container logs to find out
+why**
+
+**Required parameters**
+
+* `neo4jaddr` pointing to an address where your cluster is running, ideally the
 discovery address.
-* `BUCKET` where you want the backup copied to.  It should be `gs://bucketname`.  This parameter may include a relative path (`gs://bucketname/mycluster`)
-* `DATABASES` a comma separated list of databases to back up.  The default is
+* `bucket` where you want the backup copied to.  It should be `gs://bucketname`.  This parameter may include a relative path (`gs://bucketname/mycluster`)
+* `databases` a comma separated list of databases to back up.  The default is
 `neo4j,system`.  If your DBMS has many individual databases, you should change this.
 
 **Optional environment variables**
@@ -79,20 +97,11 @@ discovery address.
 All of the following variables mimic the command line options
 for [neo4j-admin backup documented here](https://neo4j.com/docs/operations-manual/current/backup/performing/#backup-performing-command)
 
-* `PAGE_CACHE`
-* `HEAP_SIZE`
-* `FALLBACK_TO_FULL` (true/false), default=true
-* `CHECK_CONSISTENCY` (true/false), default=true
-* `CHECK_INDEXES` (true/false) default=true
-* `CHECK_GRAPH` (true/false), default=true
-* `CHECK_LABEL_SCAN_STORE` (true/false), default=true
-* `CHECK_PROPERTY_OWNERS` (true/false), default=false
-
-### Launch the Job
-
-```
-kubectl apply -f backup.yaml --namespace my-neo4j-namespace
-```
-
-If all goes well, after a period of time when the Kubernetes Job is complete, you
-will simply see the backup files appear in the designated bucket.
+* `pageCache`
+* `heapSize`
+* `fallbackToFull` (true/false), default=true
+* `checkConsistency` (true/false), default=true
+* `checkIndexes` (true/false) default=true
+* `checkGraph` (true/false), default=true
+* `checkLabelScanStore` (true/false), default=true
+* `checkPropertyOwners` (true/false), default=false

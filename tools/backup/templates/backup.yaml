@@ -5,6 +5,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: graph-backup-{{ date "20060102150405" now }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/name: "graph-backup"
+    app.kubernetes.io/component: backup
 spec:
   backoffLimit: 3
   template:
@@ -25,6 +31,22 @@ spec:
             value: {{ .Values.database }}
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: {{ .Values.credentials }}
+          - name: HEAP_SIZE
+            value: {{ .Values.heapSize }}
+          - name: PAGE_CACHE
+            value: {{ .Values.pageCache }}
+          - name: FALLBACK_TO_FULL
+            value: "{{ .Values.fallbackToFull }}"
+          - name: CHECK_CONSISTENCY
+            value: "{{ .Values.checkConsistency }}"
+          - name: CHECK_INDEXES
+            value: "{{ .Values.checkIndexes }}"
+          - name: CHECK_GRAPH
+            value: "{{ .Values.checkGraph }}"
+          - name: CHECK_LABEL_SCAN_STORE
+            value: "{{ .Values.checkLabelScanStore }}"
+          - name: CHECK_PROPERTY_OWNERS
+            value: "{{ .Values.checkPropertyOwners }}"
           volumeMounts:
           - name: creds
             mountPath: /auth
