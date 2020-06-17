@@ -1,0 +1,21 @@
+apiVersion: v1
+name: neo4j-backup
+home: https://www.neo4j.com
+version: 4.0.5-1
+appVersion: 4.0.5
+description: Neo4j Backup Utility
+keywords:
+  - graph
+  - database
+  - cypher
+  - backup
+icon: http://info.neo4j.com/rs/773-GON-065/images/neo4j_logo.png
+sources:
+  - https://github.com/neo4j-contrib/neo4j-helm/tools/backup
+maintainers:
+  - name: moxious
+    email: david.allen@neo4j.com
+  - name: bfeshti
+    email: bledi.feshti@neo4j.com
+  - name: mneedham
+    email: mark.needham@neo4j.com

@@ -4,7 +4,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: graph-backup
+  name: graph-backup-{{ date "20060102150405" now }}
 spec:
   backoffLimit: 3
   template:
@@ -12,19 +12,19 @@ spec:
       restartPolicy: Never
       containers:
         - name: graph-backup
-          image: gcr.io/neo4j-helm/backup:4.0.5-1
+          image: {{ .Values.image }}:{{ .Values.imageTag }}
           imagePullPolicy: Always
           env:
           # Addr must include a host and port, but no scheme.  See the --from parameter here:
           # See https://neo4j.com/docs/operations-manual/current/backup/performing/
           - name: NEO4J_ADDR
-            value: "holder-neo4j.default.svc.cluster.local:6362"
+            value: {{ .Values.neo4jaddr }}
           - name: BUCKET
-            value: gs://graph-backup-storage
+            value: {{ .Values.bucket }}
           - name: DATABASE
-            value: neo4j,system
+            value: {{ .Values.database }}
           - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: /auth/credentials.json
+            value: {{ .Values.credentials }}
           volumeMounts:
           - name: creds
             mountPath: /auth
@@ -32,7 +32,7 @@ spec:
       volumes:
       - name: creds
         secret:
-          secretName: neo4j-service-key
+          secretName: {{ .Values.secretName }}
           items:
           - key: credentials.json
             path: credentials.json
