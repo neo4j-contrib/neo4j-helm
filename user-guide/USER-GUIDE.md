@@ -42,7 +42,7 @@ Alternatively, a YAML file that specifies the values for the parameters can be
 provided while installing the chart. For example,
 
 ```bash
-$ helm install --name neo4j-helm -f values.yaml .
+$ helm install neo4j-helm -f values.yaml .
 ```
 
 > **Tip**: You can use the default [values.yaml](../values.yaml)
@@ -59,6 +59,19 @@ Important notes about standalone mode:
 2. Read replicas may only be used with causal cluster.  When running standalone, all read replica
 arguments are *ignored*.
 3. All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
+
+### Deployment Scenarios
+
+See the `deployment-scenarios` folder in this repo for example YAML values files.
+These are example configurations that show minimal overrides necessary to launch
+the helm template in various scenarios.
+
+Each of these "deployment scenario" files are launched the same way, using the values
+override approach above, like this:
+
+```
+$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
+```
 
 ## Helm Configuration
 
@@ -107,6 +120,7 @@ their default values.
 | `readReplica.service.loadBalancerSourceRanges` | List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`) | `[]` |
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
+| `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the restore documentation for how to use this. | (none) |
 
 ## Memory Management
 
