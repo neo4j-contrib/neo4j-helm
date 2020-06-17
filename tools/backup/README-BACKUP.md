@@ -74,6 +74,20 @@ discovery address.
 * `DATABASES` a comma separated list of databases to back up.  The default is
 `neo4j,system`.  If your DBMS has many individual databases, you should change this.
 
+**Optional environment variables**
+
+All of the following variables mimic the command line options
+for [neo4j-admin backup documented here](https://neo4j.com/docs/operations-manual/current/backup/performing/#backup-performing-command)
+
+* `PAGE_CACHE`
+* `HEAP_SIZE`
+* `FALLBACK_TO_FULL` (true/false), default=true
+* `CHECK_CONSISTENCY` (true/false), default=true
+* `CHECK_INDEXES` (true/false) default=true
+* `CHECK_GRAPH` (true/false), default=true
+* `CHECK_LABEL_SCAN_STORE` (true/false), default=true
+* `CHECK_PROPERTY_OWNERS` (true/false), default=false
+
 ### Launch the Job
 
 ```
