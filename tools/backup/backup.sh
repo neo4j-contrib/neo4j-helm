@@ -52,11 +52,46 @@ if [ -z $GOOGLE_APPLICATION_CREDENTIALS ] ; then
     export GOOGLE_APPLICATION_CREDENTIALS=/auth/credentials.json
 fi
 
+# This function takes a file and
+# (a) uploads it to BUCKET
+# (b) updates the latest pointer
+function cloud_copy {
+    full_path=$1
+    database=$2
+
+    # Trim trailing slash from BUCKET if it's there, because it messes up the
+    # copy commands if you copy gs://a//foo to gs://a//bar (double slash in path)
+    # https://stackoverflow.com/a/17542946/2920686
+    if [ "${BUCKET: -1}" = "/" ]; then
+        BUCKET="${BUCKET%?}"
+    fi
+
+    # Want bucket_and_path *without* a final slash, so we can add it ourselves and
+    # know what's a file and what's a directory.
+    bucket_and_path=""
+    if [ "${BUCKET: -1}" = "/" ]; then
+        bucket_and_path="${BUCKET%?}"
+    else 
+        bucket_and_path=$BUCKET
+    fi
+
+    echo "Pushing $full_path -> $bucket_and_path"
+
+    # Terminating slash is important to create correct filename.
+    gsutil cp "$full_path" "$bucket_and_path/"
+
+    backup="$bucket_and_path/$BACKUP_SET.tar.gz"
+    latest="$bucket_and_path/$LATEST_POINTER"
+
+    echo "Updating latest backup pointer $backup -> $latest"
+    gsutil cp "$backup" "$latest"
+}
+
 function backup_database {   
     db=$1
 
-    BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
-    LATEST_POINTER="$db-latest.tar.gz"
+    export BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
+    export LATEST_POINTER="$db-latest.tar.gz"
 
     echo "=============== BACKUP $db ==================="
     echo "Beginning backup from $NEO4J_ADDR to /data/$BACKUP_SET"
@@ -111,14 +146,7 @@ function backup_database {
     echo "Zipped backup size:"
     du -hs "/data/$BACKUP_SET.tar.gz"
 
-    echo "Pushing /data/$BACKUP_SET.tar.gz -> $BUCKET"
-    gsutil cp "/data/$BACKUP_SET.tar.gz" "$BUCKET"
-
-    backup="$BUCKET/$BACKUP_SET.tar.gz"
-    latest="$BUCKET/$LATEST_POINTER"
-
-    echo "Updating latest backup pointer $backup -> $latest"
-    gsutil cp "$backup" "$latest"
+    cloud_copy "/data/$BACKUP_SET.tar.gz"
 
     if [ $? -ne 0 ] ; then
        echo "Storage copy of backup for $db FAILED"
