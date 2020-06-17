@@ -96,7 +96,9 @@ jobs:
       - run:
           name: Install service key secret for maintenance ops
           command: |
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl create secret generic neo4j-service-key \
+              --namespace $NAMESPACE \
               --from-file=credentials.json=$SERVICE_KEY_FILE
 
       - run:
@@ -177,11 +179,12 @@ jobs:
             # If "latest" backup pointer files exist in a dir that is specific to this
             # build number, we should be good.
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            helm status standalone-backup --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
             kubectl logs --namespace $NAMESPACE \
               -l "app.kubernetes.io/component=backup" | tee -a $BUILD_ARTIFACTS/backup.log
 
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
 
       - run:
           name: Uninstall / Cleanup
