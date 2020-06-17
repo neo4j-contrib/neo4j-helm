@@ -29,18 +29,8 @@ fi
 function restore_database {
     db=$1
 
-    echo "=============== Neo4j Restore ==============================="
-    echo "Beginning restore process of $db"
-    echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
-    echo "TIMESTAMP=$TIMESTAMP"
-    echo "BUCKET=$BUCKET"
-    echo "FORCE_OVERWRITE=$FORCE_OVERWRITE"
-    echo "PURGE_ON_COMPLETE=$PURGE_ON_COMPLETE"
-    echo "Starting point database contents: "
-    ls /data/databases
-    echo "Starting point transactions: "
-    ls /data/transactions
-    echo "============================================================"
+    echo ""
+    echo "=== RESTORE $db"
 
     if [ -d "/data/databases/$db" ] ; then
         echo "You have an existing graph database at /data/databases/$db"
@@ -176,10 +166,10 @@ function restore_database {
     # because it needs to be in /data per the docker spec.  This can get squirrely when users
     # have volume mounts set up in certain ways.
     echo "Rehoming database $db"
-    echo "Restored to:"
-    ls -l /var/lib/neo4j/data/databases
-    echo "TRANSACTIONS:"
-    ls -l /var/lib/neo4j/data/transactions
+    # echo "Restored to:"
+    # ls -l /var/lib/neo4j/data/databases
+    # echo "TRANSACTIONS:"
+    # ls -l /var/lib/neo4j/data/transactions
 
     # Destination docker directories.
     mkdir -p /data/databases
@@ -202,8 +192,10 @@ function restore_database {
     mv "/var/lib/neo4j/data/transactions/$db" /data/transactions/
 
     # Modify permissions/group, because we're running as root.
-    chown -R neo4j /data/databases /data/transactions
-    chgrp -R neo4j /data/databases /data/transactions
+    chown -R neo4j /data/databases 
+    chown -R neo4j /data/transactions
+    chgrp -R neo4j /data/databases 
+    chgrp -R neo4j /data/transactions
 
     echo "Final permissions"
     ls -al "/data/databases/$db"
@@ -220,6 +212,18 @@ function restore_database {
 
     echo "RESTORE OF $db COMPLETE"
 }
+
+echo "=============== Restore ==============================="
+echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
+echo "TIMESTAMP=$TIMESTAMP"
+echo "BUCKET=$BUCKET"
+echo "FORCE_OVERWRITE=$FORCE_OVERWRITE"
+echo "PURGE_ON_COMPLETE=$PURGE_ON_COMPLETE"
+echo "Starting point database contents: "
+ls /data/databases
+echo "Starting point transactions: "
+ls /data/transactions
+echo "============================================================"
 
 echo "Activating google credentials before beginning"
 ls -l $GOOGLE_APPLICATION_CREDENTIALS
