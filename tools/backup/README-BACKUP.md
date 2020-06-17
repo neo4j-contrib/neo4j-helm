@@ -70,7 +70,7 @@ secret in the same namespace as your Neo4j is running.
 
 * `NEO4J_ADDR` pointing to an address where your cluster is running, ideally the
 discovery address.
-* `BUCKET` where you want the backup copied to.  It should be `gs://bucketname`
+* `BUCKET` where you want the backup copied to.  It should be `gs://bucketname`.  This parameter may include a relative path (`gs://bucketname/mycluster`)
 * `DATABASES` a comma separated list of databases to back up.  The default is
 `neo4j,system`.  If your DBMS has many individual databases, you should change this.
 

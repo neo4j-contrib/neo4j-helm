@@ -71,7 +71,7 @@ The example scenario above creates the initContainer just for core nodes.  It's 
 ### Required
 
 - `GOOGLE_APPLICATION_CREDENTIALS` - path to a file with a JSON service account key (see credentials below).   Defaults to /auth/credentials.json
-- `BUCKET` - the storage bucket where backups are located, e.g. `gs://my-bucket`
+- `BUCKET` - the storage bucket where backups are located, e.g. `gs://bucketname`.   This parameter may include a relative path (`gs://bucketname/mycluster`)
 - `DATABASE` - comma-separated list of databases to restore, e.g. neo4j,system
 * `TIMESTAMP` - this defaults to "latest".  See the backup container's documentation
 on the latest pointer.  But you may set this to a particular timestamp to restore
