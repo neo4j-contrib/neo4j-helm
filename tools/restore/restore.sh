@@ -38,6 +38,8 @@ function restore_database {
     echo "PURGE_ON_COMPLETE=$PURGE_ON_COMPLETE"
     echo "Starting point database contents: "
     ls /data/databases
+    echo "Starting point transactions: "
+    ls /data/transactions
     echo "============================================================"
 
     if [ -d "/data/databases/$db" ] ; then
@@ -170,36 +172,46 @@ function restore_database {
         return $RESTORE_EXIT_CODE
     fi
 
+    # Shell utils automatically place data in /var/lib/neo4j -- this is problematic in docker,
+    # because it needs to be in /data per the docker spec.  This can get squirrely when users
+    # have volume mounts set up in certain ways.
     echo "Rehoming database $db"
     echo "Restored to:"
     ls -l /var/lib/neo4j/data/databases
+    echo "TRANSACTIONS:"
+    ls -l /var/lib/neo4j/data/transactions
 
-    # neo4j-admin restore puts the DB in the wrong place, it needs to be re-homed
-    # for docker.
+    # Destination docker directories.
     mkdir -p /data/databases
+    mkdir -p /data/transactions
 
-    # Danger: here we are destroying previous data.
+    # Danger: we are destroying previous data on disk.  On purpose.
     # Optional: you can move the database out of the way to preserve the data just in case,
     # but we don't do it this way because for large DBs this will just rapidly fill the disk
     # and cause out of disk errors.
-    if [ -d "/data/databases/$db" ] ; then
-        if [ "$FORCE_OVERWRITE" = "true" ] ; then
-            echo "Removing previous database because FORCE_OVERWRITE=true"
-            rm -rf "/data/databases/$db"
+    for loc in databases transactions ; do
+        if [ -d "/data/$loc/$db" ] ; then
+            if [ "$FORCE_OVERWRITE" = "true" ] ; then
+                echo "Removing previous $loc because FORCE_OVERWRITE=true"
+                rm -rf "/data/$loc/$db"
+            fi
         fi
-    fi
+    done
 
     mv "/var/lib/neo4j/data/databases/$db" /data/databases/
+    mv "/var/lib/neo4j/data/transactions/$db" /data/transactions/
 
     # Modify permissions/group, because we're running as root.
-    chown -R neo4j /data/databases
-    chgrp -R neo4j /data/databases
+    chown -R neo4j /data/databases /data/transactions
+    chgrp -R neo4j /data/databases /data/transactions
 
     echo "Final permissions"
     ls -al "/data/databases/$db"
+    ls -al "/data/transactions/$db"
 
     echo "Final size"
     du -hs "/data/databases/$db"
+    du -hs "/data/transactions/$db"
 
     if [ "$PURGE_ON_COMPLETE" = true ] ; then
         echo "Purging backupset from disk"
