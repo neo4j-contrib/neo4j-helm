@@ -1,0 +1,11 @@
+# This scenario deploys a cluster with
+# 3 core members and 1 read replica.
+acceptLicenseAgreement: "yes"
+neo4jPassword: "mySecretPassword"
+
+core:
+    standalone: false
+    numberOfServers: 3
+
+readReplica:
+    numberOfServers: 1

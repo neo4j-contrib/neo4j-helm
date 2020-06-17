@@ -29,6 +29,19 @@ single-machine, standalone installs are supported.
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 install`. For example,
 
+### Deployment Scenarios
+
+See the `deployment-scenarios` folder in this repo for example YAML values files.
+These are example configurations that show minimal overrides necessary to launch
+the helm template in various scenarios.
+
+Each of these "deployment scenario" files are launched the same way, using the values
+override approach above, like this:
+
+```
+$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
+```
+
 ### Causal Cluster
 
 ```bash
@@ -59,19 +72,6 @@ Important notes about standalone mode:
 2. Read replicas may only be used with causal cluster.  When running standalone, all read replica
 arguments are *ignored*.
 3. All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
-
-### Deployment Scenarios
-
-See the `deployment-scenarios` folder in this repo for example YAML values files.
-These are example configurations that show minimal overrides necessary to launch
-the helm template in various scenarios.
-
-Each of these "deployment scenario" files are launched the same way, using the values
-override approach above, like this:
-
-```
-$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
-```
 
 ## Helm Configuration
 
