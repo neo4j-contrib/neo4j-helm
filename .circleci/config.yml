@@ -12,6 +12,7 @@ jobs:
       NAME_CLUSTERED: testrunc
       NAME_STANDALONE: testrunsa
       BUILD_ARTIFACTS: build
+      SERVICE_KEY_FILE: /tmp/service-key.json
 
     steps:
       - checkout
@@ -47,10 +48,10 @@ jobs:
       - run: 
           name: Setup GCP Tooling
           command: |
-            echo $GCLOUD_SERVICE_KEY > service-key.json
+            echo $GCLOUD_SERVICE_KEY > $SERVICE_KEY_FILE
             gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
-                --key-file=service-key.json
+                --key-file=$SERVICE_KEY_FILE
             gcloud auth configure-docker
 
       - run:
@@ -90,6 +91,12 @@ jobs:
             metadata:
               name: ns-$CIRCLE_BUILD_NUM
             EOF
+
+      - run:
+          name: Install service key secret for maintenance ops
+          command: |
+            kubectl create secret generic neo4j-service-key \
+              --from-file=credentials.json=$SERVICE_KEY_FILE
 
       - run:
           name: Package and Install Neo4j-Helm Chart
