@@ -176,7 +176,7 @@ function restore_database {
 
     # neo4j-admin restore puts the DB in the wrong place, it needs to be re-homed
     # for docker.
-    mkdir /data/databases
+    mkdir -p /data/databases
 
     # Danger: here we are destroying previous data.
     # Optional: you can move the database out of the way to preserve the data just in case,
@@ -217,6 +217,10 @@ if [ $? -ne 0 ] ; then
     echo "Credentials failed; copying from Google will likely fail unless the bucket is public"
     echo "Ensure GOOGLE_APPLICATION_CREDENTIALS is appropriately set."
 fi
+
+# See: https://neo4j.com/docs/operations-manual/current/backup/restoring/#backup-restoring-cluster
+echo "Unbinding previous cluster state, if applicable"
+neo4j-admin unbind
 
 # Split by comma
 IFS=","

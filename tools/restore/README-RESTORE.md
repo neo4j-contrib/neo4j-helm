@@ -56,40 +56,17 @@ a volume in the initContainer, and your pods may get stuck/hung at "ContainerCre
 
 ### Configure the initContainer for Core and Read Replica Nodes
 
-Finally, specify the initContainer like this, in `values.yaml`.
+Refer to [this example deployment scenario](../deployment-scenarios/single-instance-restore.yaml) to see how the initContainers are configured.
 
-Important:
+What you will need to customize and ensure:
+* Ensure you have created the appropriate secret and set its name
 * Ensure that the volume mount to /auth matches the secret name you created above.
-* Ensure that your BUCKET, BACKUP_NAME, and GOOGLE_APPLICATION_CREDENTIALS are
+* Ensure that your BUCKET, and GOOGLE_APPLICATION_CREDENTIALS are
 set correctly given the way you created your secret.
 
-```
-coreInitContainers: 
-   - name: restore-from-file
-     image: gcr.io/neo4j-helm/restore:4.0.5-1
-     imagePullPolicy: Always
-     volumeMounts:
-     - name: datadir
-       mountPath: /data
-     - name: neo4j-service-key
-       mountPath: /auth
-     env:
-     - name: BUCKET
-       value: gs://my-google-storage-bucket/
-     - name: DATABASE
-       value: neo4j,system
-     - name: GOOGLE_APPLICATION_CREDENTIALS
-       value: /auth/credentials.json
-     - name: FORCE_OVERWRITE
-       value: "false"
-```
+The example scenario above creates the initContainer just for core nodes.  It's strongly recommended you do the same for `readReplica.initContainers` if you are using read replicas. If you restore only to core nodes and not to read replicas, when they start the core nodes will replicate the data to the read replicas.   This will work just fine, but may result in longer startup times and much more bandwidth.
 
-Notice that we're mounting the secret at the `/auth` path and then passing our application credentials as a file within that path.  This is what permits shell tools to access your google cloud storage resources.
-
-This snippet above creates the initContainer just for core nodes.  It's strongly recommended you do the same for `readReplicaInitContainers` if you are using read replicas. If you restore only to core nodes and not to read replicas, when they start
-the core nodes will replicate the data to the read replicas.   This will work just fine, but may result in longer startup times and much more bandwidth.
-
-## Parameters
+## Restore Parameters
 
 ### Required
 
