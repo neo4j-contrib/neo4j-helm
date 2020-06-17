@@ -13,6 +13,7 @@ jobs:
       NAME_STANDALONE: testrunsa
       BUILD_ARTIFACTS: build
       SERVICE_KEY_FILE: /tmp/service-key.json
+      BUCKET: gs://circleci-build-system
 
     steps:
       - checkout
@@ -148,6 +149,15 @@ jobs:
               helm test $NAME_STANDALONE --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-STANDALONE.txt
 
       - run:
+          name: Take BACKUP of STANDALONE
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              cd tools/backup && helm install standalone-backup . \
+                --set neo4jaddr=$NAME_STANDALONE-neo4j.default.svc.cluster.local:6362 \
+                --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
+                --set database=neo4j,system \
+                --set secretName=neo4j-service-key
+
+      - run:
           name: Wait for GKE CLUSTERED deployment to succeed and become ready
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
@@ -158,6 +168,17 @@ jobs:
           command: |
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-CLUSTER.txt
+
+      - run: 
+          name: Verify that backup succeeded
+            # If "latest" backup pointer files exist in a dir that is specific to this
+            # build number, we should be good.
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            kubectl logs --namespace $NAMESPACE \
+              -l "app.kubernetes.io/component=backup" | tee -a $BUILD_ARTIFACTS/startlogs.txt
+
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" | tee -a $BUILD_ARTIFACTS/backup.log
 
       - run:
           name: Uninstall / Cleanup
