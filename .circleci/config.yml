@@ -151,10 +151,17 @@ jobs:
               helm test $NAME_STANDALONE --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-STANDALONE.txt
 
       - run:
-          name: Take BACKUP of STANDALONE
+          name: Package and install BACKUP chart on STANDALONE
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
-              helm install standalone-backup tools/backup \
+
+              dir=`pwd`
+              cd tools/backup
+              "$dir/helm" package .
+              chart_archive=$(ls neo4j*.tgz)
+              cp *.tgz $BUILD_ARTIFACTS/
+
+              "$dir/helm" install standalone-backup tools/backup \
                 --namespace $NAMESPACE \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
                 --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
