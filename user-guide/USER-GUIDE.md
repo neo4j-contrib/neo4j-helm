@@ -122,6 +122,14 @@ their default values.
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 | `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the restore documentation for how to use this. | (none) |
 
+## Backup
+
+See [the documentation on the backup helm chart](../tools/backup/README-BACKUP.md).
+
+## Restore
+
+See [the documentation on the restore process](../tools/restore/README-RESTORE.md).
+
 ## Memory Management
 
 The chart follows the same memory configuration settings as described in the [Memory Configuration](https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/) section of the Operations manual.  

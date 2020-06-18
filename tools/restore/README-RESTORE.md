@@ -66,7 +66,7 @@ set correctly given the way you created your secret.
 
 The example scenario above creates the initContainer just for core nodes.  It's strongly recommended you do the same for `readReplica.initContainers` if you are using read replicas. If you restore only to core nodes and not to read replicas, when they start the core nodes will replicate the data to the read replicas.   This will work just fine, but may result in longer startup times and much more bandwidth.
 
-## Restore Parameters
+## Restore Environment Variables for the Init Container
 
 ### Required
 
