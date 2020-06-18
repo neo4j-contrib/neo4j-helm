@@ -105,3 +105,11 @@ for [neo4j-admin backup documented here](https://neo4j.com/docs/operations-manua
 * `checkGraph` (true/false), default=true
 * `checkLabelScanStore` (true/false), default=true
 * `checkPropertyOwners` (true/false), default=false
+
+### Exit Conditions
+
+If the backup of any of the individual databases mentioned in the database parameters
+fails, the entire container will exit with a non-zero exit code and fail.
+
+**Note**: it is possible for Neo4j backups to succeed, but with failed consistency checks.
+This will be noted in the logs, but will operationally behave as a successful backup.
