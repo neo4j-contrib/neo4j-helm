@@ -4,7 +4,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: graph-backup-{{ date "20060102150405" now }}
+  name: "{{ .Release.Name }}-neo4j-backup-{{ date "20060102150405" now }}"
   labels:
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
