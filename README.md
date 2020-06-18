@@ -33,7 +33,7 @@ Additional instructions, general documentation, and operational facets are cover
 articles:
 
 - [Architectural Documentation describing how the helm chart is put together](https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing)
-- [External exposure of Neo4j clusters on Kubernetes](external-exposure/EXTERNAL-EXPOSURE.md) - how to use
+- [External exposure of Neo4j clusters on Kubernetes](tools/external-exposure/EXTERNAL-EXPOSURE.md) - how to use
 tools like Neo4j Browser and cypher-shell from clients originating outside of Kubernetes
 - [Neo4j Considerations in Orchestration Environments](https://medium.com/neo4j/neo4j-considerations-in-orchestration-environments-584db747dca5) which covers
 how the smart-client routing protocol that Neo4j uses interacts with Kubernetes networking.  Make sure to read this if you are trying to expose the Neo4j database outside
