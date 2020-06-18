@@ -1,0 +1,60 @@
+# Sample pod to be applied manually or scheduled when desired
+# Executes a backup against the DB when tailored to the right endpoint.
+# Copies resulting full backup to $BUCKET
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: graph-backup-{{ date "20060102150405" now }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/name: "graph-backup"
+    app.kubernetes.io/component: backup
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: graph-backup
+          image: {{ .Values.image }}:{{ .Values.imageTag }}
+          imagePullPolicy: Always
+          env:
+          # Addr must include a host and port, but no scheme.  See the --from parameter here:
+          # See https://neo4j.com/docs/operations-manual/current/backup/performing/
+          - name: NEO4J_ADDR
+            value: {{ .Values.neo4jaddr }}
+          - name: BUCKET
+            value: {{ .Values.bucket }}
+          - name: DATABASE
+            value: {{ .Values.database }}
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: {{ .Values.credentials }}
+          - name: HEAP_SIZE
+            value: {{ .Values.heapSize }}
+          - name: PAGE_CACHE
+            value: {{ .Values.pageCache }}
+          - name: FALLBACK_TO_FULL
+            value: "{{ .Values.fallbackToFull }}"
+          - name: CHECK_CONSISTENCY
+            value: "{{ .Values.checkConsistency }}"
+          - name: CHECK_INDEXES
+            value: "{{ .Values.checkIndexes }}"
+          - name: CHECK_GRAPH
+            value: "{{ .Values.checkGraph }}"
+          - name: CHECK_LABEL_SCAN_STORE
+            value: "{{ .Values.checkLabelScanStore }}"
+          - name: CHECK_PROPERTY_OWNERS
+            value: "{{ .Values.checkPropertyOwners }}"
+          volumeMounts:
+          - name: creds
+            mountPath: /auth
+            readOnly: true
+      volumes:
+      - name: creds
+        secret:
+          secretName: {{ .Values.secretName }}
+          items:
+          - key: credentials.json
+            path: credentials.json

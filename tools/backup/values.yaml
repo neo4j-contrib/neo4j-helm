@@ -1,0 +1,15 @@
+image: gcr.io/neo4j-helm/backup
+imageTag: 4.0.5-1
+neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
+bucket: gs://graph-backup-storage/city-graph/
+database: neo4j,system
+credentials: /auth/credentials.json
+secretName: neo4j-service-key
+pageCache: 2G
+heapSize: 2G
+fallbackToFull: "true"
+checkConsistency: "true"
+checkIndexes: "true"
+checkGraph: "true"
+checkLabelScanStore: "true"
+checkPropertyOwners: "false"

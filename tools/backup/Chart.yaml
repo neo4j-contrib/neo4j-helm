@@ -1,18 +1,17 @@
 apiVersion: v1
-name: neo4j
+name: neo4j-backup
 home: https://www.neo4j.com
 version: 4.0.5-1
 appVersion: 4.0.5
-description: Neo4j is the world's leading graph database
+description: Neo4j Backup Utility
 keywords:
   - graph
   - database
   - cypher
+  - backup
 icon: http://info.neo4j.com/rs/773-GON-065/images/neo4j_logo.png
 sources:
-  - https://github.com/neo4j/neo4j
-  - https://github.com/neo4j/docker-neo4j
-  - https://github.com/neo4j-contrib/neo4j-helm
+  - https://github.com/neo4j-contrib/neo4j-helm/tools/backup
 maintainers:
   - name: moxious
     email: david.allen@neo4j.com

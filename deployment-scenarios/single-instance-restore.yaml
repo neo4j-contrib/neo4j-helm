@@ -1,0 +1,38 @@
+# This scenario creates a single-instance standalone Neo4j
+# machine, that automatically restores from a backup with the given
+# parameters in the "initContainers" section.
+#
+# IN ORDER FOR THIS TO WORK - you must have pre-created a secret, and 
+# you must modify the BUCKET parameter, and make sure backups are in place
+# to be restored.   See the documentation for more information.
+###############################################################
+restoreSecret: neo4j-service-key
+
+core:
+    standalone: true
+    initContainers:
+        - name: restore-from-backup
+          image: gcr.io/neo4j-helm/restore:4.0.5-1
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: datadir
+              mountPath: /data
+            # The statefulset will already have a volume named "creds" when restoreSecret is set.
+            # Make sure to mount this to /auth
+            - name: creds
+              mountPath: /auth
+          env:
+            - name: BUCKET
+              value: gs://graph-backup-storage
+            - name: DATABASE
+              value: neo4j,system
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /auth/credentials.json
+            - name: FORCE_OVERWRITE
+              value: "true"
+            - name: PURGE_ON_COMPLETE
+              value: "false"
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
