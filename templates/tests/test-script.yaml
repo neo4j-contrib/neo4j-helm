@@ -126,8 +126,11 @@ data:
 
     runtest "Bolt is available, port $PORT_BOLT"               "RETURN 'yes';"
     runtest "Basic read queries"                               "MATCH (n) RETURN COUNT(n);"
-    runtest "Database is in clustered mode"                    "CALL dbms.cluster.overview();" 
     runtest "Cluster accepts writes"                           'CREATE (t:TestNode) RETURN count(t);'
+
+    # Clustering tests...
+    {{- if not .Values.core.standalone }}
+    runtest "Database is in clustered mode"                    "CALL dbms.cluster.overview();" 
 
     # Data from server on cluster topology.
     topology=$(cypher "CALL dbms.cluster.overview();")
@@ -171,13 +174,16 @@ data:
       test="Core host $id of $CORES -- $core_endpoint has APOC installed correctly"
       runtest "$test" "RETURN apoc.version();" "$core_endpoint"
     done
+    {{- end }} # If database in clustered mode
 
     # Test for data replication.
     runtest "Sample canary write" 'CREATE (c:Canary) RETURN count(c);'
     echo "Sleeping a few seconds to permit replication"
     sleep 5
 
+    {{- if not .Values.core.standalone }}
     # Check each core, count the canary writes. They should all agree.
+    # We don't have to do this test for standalone, and note that above we already verified writes.
     for id in $(seq 0 $((CORES - 1))); do
       core_host=$(core_hostname $id)
       # Use bolt driver, not routing driver, to ensure that test verifies data
@@ -199,6 +205,7 @@ data:
         fail "$test" "Canary read failed to execute -- exit code $exit_code / RESULT -- $result"
       fi
     done
+    {{- end }}
 
     echo "All good; testing completed"
     exit 0

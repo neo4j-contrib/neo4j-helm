@@ -1,10 +1,15 @@
+{{- if and (.Values.core.standalone) (gt (.Values.readReplica.numberOfServers | int) 0)}}
+You have specified standalone mode and also read replicas.  The read replicas argument has
+been ignored - only Neo4j clusters may have read replicas.
+{{- end }}
+
 {{- if and (ne "yes" .Values.acceptLicenseAgreement) (contains "enterprise" .Values.imageTag)}}
 ####   ERROR: You did not accept the Neo4j Enterprise License. ####
 ####   ERROR: Please set acceptLicenseAgreement to yes.        ####
 ###################################################################
 {{- else }}
-Your cluster is now being deployed, and may take up to 5 minutes to become available.
 
+Your cluster is now being deployed, and may take up to 5 minutes to become available.
 If you'd like to track status and wait on your rollout to complete, run:
 
 $ kubectl rollout status --namespace {{ .Release.Namespace }} StatefulSet/{{ template "neo4j.name" . }}-core --watch
@@ -17,12 +22,12 @@ $ kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={
 
 We can now run a query to find the topology of the cluster.
 
-export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} --namespace {{ .Release.Namespace }} -o yaml | grep password | sed 's/.*: //' | base64 -D)
+export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} --namespace {{ .Release.Namespace }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
 kubectl run -it --rm cypher-shell \
     --image={{ .Values.image }}:{{ .Values.imageTag }} \
     --restart=Never \
     --namespace {{ .Release.Namespace }} \
-    --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" -a neo4j://{{ printf "%s-%s" .Release.Name .Values.name | trunc 56 }}.{{ printf "%s" .Release.Namespace }}.svc.cluster.local "call dbms.cluster.overview()"
+    --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" -a neo4j://{{ printf "%s-%s" .Release.Name .Values.name | trunc 56 }}.{{ printf "%s" .Release.Namespace }}.svc.cluster.local "call dbms.routing.getRoutingTable({}, 'system');"
 
 This will print out the addresses of the members of the cluster.
 

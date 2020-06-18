@@ -11,9 +11,27 @@ metadata:
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/component: core
+{{- with .Values.core.service.labels }}
+    {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.core.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 spec:
+{{- if (or (eq .Values.core.service.type "ClusterIP") (empty .Values.core.service.type)) }}
+  type: ClusterIP
   clusterIP: None
-  publishNotReadyAddresses: true 
+{{- else if eq .Values.core.service.type "LoadBalancer" }}
+  type: LoadBalancer
+  {{- with .Values.core.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{ toYaml . | nindent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.core.service.type }}
+{{- end }}
+  publishNotReadyAddresses: true
   ports:
     - name: http
       port: 7474
@@ -24,6 +42,9 @@ spec:
     - name: https
       port: 7473
       targetPort: 7473
+    - name: backup
+      port: 6362
+      targetPort: 6362
   selector:
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}

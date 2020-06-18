@@ -9,8 +9,11 @@ jobs:
       CLUSTER: ci-test
       ZONE: us-central1-a
       NODES: 3
-      NAME: testrun
+      NAME_CLUSTERED: testrunc
+      NAME_STANDALONE: testrunsa
       BUILD_ARTIFACTS: build
+      SERVICE_KEY_FILE: /tmp/service-key.json
+      BUCKET: gs://circleci-build-system
 
     steps:
       - checkout
@@ -41,15 +44,15 @@ jobs:
             # We will install local tools so add those to path.
             echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
             mkdir $BUILD_ARTIFACTS
-            mkdir tools
+            mkdir -p tools
 
       - run: 
           name: Setup GCP Tooling
           command: |
-            echo $GCLOUD_SERVICE_KEY > service-key.json
+            echo $GCLOUD_SERVICE_KEY > $SERVICE_KEY_FILE
             gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
-                --key-file=service-key.json
+                --key-file=$SERVICE_KEY_FILE
             gcloud auth configure-docker
 
       - run:
@@ -65,7 +68,7 @@ jobs:
           command: |
              echo "GKE SETUP"
              export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
-             ./test/provision-k8s.sh $CLUSTER_NAME
+             ./tools/test/provision-k8s.sh $CLUSTER_NAME
 
       - run:
           name: Install Helm Binaries
@@ -91,39 +94,105 @@ jobs:
             EOF
 
       - run:
+          name: Install service key secret for maintenance ops
+          command: |
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            kubectl create secret generic neo4j-service-key \
+              --namespace $NAMESPACE \
+              --from-file=credentials.json=$SERVICE_KEY_FILE
+
+      - run:
           name: Package and Install Neo4j-Helm Chart
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
              helm package .
              chart_archive=$(ls neo4j*.tgz)
              cp *.tgz $BUILD_ARTIFACTS/
-             echo "Installing $chart_archive"
-             helm install $NAME $chart_archive \
+
+             echo "Installing $chart_archive (CAUSAL CLUSTER TEST SCENARIO)"
+             helm install $NAME_CLUSTERED $chart_archive \
                  --namespace $NAMESPACE \
                  --set acceptLicenseAgreement=yes \
                  --set neo4jPassword=mySecretPassword \
                  --set readReplica.numberOfServers=1 \
-                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL.txt
-             
-      - run:
-          name: Twiddling our Thumbs
-          command: |
-            sleep 60
-            NAMESPACE=ns-$CIRCLE_BUILD_NUM
-            kubectl logs --namespace $NAMESPACE \
-              -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-cluster.txt
+
+             echo "Installing $chart_archive (STANDALONE SCENARIO)"
+             helm install $NAME_STANDALONE $chart_archive \
+                 --namespace $NAMESPACE \
+                 --set acceptLicenseAgreement=yes \
+                 --set readinessProbe.initialDelaySeconds=20 \
+                 --set livenessProbe.initialDelaySeconds=20 \
+                 --set neo4jPassword=mySecretPassword \
+                 --set core.standalone=true \
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt
+                     
+
+      #- run:
+      #    name: Twiddling our Thumbs
+      #    command: |
+      #      sleep 60
+      #      NAMESPACE=ns-$CIRCLE_BUILD_NUM
+      #      kubectl logs --namespace $NAMESPACE \
+      #        -l "app.kubernetes.io/name=neo4j,app.kubernetes.io/component=core" | tee -a $BUILD_ARTIFACTS/startlogs.txt
 
       - run:
-          name: Wait for GKE deployment to succeed and become ready
+          name: Wait for GKE STANDALONE deployment to succeed and become ready
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_STANDALONE-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait-standalone.txt
+      
+      # We're going to test standalone first because it forms faster than cluster.  In the background,
+      # cluster is still forming....
+      - run: 
+          name: Test STANDALONE
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              helm test $NAME_STANDALONE --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-STANDALONE.txt
+
+      - run:
+          name: Package and install BACKUP chart on STANDALONE
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              
+              helm package tools/backup
+              chart_archive=$(ls neo4j*.tgz)
+              cp *.tgz $BUILD_ARTIFACTS/
+
+              helm install standalone-backup tools/backup \
+                --namespace $NAMESPACE \
+                --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
+                --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
+                --set database="neo4j\,system" \
+                --set secretName=neo4j-service-key
+
+      - run:
+          name: Wait for GKE CLUSTERED deployment to succeed and become ready
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
-             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait.txt
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_CLUSTERED-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait-cluster.txt
 
       - run:
           name: Test
           command: |
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
-            helm test $NAME --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST.txt
+            helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-CLUSTER.txt
+
+      - run: 
+          name: Verify that backup succeeded
+          command: |
+            # If "latest" backup pointer files exist in a dir that is specific to this
+            # build number, we should be good.
+            NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            kubectl get job --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
+            helm status standalone-backup --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
+
+            backup_pod=$(kubectl get pods --namespace $NAMESPACE | grep neo4j-backup | sed 's/ .*$//')
+            echo "Backup pod $backup_pod" | tee -a $BUILD_ARTIFACTS/backup.log
+            kubectl logs --namespace $NAMESPACE "$backup_pod" | tee -a $BUILD_ARTIFACTS/backup.log
+
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
 
       - run:
           name: Uninstall / Cleanup

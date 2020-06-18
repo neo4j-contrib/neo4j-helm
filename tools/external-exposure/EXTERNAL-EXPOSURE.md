@@ -71,6 +71,11 @@ for idx in 0 1 2 ; do
 done
 ```
 
+**If you are doing this with Azure** please note that the static IP addresses must be in the same 
+resource group as your kubernetes cluster, and can be created with 
+[az network public-ip create](https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az-network-public-ip-create) like this (just one single sample):
+`az network public-ip create -g resource_group_name -n core01 --sku standard --dns-name neo4jcore01 --allocation-method Static`.  The Azure SKU used must be standard, and the resource group you need can be found in the kubernetes Load Balancer that [following the Azure Tutorial](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough) sets up for you.
+
 For the remainder of this tutorial, let's assume that the core IP addresses I've allocated here are
 as follows; I'll refer to them as these environment variables:
 
@@ -137,7 +142,7 @@ export ADDR0=35.202.123.82
 export ADDR1=34.71.151.230
 export ADDR2=35.232.116.39
 
-cat external-exposure/custom-core-configmap.yaml | envsubst | kubectl apply -f -
+cat tools/external-exposure/custom-core-configmap.yaml | envsubst | kubectl apply -f -
 ```
 
 Once customized, we now have a ConfigMap we can point our Neo4j deployment at, to advertise properly.
@@ -183,7 +188,7 @@ for x in 0 1 2 ; do
    export IP=${CORE_ADDRESSES[$x]}
    echo $DEPLOYMENT with IDX $IDX and IP $IP ;
 
-   cat external-exposure/load-balancer.yaml | envsubst | kubectl apply -f -
+   cat tools/external-exposure/load-balancer.yaml | envsubst | kubectl apply -f -
 done
 ```
 
@@ -217,7 +222,7 @@ After all of these steps, you should end up with a cluster properly exposed.   W
 like so, and connect to any of the 3 static IPs.
 
 ```
-export NEO4J_PASSWORD=$(kubectl get secrets graph-neo4j-secrets -o yaml | grep password | sed 's/.*: //' | base64 -D)
+export NEO4J_PASSWORD=$(kubectl get secrets graph-neo4j-secrets -o yaml | grep password | sed 's/.*: //' | base64 -d)
 cypher-shell -a neo4j://34.66.183.174:7687 -u neo4j -p "$NEO4J_PASSWORD"
 ```
 
