@@ -209,7 +209,7 @@ important environments.
 
 Neo4j browser is available on port 7474 of any of the hostnames described above.  However, because of the network environment that the cluster is in, hosts in the neo4j cluster advertise themselves with private internal DNS that is not resolvable from outside of the cluster.
 
-The [external exposure instructions](../tools/external-exposure/README-EXTERNAL-EXPOSURE.md) provide a walk-through of
+The [external exposure instructions](../tools/external-exposure/EXTERNAL-EXPOSURE.md) provide a walk-through of
 how you can configure this for your environment.
 
 ### Exposed Services
@@ -295,4 +295,4 @@ you may want to manually delete at a later date.
 
 ## Security
 
-For security reasons, we have not enabled access to the database cluster from outside of Kubernetes by default, instead choosing to leave this to users to configure appropriate network access policies for their usage.  If this is desired, please look at the external exposure instructions found in this repository.
+For security reasons, we have not enabled access to the database cluster from outside of Kubernetes by default, instead choosing to leave this to users to configure appropriate network access policies for their usage.  If this is desired, please look at the [external exposure](../tools/external-exposure/EXTERNAL-EXPOSURE.md) instructions found in this repository.
