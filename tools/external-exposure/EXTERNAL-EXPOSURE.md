@@ -142,7 +142,7 @@ export ADDR0=35.202.123.82
 export ADDR1=34.71.151.230
 export ADDR2=35.232.116.39
 
-cat external-exposure/custom-core-configmap.yaml | envsubst | kubectl apply -f -
+cat tools/external-exposure/custom-core-configmap.yaml | envsubst | kubectl apply -f -
 ```
 
 Once customized, we now have a ConfigMap we can point our Neo4j deployment at, to advertise properly.
@@ -188,7 +188,7 @@ for x in 0 1 2 ; do
    export IP=${CORE_ADDRESSES[$x]}
    echo $DEPLOYMENT with IDX $IDX and IP $IP ;
 
-   cat external-exposure/load-balancer.yaml | envsubst | kubectl apply -f -
+   cat tools/external-exposure/load-balancer.yaml | envsubst | kubectl apply -f -
 done
 ```
 
