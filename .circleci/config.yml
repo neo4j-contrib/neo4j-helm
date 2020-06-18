@@ -187,7 +187,7 @@ jobs:
             kubectl get job --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
             helm status standalone-backup --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
 
-            backup_pod=$(kubectl get pods --namespace $NAMESPACE | grep graph-backup | sed 's/ .*$//')
+            backup_pod=$(kubectl get pods --namespace $NAMESPACE | grep neo4j-backup | sed 's/ .*$//')
             echo "Backup pod $backup_pod" | tee -a $BUILD_ARTIFACTS/backup.log
             kubectl logs --namespace $NAMESPACE "$backup_pod" | tee -a $BUILD_ARTIFACTS/backup.log
 

@@ -125,7 +125,8 @@ function backup_database {
     esac
 
     if [ $backup_result -eq 1 ] ; then
-        return 1
+        echo "Aborting other actions; backup failed"
+        exit 1
     fi
 
     echo "Backup size:"
