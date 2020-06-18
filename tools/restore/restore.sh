@@ -60,6 +60,13 @@ function restore_database {
     echo "Making restore directory"
     mkdir -p "$RESTORE_ROOT"
 
+    # Trim trailing slash from BUCKET if it's there, because it messes up the
+    # copy commands if you copy gs://a//foo to gs://a//bar (double slash in path)
+    # https://stackoverflow.com/a/17542946/2920686
+    if [ "${BUCKET: -1}" = "/" ]; then
+        BUCKET="${BUCKET%?}"
+    fi
+
     REMOTE_BACKUPSET="$BUCKET/$db-$TIMESTAMP.tar.gz"
     echo "Copying $REMOTE_BACKUPSET -> $RESTORE_ROOT"
 
