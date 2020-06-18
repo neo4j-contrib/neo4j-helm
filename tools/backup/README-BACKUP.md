@@ -70,7 +70,7 @@ do this as a minimal required example:
 helm install my-backup-deployment . \
     --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
     --set bucket=gs://my-bucket/ \
-    --set database=neo4j,system \
+    --set database="neo4j\,system" \
     --set secretName=neo4j-service-key
 ``` 
 
