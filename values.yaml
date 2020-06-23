@@ -143,6 +143,11 @@ readReplica:
     maxReplicas: 3
 
   numberOfServers: 0
+  persistentVolume:
+    enabled: true
+    mountPath: /data
+    size: 10Gi
+    ## subPath: ""
 
   sidecarContainers: []
   ## Additional containers to be added to the Neo4j replica pod.
