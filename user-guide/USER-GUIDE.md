@@ -119,6 +119,7 @@ their default values.
 | `readReplica.autoscaling.minReplicas` | Min replicas for autoscaling  | `1`  |
 | `readReplica.autoscaling.maxReplicas`  | Max replicas for autoscaling  | `3` |
 | `readReplica.initContainers`          | Init containers to add to the replica pods. Example use case is a script that installs custom plugins/extensions                        | `{}`                                            |
+| `readReplica.persistentVolume.*`       | See `core.persistentVolume.*` settings; they behave identically for read replicas                                                      | `true`                                          |
 | `readReplica.service.type` | Service type | `ClusterIP` |
 | `readReplica.service.annotations` | Service annotations | `{}` |
 | `readReplica.service.labels` | Custom Service labels | `{}` |
