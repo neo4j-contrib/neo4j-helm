@@ -14,7 +14,7 @@ data:
   run.sh: |-
     export PATH=/usr/bin:$PATH
     export host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
-    export replica_host="$NAME-readreplica-svc.$NAMESPACE.svc.cluster.local"
+    export replica_host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
     echo "HOST $host"
     # This endpoint proves availability of the overall service
     export endpoint="http://$host:$PORT_HTTP"
@@ -53,6 +53,10 @@ data:
     function core_hostname {
       # Example: a-neo4j-core-0.a-neo4j.default.svc.cluster.local
       echo "$NAME-neo4j-core-$1.$NAME-neo4j.$NAMESPACE.svc.cluster.local"
+    }
+
+    function replica_hostname {
+      echo "{{ .Release.Name }}-neo4j-replica-$1.{{ .Release.Name }}-neo4j-replica.{{ .Release.Namespace }}.svc.cluster.local"
     }
 
     test_index=0
@@ -174,6 +178,13 @@ data:
       test="Core host $id of $CORES -- $core_endpoint has APOC installed correctly"
       runtest "$test" "RETURN apoc.version();" "$core_endpoint"
     done
+
+    # Replicas are up and configured.
+    if [ "$READ_REPLICAS" -gt 0 ]; then 
+      replica_endpoint="bolt://$replica_host:$PORT_BOLT"
+      test="Replica host -- $replica_endpoint is available"
+      runtest "$test" "MATCH (n) RETURN COUNT(n);" "$replica_endpoint"
+    fi
     {{- end }} # If database in clustered mode
 
     # Test for data replication.
@@ -204,6 +215,31 @@ data:
       else
         fail "$test" "Canary read failed to execute -- exit code $exit_code / RESULT -- $result"
       fi
+    done
+
+    echo "Now testing read replicas"
+
+    for id in $(seq 0 $((READ_REPLICAS - 1))); do
+      replica=$(replica_hostname $id)
+      replica_ep="bolt://$replica:$PORT_BOLT"
+      test "Replica host $id has the canary write"
+      result=$(cypher "MATCH (c:Canary) WITH count(c) as x where x = 1 RETURN x;" "$replica_ep")
+      exit_code=$?
+      if [ $exit_code -eq 0 ] ; then
+        # Check that the data is there.
+        found_results=$(echo "$result" | grep -o 1 | wc -l)
+
+        if [ $found_results -eq 1 ] ; then
+          succeed "$test"
+        else 
+          fail "$test" "Canary read did not return data -- $found_results found results from $result"
+        fi
+      else
+        fail "$test" "Canary read failed to execute -- exit code $exit_code / RESULT -- $result"
+      fi
+
+      test="Replica host $id of $READ_REPLICAS -- $replica_ep has APOC installed correctly"
+      runtest "$test" "RETURN apoc.version();" "$replica_ep"
     done
     {{- end }}
 

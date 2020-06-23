@@ -2,6 +2,12 @@ apiVersion: "apps/v1"
 kind: StatefulSet
 metadata:
   name: "{{ template "neo4j.core.fullname" . }}"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/name: {{ template "neo4j.name" . }}
+    app.kubernetes.io/component: core
 spec:
   podManagementPolicy: Parallel
   serviceName: {{ template "neo4j.fullname" . }}
