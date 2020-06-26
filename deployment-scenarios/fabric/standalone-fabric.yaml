@@ -1,0 +1,10 @@
+# This scenario creates a single-instance standalone Neo4j
+# machine, with the most basic configuration.
+###############################################################
+core:
+    standalone: true
+    configMap: standalone-fabric-config
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
