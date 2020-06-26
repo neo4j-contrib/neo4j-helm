@@ -6,7 +6,7 @@ This repository contains a Helm chart that starts Neo4j >= 4.0 Enterprise Editio
 
 ## Quick Start
 
-Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) and copy the URL of the tgz package.
+Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) and copy the URL of the tgz package.   Make sure to note the correct version of Neo4j.
 
 ### Standalone (single server)
 

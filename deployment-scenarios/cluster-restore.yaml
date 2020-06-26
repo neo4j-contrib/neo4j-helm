@@ -13,7 +13,7 @@ core:
     numberOfServers: 3
     initContainers:
         - name: restore-from-backup
-          image: gcr.io/neo4j-helm/restore:4.0.5-1
+          image: gcr.io/neo4j-helm/restore:4.1.0-1
           imagePullPolicy: Always
           volumeMounts:
             - name: datadir
@@ -36,7 +36,7 @@ readReplica:
     numberOfServers: 1
     initContainers:
         - name: restore-from-backup
-          image: gcr.io/neo4j-helm/restore:4.0.5-1
+          image: gcr.io/neo4j-helm/restore:4.1.0-1
           imagePullPolicy: Always
           volumeMounts:
             # - name: datadir
