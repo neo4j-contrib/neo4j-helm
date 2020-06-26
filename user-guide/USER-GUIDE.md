@@ -191,6 +191,8 @@ For further durability of data, regularly scheduled [backups](../tools/backup/RE
 In Neo4j 4.0+, [fabric](https://neo4j.com/docs/operations-manual/current/fabric/introduction/) is a feature that can be enabled with regular configuration in neo4j.conf.  All of the fabric configuration that is referenced in the manual can be done via custom 
 ConfigMaps described in this documentation.  
 
+[A simple worked example of this approach can be found here](../deployment-scenarios/fabric/).
+
 Using Neo4j Fabric in kubernetes boils down to configuring the product as normal, but with the “docker style".  
 In the neo4j operations manual, it might tell you to set `fabric.database.name=myfabric` and in kubernetes that would be `NEO4J_fabric_database_name: myfabric` and so forth.
 
