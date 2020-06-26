@@ -36,23 +36,21 @@ at the very bottom of this document.
 
 ## High-Level Approach
 
-This tools directory will provide advice and guidance, but not ready-made software because 
-careful planning and design for *your* system is necessary before you perform this operation.
-
 1. Take a backup
 2. Scale the core statefulset up, to maintain high availability. 
 3. Choose and apply your UpdateStrategy.
 4. Patch the statefulset to apply the new Neo4j version
 5. Monitor the process
-6. Scale back down on success to the original size.
+6. (Optional/If Applicable) Apply the above process to the read replica StatefulSet as well.
+7. Scale back down on success to the original size.
 
-We will now describe each step, and why it should happen.
+We will now describe each step, how to do it, and why.
 
 ## Take a Backup
 
 Before doing any major system maintenance operation, it's crucial to have an up-to-date backup, ensuring that if anything goes wrong, there is a point in time to return to for the database's state.
 
-In addition, all operations should be tested on a staging or a production-like environment as a "dry run" before attempting this on application-critical systems.
+In addition, all operations should be tested on a staging or a production-like environment as a "dry run" before attempting this on application-critical systems.   Performing backups is covered in the user guide in this repository.
 
 ## Scale the Core Statefulset Up
 
@@ -127,6 +125,14 @@ What we're looking for:
 * Only one pod at a time stopping/restarting
 * Consistent ability to maintain a connection to the cluster, with both read & write ability throughout.
 * Monitor the `debug.log` file and container output to make sure the process is proceeding correctly
+
+## (Optional) Apply the Process to the Read Replicas
+
+Read replicas are handled in a second StatefulSet.  The process of applying an update
+strategy, patching the statefulset, and monitoring is the same though.
+
+**Recommended:** make sure you have a fully migrated & happy core cluster member set
+before working with read replicas.  Do not roll both sets at once.
 
 ## Scale Back Down
 
