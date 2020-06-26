@@ -77,6 +77,9 @@ Important notes about standalone mode:
 2. Read replicas may only be used with causal cluster.  When running standalone, all read replica
 arguments are *ignored*.
 3. All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
+4. Standalone instances installed in this way **cannot be scaled into clusters**.  
+If you attempt to scale a standalone system, you will get multiple independent DBMSes, 
+you will not get 1 causal cluster.
 
 ## Helm Configuration
 
@@ -186,6 +189,36 @@ The most important data is kept in the `/data` volume attached to each of the co
 are mapped to PersistentVolumeClaims in Kubernetes, and they are *not* deleted when you run `helm uninstall mygraph`.
 
 For further durability of data, regularly scheduled [backups](../tools/backup/README-BACKUP.md) are recommended.
+
+## Fabric
+
+In Neo4j 4.0+, [fabric](https://neo4j.com/docs/operations-manual/current/fabric/introduction/) is a feature that can be enabled with regular configuration in neo4j.conf.  All of the fabric configuration that is referenced in the manual can be done via custom 
+ConfigMaps described in this documentation.  
+
+[A simple worked example of this approach can be found here](../deployment-scenarios/fabric/).
+
+Using Neo4j Fabric in kubernetes boils down to configuring the product as normal, but with the “docker style".  
+In the neo4j operations manual, it might tell you to set `fabric.database.name=myfabric` and in kubernetes that would be `NEO4J_fabric_database_name: myfabric` and so forth.
+
+So that is fairly straightforward.  But this is only one half of the story.  The other half is, what is the fabric deployment topology?   
+
+### Fabric Topology
+
+[Fabric enables some very complex setups](https://neo4j.com/docs/operations-manual/current/fabric/introduction/#_multi_cluster_deployment).  If you have a single DBMS* you can do it with pure configuration and it will work.  If you have multiple DBMSs, then the way this works behind the scenes is via account/role coordination, and bolt connections between clusters.   
+
+That in turn means that you would need to have network routing bits set up so that cluster A could talk to cluster B (referring to the diagram linked above).  This would mostly be kubernetes networking stuff, nothing too exotic, but this would need to be carefully planned for.
+
+Where this gets complicated is when the architecture gets big/complex.  Suppose you’re using fabric to store shards of a huge “customer graph”.  The shard of US customers exists in one geo region, and the shard of EU customers in another geo region.  You can use fabric to query both shards and have a logical view of the “customer graph” over all geos.  To do this in kubernetes though would imply kubernetes node pools in two different geos, and almost certainly 2 different neo4j clusters.  To enable bolt between them (permitting fabric to work) would get into a more advanced networking setup for kubernetes specifically.  But to neo4j as a product, it’s all the same.  Can I make a neo4j/bolt connection to the remote source?   Yes?  Then it should be fine.
+
+### How Fabric Works
+
+What fabric needs to work are 3 things:
+
+1. A user/role (neo4j/admin for example) that is the same on all databases subject to the fabric query
+2. The ability to make a bolt connection to all cluster members participating in the fabric query
+3. Some configuration.
+
+Custom configmaps cover #3.  Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific.  And #2 is where kubernetes networking may or may not come in, depending on your deployment topology.  In the simplest single DBMS configurations, I think it will work out of the box.
 
 ## Passing Custom Configuration as a ConfigMap
 
