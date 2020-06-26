@@ -3,30 +3,30 @@
 This document expands on the Neo4j Operations Manual entry
 [Upgrade a Causal Cluster](https://neo4j.com/docs/operations-manual/current/upgrade/causal-cluster/) with information about approaches on rolling upgrades in Kubernetes.
 
-*It is strongly recommended that you read all of that documentation before using this method*.
+**It is strongly recommended that you read all of that documentation before using this method**.
 
 Not all relevant concepts will be described in this document.  Familiarity with the page above will be assumed.
 
-*It is recommended to perform a test upgrade on a production-like environment to get information on the duration of the downtime, if any, that may be necessary.*
+**It is recommended to perform a test upgrade on a production-like environment to get information on the duration of the downtime, if any, that may be necessary.**
 
-## When do you need to do a rolling upgrade?
+## When is this needed?
 
 * When you have a Neo4j Causal Cluster (standalone does not apply)
 * When you need to upgrade to a new minor or patch version of Neo4j
 * When you must maintain the cluster online with both read and write capabilities during the course of the upgrade process.
 
-## Things This Approach Doesn't Cover
+## What This Approach Doesn't Cover
 
-Moving between major versions of Neo4j (for example, 3.5 and 4.0).  The reason this isn't
-covered here is because it requires more planning, due to these factors:
+Moving between major versions of Neo4j (for example, 3.5 and 4.0).  
+This requires more planning, due to these factors:
 
 * Substantial configuration changes needed on the pods between 3.5 and 4.0
 * Major changes in product features which impact what clients can rely upon.
-* Changes in the helm charts used, and their structure
+* Changes in the helm charts used, and their structure; if you're using an old
+3.5 helm chart, the differences between what you're using and this repo may be substantial.
 * The need for a store upgrade operation to change the format of Neo4j data on disk
 
-Fundamentally - Neo4j 4.0 is not backwards compatible with 3.5, there are many important
-changes to be aware of.  Additional planning and offline upgrade is recommended.
+Neo4j 4.0 is not backwards compatible with 3.5. Additional planning and offline upgrade is recommended.
 
 If you are in the situation of migrating from Neo4j 3.5 -> 4.0, please consult
 [the Neo4j Migration Guide](https://neo4j.com/docs/migration-guide/current/).
@@ -39,12 +39,12 @@ at the very bottom of this document.
 This tools directory will provide advice and guidance, but not ready-made software because 
 careful planning and design for *your* system is necessary before you perform this operation.
 
-* Take a backup
-* Scale the core statefulset up, by adding 2 more members (keeping total number of members odd). 
-* Choose and apply your UpdateStrategy.
-* Patch the statefulset to apply the new Neo4j version
-* Monitor the process
-* Scale back down on success to the original size.
+1. Take a backup
+2. Scale the core statefulset up, to maintain high availability. 
+3. Choose and apply your UpdateStrategy.
+4. Patch the statefulset to apply the new Neo4j version
+5. Monitor the process
+6. Scale back down on success to the original size.
 
 We will now describe each step, and why it should happen.
 
@@ -70,7 +70,8 @@ Given a cluster deployment named "mygraph", you can scale it to 5 cores like so:
 kubectl scale statefulsets mygraph-neo4j-core --replicas=5
 ```
 
-This should immediately schedule 2 new pods with the same configuration (and the *old* version of Neo4j) to start up and join the cluster.
+This should immediately schedule 2 new pods with the same configuration (and the *old* version of Neo4j) to start up and join the cluster.  It is recommended that you scale by 2, not by 1,
+to ensure that the number of cores in the cluster is always odd.
 
 > **REMEMBER** when new members join the cluster, before the cluster is stable, they
 > need to pull current transactional state.  Having members restore from a recent
