@@ -77,6 +77,9 @@ Important notes about standalone mode:
 2. Read replicas may only be used with causal cluster.  When running standalone, all read replica
 arguments are *ignored*.
 3. All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
+4. Standalone instances installed in this way **cannot be scaled into clusters**.  
+If you attempt to scale a standalone system, you will get multiple independent DBMSes, 
+you will not get 1 causal cluster.
 
 ## Helm Configuration
 
