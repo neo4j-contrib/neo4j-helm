@@ -179,6 +179,10 @@ table above because they are documented in the operational manual, but here are 
 * To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
 * To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
 
+## Rolling Upgrades
+
+See [the documentation on the rolling upgrade process](../tools/rolling-upgrade/README-ROLLING-UPGRADE.md).
+
 ## Data Persistence
 
 The most important data is kept in the `/data` volume attached to each of the core cluster members.  These in turn
