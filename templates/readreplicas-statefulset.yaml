@@ -50,7 +50,11 @@ spec:
           - name: NEO4J_SECRETS_PASSWORD
             valueFrom:
               secretKeyRef:
+                {{- if .Values.existingPasswordSecret }}
+                name: {{ .Values.existingPasswordSecret }}
+                {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
+                {{- end}}
                 key: neo4j-password
           {{- end }}
         command:
