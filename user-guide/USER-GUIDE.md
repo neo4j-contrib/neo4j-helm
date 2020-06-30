@@ -287,6 +287,8 @@ After installing, your cluster will start with the password you supplied as the 
 export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
 ```
 
+Alternatively:  if you set `existingPasswordSecret` that secret name should be used instead.
+
 This password applies for the base administrative user named “neo4j”.
 
 ## Usage
