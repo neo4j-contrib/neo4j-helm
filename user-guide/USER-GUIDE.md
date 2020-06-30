@@ -189,6 +189,13 @@ See [the documentation on the rolling upgrade process](../tools/rolling-upgrade/
 The most important data is kept in the `/data` volume attached to each of the core cluster members.  These in turn
 are mapped to PersistentVolumeClaims in Kubernetes, and they are *not* deleted when you run `helm uninstall mygraph`.
 
+It is recommended that you investigate the `storageClass` option for persistent volume claims, and to choose low-latency
+SSD disks for best performance with Neo4j.
+
+**Important**:  PVCs retain data between Neo4j installs. If you deploy a cluster under the name 'mygraph', later uninstall it
+and then re-install it a second time under the *same name*, the new instance will inherit all of the old data from the pre-existing
+PVCs.  This would include things like usernames, passwords, roles, and so forth.
+
 For further durability of data, regularly scheduled [backups](../tools/backup/README-BACKUP.md) are recommended.
 
 ## Fabric
