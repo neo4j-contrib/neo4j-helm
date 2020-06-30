@@ -34,6 +34,9 @@ authEnabled: true
 ## Defaults to a random 10-character alphanumeric string if not set and authEnabled is true
 # neo4jPassword:
 
+## Specify secret name containing the password for neo4j user
+# existingPasswordSecret
+
 # Specify cluster domain (used eg. as suffix in the eventual internal hostnames)
 clusterDomain: "cluster.local"
 

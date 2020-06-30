@@ -43,7 +43,11 @@ spec:
   volumes:
     - name: secret-volume
       secret:
-        secretName: "{{ template "neo4j.secrets.fullname" . }}"
+        {{- if .Values.existingPasswordSecret }}
+        secretName: {{ .Values.existingPasswordSecret }}
+        {{- else }}
+        secretName: {{ template "neo4j.secrets.fullname" . }}
+        {{- end}}
         items:
           - key: neo4j-password
             path: neo4j-password

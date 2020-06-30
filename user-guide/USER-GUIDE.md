@@ -130,6 +130,7 @@ their default values.
 | `resources`                           | Resources required (e.g. CPU, memory)                                                                                                   | `{}`                                            |
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 | `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. | (none) |
+| `existingPasswordSecret`              | The name of the kubernetes secret which contains the `neo4j-password` | (none) |
 
 ## Backup
 
