@@ -1,3 +1,4 @@
+{{- if not .Values.core.standalone }}
 # This service is intended for clients running in kubernetes to connect to the
 # cluster replica set.  This distinguishes it from discovery-lb which is about 
 # cluster formation and internal communication.
@@ -10,9 +11,27 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     app.kubernetes.io/name: {{ template "neo4j.replica.fullname" . }}
-    app.kubernetes.io/component: core
+    app.kubernetes.io/component: replica
+{{- with .Values.readReplica.service.labels }}
+    {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.readReplica.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
 spec:
+{{- if (or (eq .Values.readReplica.service.type "ClusterIP") (empty .Values.readReplica.service.type)) }}
+  type: ClusterIP
   clusterIP: None
+{{- else if eq .Values.readReplica.service.type "LoadBalancer" }}
+  type: LoadBalancer
+  {{- with .Values.readReplica.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{ toYaml . | nindent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.readReplica.service.type }}
+{{- end }}
   publishNotReadyAddresses: true 
   ports:
     - name: http
@@ -28,3 +47,4 @@ spec:
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/component: replica
+{{- end }}

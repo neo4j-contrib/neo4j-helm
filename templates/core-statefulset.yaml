@@ -2,10 +2,20 @@ apiVersion: "apps/v1"
 kind: StatefulSet
 metadata:
   name: "{{ template "neo4j.core.fullname" . }}"
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app.kubernetes.io/name: {{ template "neo4j.name" . }}
+    app.kubernetes.io/component: core
 spec:
   podManagementPolicy: Parallel
   serviceName: {{ template "neo4j.fullname" . }}
+  {{- if .Values.core.standalone }}
+  replicas: 1
+  {{- else }}
   replicas: {{ .Values.core.numberOfServers }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -40,7 +50,11 @@ spec:
           - name: NEO4J_SECRETS_PASSWORD
             valueFrom:
               secretKeyRef:
+                {{- if .Values.existingPasswordSecret }}
+                name: {{ .Values.existingPasswordSecret }}
+                {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
+                {{- end}}
                 key: neo4j-password
           {{- end }}      
         command:
@@ -52,12 +66,14 @@ spec:
             # Processes key configuration elements and exports env vars we need.
             . /helm-init/init.sh
 
+            {{- if not .Values.core.standalone }}
             # We advertise the discovery-lb addresses (see discovery-lb.yaml) because
             # it is for internal cluster comms and is limited to private ports.
             export DISCOVERY_HOST="discovery-{{ template "neo4j.fullname" . }}-${core_idx}.{{ .Release.Namespace }}.svc.cluster.local"
             export NEO4J_causal__clustering_discovery__advertised__address="$DISCOVERY_HOST:5000"
             export NEO4J_causal__clustering_transaction__advertised__address="$DISCOVERY_HOST:6000"
             export NEO4J_causal__clustering_raft__advertised__address="$DISCOVERY_HOST:7000"
+            {{- end }}
 
             echo "Starting Neo4j CORE $core_idx on $HOST"
             exec /docker-entrypoint.sh "neo4j"
@@ -94,6 +110,11 @@ spec:
           {{- end }}
         - name: plugins
           mountPath: /plugins
+        {{- if .Values.restoreSecret }}
+        - name: creds
+          mountPath: /auth
+          readOnly: true
+        {{- end }}  
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         livenessProbe:
@@ -115,6 +136,14 @@ spec:
         - name: init-script
           configMap: 
             name: "{{ .Release.Name }}-init-script"
+        {{- if .Values.restoreSecret }}
+        - name: creds
+          secret:
+            secretName: {{ .Values.restoreSecret }}
+            items:
+            - key: credentials.json
+              path: credentials.json
+        {{- end }}
         {{- if not .Values.core.persistentVolume.enabled }}
         - name: datadir
           emptyDir: {}

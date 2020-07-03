@@ -1,3 +1,4 @@
+{{- if not .Values.core.standalone }}
 # This ConfigMap gets passed to all core cluster members to configure them.
 # Take note that some networking settings like internal hostname still get configured
 # when the pod starts, but most non-networking specific configs can be tailored here.
@@ -7,3 +8,4 @@ metadata:
   name: {{ template "neo4j.replicaConfig.fullname" . }}
 data:
   NEO4J_dbms_mode: READ_REPLICA
+{{- end }}

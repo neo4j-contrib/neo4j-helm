@@ -1,4 +1,4 @@
-{{- if .Values.readReplica.autoscaling.enabled }}
+{{- if and (not .Values.core.standalone) (.Values.readReplica.autoscaling.enabled) }}
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:

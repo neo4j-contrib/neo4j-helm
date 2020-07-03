@@ -7,7 +7,7 @@ name: "neo4j"
 
 # Specs for the Neo4j docker image
 image: "neo4j"
-imageTag: "4.0.4-enterprise"
+imageTag: "4.1.0-enterprise"
 imagePullPolicy: "IfNotPresent"
 # imagePullSecret: registry-secret
 acceptLicenseAgreement: "no"
@@ -34,7 +34,10 @@ authEnabled: true
 ## Defaults to a random 10-character alphanumeric string if not set and authEnabled is true
 # neo4jPassword:
 
-# Specify cluster domain (used eg. as suffix in definition of NEO4J_causal__clustering_initial__discovery__members environment variable)
+## Specify secret name containing the password for neo4j user
+# existingPasswordSecret
+
+# Specify cluster domain (used eg. as suffix in the eventual internal hostnames)
 clusterDomain: "cluster.local"
 
 # Specs for the images used for running tests against the Helm package
@@ -50,9 +53,12 @@ useAPOC: "true"
 # See https://neo4j.com/docs/operations-manual/current/manage-databases/introduction/#manage-databases-default
 defaultDatabase: "neo4j"
 
+# restoreSecret=neo4j-service-key
+
 # Cores
 core:
   # configMap: "my-custom-configmap"
+  standalone: false
   numberOfServers: 3
   persistentVolume:
     ## whether or not persistence is enabled
@@ -103,9 +109,28 @@ core:
   #       curl -L https://somesite.com/path/to/plugin.jar -O
   #       cp plugin.jar /plugins/
 
+  ## This service is intended for clients running in kubernetes to connect to
+  ## the cluster.
+  ## Default: ClusterIP (headless)
+  service:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
+
+  ## This creates a discovery Service for each member in the core set, and ties
+  ## to the use of the Neo4j discovery type "K8S" with the configured selectors.
+  ## Default: ClusterIP (headless)
+  discoveryService:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
+
 # Read Replicas
 readReplica:
   # configMap: "my-custom-configmap"
+
   resources: {}
   # limits:
   #   cpu: 100m
@@ -113,6 +138,7 @@ readReplica:
   # requests:
   #   cpu: 100m
   #   memory: 512Mi
+
   autoscaling:
     enabled: false
     targetAverageUtilization: 70
@@ -120,6 +146,11 @@ readReplica:
     maxReplicas: 3
 
   numberOfServers: 0
+  persistentVolume:
+    enabled: true
+    mountPath: /data
+    size: 10Gi
+    ## subPath: ""
 
   sidecarContainers: []
   ## Additional containers to be added to the Neo4j replica pod.
@@ -144,6 +175,15 @@ readReplica:
   #       curl -L https://somesite.com/path/to/plugin.jar -O
   #       cp plugin.jar /plugins/
 
+  ## This service is intended for clients running in kubernetes to connect to
+  ## the cluster replica set.
+  ## Default: ClusterIP (headless)
+  service:
+    type: ClusterIP
+    annotations: {}
+    labels: {}
+    loadBalancerSourceRanges: []
+
 resources: {}
   # limits:
   #   cpu: 1000m
@@ -157,6 +197,9 @@ resources: {}
 # that initialDelaySeconds give the cluster time to form, because
 # if readiness probes start immediately after container start,
 # they may end up not forming quickly enough and getting killed.
+# DEPENDENCY:  If you're running in standalone mode, the single machine
+# starts much faster.  You could set initialDelaySeconds to something like
+# 30 and it would be OK for a stand-alone machine, but not for a cluster.
 readinessProbe:
   initialDelaySeconds: 120
   failureThreshold: 3
@@ -183,7 +226,7 @@ metrics:
     server: localhost:2003
     interval: 3s
     # This will be set to the app name later.
-    # metrics.prefix=Neo4j_1   
+    # metrics.prefix=Neo4j_1
   prometheus:
     ## Publish metrics for polling as Prometheus endpoint
     enabled: false

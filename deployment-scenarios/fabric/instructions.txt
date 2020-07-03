@@ -1,0 +1,50 @@
+This directory contains quick instructions and an example of how to set up fabric
+with Neo4j + Helm.
+
+Step 1:  Create custom configmap.
+
+kubectl apply -f deployment-scenarios/fabric/fabric-configmap.yaml
+
+This configmap assumes that in the later step, we're deploying a single instance under
+the name "fabric-example".  Note that the virtual fabric database must be on a standalone
+instance, not a cluster.
+
+Step 2:  Install a standalone instance using the provided parameters.
+
+helm install fabric-example -f deployment-scenarios/fabric/standalone-fabric.yaml . 
+
+Step 3:  Log in and run Fabric queries!
+
+Run cypher-shell
+
+kubectl run -it --rm cypher-shell \
+    --image=neo4j:4.1.0-enterprise \
+    --restart=Never \
+    --namespace default \
+    --command -- ./bin/cypher-shell -u neo4j -p "mySecretPassword" \
+    -a neo4j://fabric-example-neo4j.default.svc.cluster.local
+
+Let's create two databases to fabric query, and put a single node in each.
+
+neo4j@system> :use system
+neo4j@system> create database shard1;
+0 rows available after 297 ms, consumed after another 0 ms
+neo4j@system> create database shard2;
+0 rows available after 17 ms, consumed after another 0 ms
+neo4j@system> :use shard1
+neo4j@shard1> create (:Person { name: "David" });
+0 rows available after 69 ms, consumed after another 0 ms
+Added 1 nodes, Set 1 properties, Added 1 labels
+neo4j@shard1> :use shard2
+neo4j@shard2> create (:Person { name: "Sarah" });
+0 rows available after 33 ms, consumed after another 0 ms
+Added 1 nodes, Set 1 properties, Added 1 labels
+
+Finally -- let's run a fabric query!
+
+neo4j@fabric> USE shard1
+              MATCH (n) RETURN n
+              UNION
+              USE shard2
+              MATCH (n) RETURN n;
+

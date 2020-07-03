@@ -1,5 +1,7 @@
+{{- if not .Values.core.standalone }}
+# The ReadReplica deployment only happens for clustered installs.
 apiVersion: "apps/v1"
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: "{{ template "neo4j.replica.fullname" . }}"
   labels:
@@ -9,6 +11,8 @@ metadata:
     app.kubernetes.io/name: {{ template "neo4j.name" . }}
     app.kubernetes.io/component: replica
 spec:
+  podManagementPolicy: Parallel
+  serviceName: "{{ template "neo4j.replica.fullname" . }}"
 {{- if not .Values.readReplica.autoscaling.enabled }}
   replicas: {{ .Values.readReplica.numberOfServers }}
 {{- end }}
@@ -20,8 +24,10 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ template "neo4j.name" . }}
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
         app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app.kubernetes.io/name: {{ template "neo4j.name" . }}
         app.kubernetes.io/component: replica
     spec:
       serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
@@ -44,19 +50,18 @@ spec:
           - name: NEO4J_SECRETS_PASSWORD
             valueFrom:
               secretKeyRef:
+                {{- if .Values.existingPasswordSecret }}
+                name: {{ .Values.existingPasswordSecret }}
+                {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
+                {{- end}}
                 key: neo4j-password
           {{- end }}
         command:
           - "/bin/bash"
           - "-c"
           - |
-            # Replicas advertise by bare IP, not hostname.  This is because deployments in kubernetes
-            # don't provide good FQDNs. (https://github.com/kubernetes/kubernetes/issues/60789)
-            # The FQDN advertisement address is necessary for the akka cluster formation in Neo4j to work,
-            # so if you advertise with a bare local hostname or something invalid, the read replica will be
-            # unable to join the raft group.
-            export HOST=$(hostname -i)
+            export replica_idx=$(hostname | sed 's|.*-||')
 
             # Processes key configuration elements and exports env vars we need.
             . /helm-init/init.sh
@@ -67,7 +72,7 @@ spec:
             export NEO4J_causal__clustering_transaction__advertised__address=$HOST:6000
             export NEO4J_causal__clustering_raft__advertised__address=$HOST:7000
 
-            echo "Starting Neo4j READ_REPLICA on $HOST"
+            echo "Starting Neo4j READ_REPLICA $replica_idx on $HOST"
             exec /docker-entrypoint.sh "neo4j"
         ports:
         - containerPort: 5000
@@ -97,6 +102,11 @@ spec:
           mountPath: /helm-init
         - name: plugins
           mountPath: /plugins
+        {{- if .Values.restoreSecret }}
+        - name: creds
+          mountPath: /auth
+          readOnly: true
+        {{- end }}
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         livenessProbe:
@@ -126,9 +136,44 @@ spec:
         - name: init-script
           configMap: 
             name: "{{ .Release.Name }}-init-script"
+        {{- if .Values.restoreSecret }}
+        - name: creds
+          secret:
+            secretName: {{ .Values.restoreSecret }}
+            items:
+            - key: credentials.json
+              path: credentials.json
+        {{- end }}
+        {{- if not .Values.readReplica.persistentVolume.enabled }}
+        - name: datadir
+          emptyDir: {}
+        {{- end }}
         - name: plugins
           emptyDir: {}
 {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecret }}
 {{- end -}}
+  {{- if .Values.readReplica.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+        annotations:
+        {{- if .Values.readReplica.persistentVolume.annotations }}
+  {{ toYaml .Values.readReplica.persistentVolume.annotations | indent 12 }}
+        {{- end }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+      {{- if .Values.readReplica.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.readReplica.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.readReplica.persistentVolume.storageClass }}"
+      {{- end }}
+      {{- end }}
+        resources:
+          requests:
+            storage: "{{ .Values.readReplica.persistentVolume.size }}"
+  {{- end }}
+{{- end }} # if not standalone mode
