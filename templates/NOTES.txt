@@ -12,7 +12,7 @@ been ignored - only Neo4j clusters may have read replicas.
 Your cluster is now being deployed, and may take up to 5 minutes to become available.
 If you'd like to track status and wait on your rollout to complete, run:
 
-$ kubectl rollout status --namespace {{ .Release.Namespace }} StatefulSet/{{ template "neo4j.name" . }}-core --watch
+$ kubectl rollout status --namespace {{ .Release.Namespace }} StatefulSet/{{ printf "%s-%s" .Release.Name .Values.name | trunc 56 }}-core --watch
 
 You can inspect your logs containers like so:
 

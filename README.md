@@ -94,6 +94,11 @@ helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword
 The following mini-script will provision a test cluster, monitor it for rollout, test it,
 report test results, and teardown / destroy PVCs.
 
+#### Provision K8S Cluster
+
+Please use the `tools/test/provision-k8s.sh`, and customize your Google Cloud
+project ID.
+
 #### Standalone
 
 Standalone forms faster so we can manually lower the liveness/readiness timeouts.
