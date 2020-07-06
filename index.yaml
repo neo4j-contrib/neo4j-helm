@@ -31,7 +31,7 @@ entries:
       sources:
       - https://github.com/neo4j-contrib/neo4j-helm
       urls:
-      - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.1.0-1/neo4j-4.1.0-2.tgz
+      - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.1.0-2/neo4j-4.1.0-2.tgz
       version: 4.1.0-2
     - created: 2020-06-30T00:00:00.499814565-06:00
       description: Neo4j 4.1.0
