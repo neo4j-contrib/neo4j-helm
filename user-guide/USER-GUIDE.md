@@ -331,7 +331,7 @@ Because Neo4j's configuration is different in single-node mode (dbms.mode=SINGLE
 scale a deployment if it was initially set to 1 coreServer.  This will result in multiple independent
 databases, not one cluster.
 
-### Execution
+### Execution (Manual Scaling)
 
 Neo4j-Helm consists of a StatefulSet for core nodes, and a Deployment for replicas.  In configuration, even if you chose zero replicas, you will see a Deployment with zero members.
 
@@ -339,6 +339,19 @@ Scaling the database is a matter of scaling one of these elements.
 
 Depending on the size of your database and how busy the other members are, it may take considerable time for the cluster topology to show the presence of the new member, as it connects to the cluster and performs catch-up.
 Once the new node is caught up, you can execute the cypher query CALL dbms.cluster.overview(); to verify that the new node is operational.
+
+### Execution (Automated Scaling)
+
+The helm chart provides settings which provide for a [HorizontalPodAutoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) for read replicas, which can automatically scale according to the
+CPU utilization of the underlying pods.   For usage of this feature, please see the `readReplica.autoscaling.*` 
+settings documented in the supported settings above.
+
+For further details about how this works and what it entails, please consult the 
+[kubernetes documentation on horizontal pod autoscalers](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/).
+
+*Automated scaling applies only to read replicas.*  At this time we do not recommend automatic scaling of 
+core members of the cluster at all, and core member scaling should be limited to special operations such as
+rolling upgrades, documented separately.
 
 ### Warnings and Indications
 
@@ -351,3 +364,9 @@ you may want to manually delete at a later date.
 ## Security
 
 For security reasons, we have not enabled access to the database cluster from outside of Kubernetes by default, instead choosing to leave this to users to configure appropriate network access policies for their usage.  If this is desired, please look at the [external exposure](../tools/external-exposure/EXTERNAL-EXPOSURE.md) instructions found in this repository.
+
+### Ports
+
+Refer to the [Neo4j operations manual](https://neo4j.com/docs/operations-manual/current/configuration/ports/) for
+information on the ports that Neo4j needs to function.  Default port numbers in the helm chart exactly follow
+default ports in other installations.
