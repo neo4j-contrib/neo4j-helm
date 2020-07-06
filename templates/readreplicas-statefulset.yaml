@@ -102,6 +102,11 @@ spec:
           mountPath: /helm-init
         - name: plugins
           mountPath: /plugins
+        - name: datadir
+          mountPath: "{{ .Values.readReplica.persistentVolume.mountPath }}"
+          {{- if .Values.readReplica.persistentVolume.subPath }}
+          subPath: {{ .Values.readReplica.persistentVolume.subPath }}
+          {{- end }}
         {{- if .Values.restoreSecret }}
         - name: creds
           mountPath: /auth
