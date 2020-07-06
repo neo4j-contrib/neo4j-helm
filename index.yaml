@@ -24,6 +24,16 @@ entries:
       version: 4.0.4-1
   neo4j:
     - created: 2020-06-30T00:00:00.499814565-06:00
+      description: Neo4j 4.1.0-2 bugfix release
+      digest: 4be8e4846f3bd1fc8ad67679e67b140cd00544ae01075899218711b193fd526d
+      home: https://github.com/neo4j-contrib/neo4j-helm
+      name: neo4j
+      sources:
+      - https://github.com/neo4j-contrib/neo4j-helm
+      urls:
+      - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.1.0-1/neo4j-4.1.0-2.tgz
+      version: 4.1.0-2
+    - created: 2020-06-30T00:00:00.499814565-06:00
       description: Neo4j 4.1.0
       digest: e80909bcd3fad764ede37bf49574a327161567e77cd1c52845b93a3a04f0851c
       home: https://github.com/neo4j-contrib/neo4j-helm
