@@ -1,0 +1,24 @@
+# This scenario creates a single-instance standalone Neo4j
+# machine, with a custom memory configuration.
+###############################################################
+core:
+    standalone: true
+
+resources:
+    limits:
+        memory: 2G
+    requests:
+        memory: 2G
+
+dbms:
+    memory:
+        use_memrec: false
+        heap:
+            initial_size: 1024m
+            max_size: 1024m
+        pagecache:
+            size: 567m
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
