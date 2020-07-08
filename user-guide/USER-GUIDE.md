@@ -1,5 +1,49 @@
 # Neo4j-Helm User Guide
 
+**Table of contents**
+
+- [Introduction](#introduction)
+  * [Overview](#overview)
+  * [Architecture](#architecture)
+  * [Prerequisites](#prerequisites)
+  * [Licensing & Cost](#licensing--cost)
+- [Installation](#installation)
+  * [Causal Cluster Command Line Example](#causal-cluster-command-line-example)
+  * [Standalone (Single Machine) Command Line Example](#standalone-single-machine-command-line-example)
+  * [Deployment Scenarios](#deployment-scenarios)
+  * [Helm Configuration Reference](#helm-configuration-reference)
+- [Neo4j Tooling](#neo4j-tooling)
+  * [Neo4j Browser](#neo4j-browser)
+  * [Cypher Shell Usage](#cypher-shell-usage)
+- [Kubernetes Operations](#kubernetes-operations)
+  * [Backup](#backup)
+  * [Restore](#restore)
+  * [Memory Management](#memory-management)
+    + [Default Approach](#default-approach)
+    + [Recommended Approach](#recommended-approach)
+    + [Custom Explicit Settings](#custom-explicit-settings)
+  * [Monitoring](#monitoring)
+  * [Rolling Upgrades](#rolling-upgrades)
+  * [Data Persistence](#data-persistence)
+  * [Fabric](#fabric)
+    + [Fabric Topology](#fabric-topology)
+    + [How Fabric Works](#how-fabric-works)
+  * [Custom Neo4j Configuration with ConfigMaps](#custom-neo4j-configuration-with-configmaps)
+  * [Scaling](#scaling)
+    + [Planning](#planning)
+    + [Execution (Manual Scaling)](#execution-manual-scaling)
+    + [Execution (Automated Scaling)](#execution-automated-scaling)
+    + [Warnings and Indications](#warnings-and-indications)
+- [Hardware & Machine Shape](#hardware--machine-shape)
+- [Networking & Security](#networking--security)
+  * [Exposed Services](#exposed-services)
+  * [Service Address](#service-address)
+  * [Cluster Formation](#cluster-formation)
+  * [Password](#password)
+- [Troubleshooting](#troubleshooting)
+
+# Introduction
+
 ## Overview
 
 Neo4j-helm allows users to deploy multi-node Neo4j Enterprise Causal Clusters to Kubernetes instances, with configuration options for the most common scenarios.  It represents a very rapid way to get started running the world leading native graph database on top of Kubernetes.
@@ -28,26 +72,14 @@ deployment architecture and chart structure of this repository.
 
 Neo4j Enterprise Edition (EE) is available to any existing enterprise license holder of Neo4j in a Bring Your Own License (BYOL) arrangement.  Neo4j EE is also available under evaluation licenses, contact Neo4j in order to obtain one.   There is no hourly or metered cost associated with using Neo4j EE for current license holders.
 
-## Installation
+# Installation 
 
 This is a helm chart, and it is installed by running [helm install](https://helm.sh/docs/helm/helm_install/) with
 various parameters used to customize the deploy.
 
 The default for this chart is to install [Neo4j Causal Cluster](https://neo4j.com/docs/operations-manual/current/clustering/)*, with 3 core members and zero replicas, but standalone is also supported.
 
-### Deployment Scenarios
-
-See the [`deployment-scenarios`](../deployment-scenarios) folder in this repo for example YAML values files.
-These are example configurations that show settings necessary to launch
-the helm chart in different configurations.
-
-Each of these scenario files is launched the same way:
-
-```
-$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
-```
-
-### Causal Cluster Command Line Example
+## Causal Cluster Command Line Example
 
 ```bash
 $ helm install my-neo4j --set core.numberOfServers=3,readReplica.numberOfServers=3,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
@@ -65,7 +97,7 @@ $ helm install neo4j-helm -f values.yaml .
 
 > **Tip**: You can use the default [values.yaml](../values.yaml)
 
-### Standalone (Single Machine) Command Line Example
+## Standalone (Single Machine) Command Line Example
 
 ```bash
 $ helm install my-neo4j --set core.standalone=true,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
@@ -81,7 +113,19 @@ arguments are *ignored*.
 If you attempt to scale a standalone system, you will get multiple independent DBMSes, 
 you will not get 1 causal cluster.
 
-## Helm Configuration
+## Deployment Scenarios
+
+See the [`deployment-scenarios`](../deployment-scenarios) folder in this repo for example YAML values files.
+These are example configurations that show settings necessary to launch
+the helm chart in different configurations.
+
+Each of these scenario files is launched the same way:
+
+```
+$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
+```
+
+## Helm Configuration Reference
 
 The following table lists the configurable parameters of the Neo4j chart and
 their default values.
@@ -132,6 +176,27 @@ their default values.
 | `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. | (none) |
 | `existingPasswordSecret`              | The name of the kubernetes secret which contains the `neo4j-password` | (none) |
 
+# Neo4j Tooling
+
+## Neo4j Browser
+
+**In order to use Neo4j Browser you must follow the external exposure instructions found in this repository**.
+
+Neo4j browser is available on port 7474 of any of the hostnames described above.  However, because of the network environment that the cluster is in, hosts in the neo4j cluster advertise themselves with private internal DNS that is not resolvable from outside of the cluster.
+
+The [external exposure instructions](../tools/external-exposure/EXTERNAL-EXPOSURE.md) provide a walk-through of
+how you can configure this for your environment.
+
+## Cypher Shell Usage
+
+Upon deploying the helm chart, you will be given a command that can be used to connect to the cluster.  This
+will schedule a new Neo4j pod to run called "cypher-shell" and invoke that command to connect.   See NOTES.txt
+for an example.
+
+Please consult standard Neo4j documentation on the many other usage options present, once you have a basic bolt client and cypher shell capability.
+
+# Kubernetes Operations
+
 ## Backup
 
 See [the documentation on the backup helm chart](../tools/backup/README-BACKUP.md).
@@ -146,7 +211,8 @@ The chart follows the same memory configuration settings as described in the [Me
 
 ### Default Approach
 
-Neo4j-helm behaves just like the regular Neo4j product.  No explicit heap or page cache is set.
+Neo4j-helm behaves just like the regular Neo4j product.  No explicit heap or page cache is set.  Memory
+grows dynamically according to what the JVM can allocate.
 
 ### Recommended Approach
 
@@ -168,6 +234,9 @@ used in the `neo4j.conf` file.
 
 Their meanings, formats, and defaults are the same as found in the operations manual.  See the section
 "Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
+
+To see an example of this custom configuration in use with a single instance, please see
+[the standalone custom memory config deployment scenario](../deployment-scenarios/standalone-custom-memory.config.yaml)
 
 ## Monitoring
 
@@ -228,7 +297,7 @@ What fabric needs to work are 3 things:
 
 Custom configmaps cover #3.  Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific.  And #2 is where kubernetes networking may or may not come in, depending on your deployment topology.  In the simplest single DBMS configurations, I think it will work out of the box.
 
-## Passing Custom Configuration as a ConfigMap
+## Custom Neo4j Configuration with ConfigMaps
 
 Neo4j cluster pods are divided into two groups: cores and replicas.  Those pods can be configured with ConfigMaps,
 which contain environment variables. Those environment variables, in turn, are used as configuration settings to 
@@ -242,71 +311,6 @@ As a result, you can set any custom Neo4j configuration by creating your own Kub
 
 *Note*: configuration of some networking specific settings is still done at container start time,
 and this very small set of variables may still be overridden by the helm chart, in particular advertised addresses & hostnames for the containers.
-
-## Hardware & Machine Shape
-
-In order to ensure that Neo4j is deployable on basic/default K8S clusters, the default values for hardware requests have been made fairly low, and can be found in [values.yaml](../values.yaml).
-
-Sizing databases is ultimately something that should be done with the workload in mind.
-Consult Neo4j's [Performance Tuning Documentation](https://neo4j.com/developer/guide-performance-tuning/?ref=googlemarketplace) for more information.  In general,
-heap size and page cache sizing are the most important places to start when tuning performance.
-
-It is strongly recommended that you choose request and limit values for CPU and memory prior to deploying in
-important environments.
-
-## Networking
-
-### Neo4j Browser
-
-**In order to use Neo4j Browser you must follow the external exposure instructions found in this repository**.
-
-Neo4j browser is available on port 7474 of any of the hostnames described above.  However, because of the network environment that the cluster is in, hosts in the neo4j cluster advertise themselves with private internal DNS that is not resolvable from outside of the cluster.
-
-The [external exposure instructions](../tools/external-exposure/EXTERNAL-EXPOSURE.md) provide a walk-through of
-how you can configure this for your environment.
-
-### Exposed Services
-
-By default, each node will expose:
-- HTTP on port 7474
-- HTTPS on port 7473
-- Bolt on port 7687
-
-Exposed services and port mappings can be configured by referencing neo4j’s docker documentation.   See the advanced configuration section in this document for how to change the way the docker containers in each pod are configured.
-
-### Service Address
-
-Additionally, a service address inside of the cluster will be available as follows - to determine your service address, simply substitute $APP_INSTANCE_NAME with the name you deployed neo4j under, and $NAMESPACE with the kubernetes namespace where neo4j resides.
-
-`$NAME-neo4j.$NAMESPACE.svc.cluster.local`
-
-Any client may connect to this address, as it is a DNS record with multiple entries pointing to the nodes which back the cluster.  For example, bolt+routing clients can use this address to bootstrap their connection into the cluster, subject to the items in the limitations section.
-
-### Cluster Formation
-
-Immediately after deploying Neo4j, as the pods are created the cluster begins to form.  This may take up to 5 minutes, depending on a number of factors including how long it takes pods to get scheduled, and how many resources are associated with the pods.  While the cluster is forming, the Neo4j REST API and Bolt endpoints may not be available.   After a few minutes, bolt endpoints become available inside of the kubernetes cluster.  
-
-## Password
-
-After installing, your cluster will start with the password you supplied as the neo4jPassword setting. This is stored in a kubernetes secret that is attached to your deployment.   Given a deployment named “my-graph”, you can find the password as the “neo4j-password” key under the mygraph-neo4j-secrets configuration item in Kubernetes.   The password is base64 encoded, and can be recovered as plaintext by authorized users with this command:
-
-```
-export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
-```
-
-Alternatively:  if you set `existingPasswordSecret` that secret name should be used instead.
-
-This password applies for the base administrative user named “neo4j”.
-
-## Usage
-
-### Cypher Shell
-
-Upon deploying the helm chart, you will be given a command that can be used to connect to the cluster.  This
-will schedule a new Neo4j pod to run called "cypher-shell" and invoke that command to connect.   See NOTES.txt
-for an example.
-
-Please consult standard Neo4j documentation on the many other usage options present, once you have a basic bolt client and cypher shell capability.
 
 ## Scaling
 
@@ -361,12 +365,64 @@ If scaling down, do not scale below three core nodes; this is the minimum necess
 Neo4j-Helm uses PVCs, and so if you scale up and then later scale down, this may orphan an underlying PVC, which 
 you may want to manually delete at a later date.
 
-## Security
+# Hardware & Machine Shape
+
+In order to ensure that Neo4j is deployable on basic/default K8S clusters, the default values for hardware requests have been made fairly low, and can be found in [values.yaml](../values.yaml).
+
+Sizing databases is ultimately something that should be done with the workload in mind.
+Consult Neo4j's [Performance Tuning Documentation](https://neo4j.com/developer/guide-performance-tuning/?ref=googlemarketplace) for more information.  In general,
+heap size and page cache sizing are the most important places to start when tuning performance.
+
+It is strongly recommended that you choose request and limit values for CPU and memory prior to deploying in
+important environments.
+
+# Networking & Security
+
+## Exposed Services
 
 For security reasons, we have not enabled access to the database cluster from outside of Kubernetes by default, instead choosing to leave this to users to configure appropriate network access policies for their usage.  If this is desired, please look at the [external exposure](../tools/external-exposure/EXTERNAL-EXPOSURE.md) instructions found in this repository.
 
-### Ports
+By default, each node will expose:
+- HTTP on port 7474
+- HTTPS on port 7473
+- Bolt on port 7687
+
+Exposed services and port mappings can be configured by referencing neo4j’s docker documentation.   See the advanced configuration section in this document for how to change the way the docker containers in each pod are configured.
 
 Refer to the [Neo4j operations manual](https://neo4j.com/docs/operations-manual/current/configuration/ports/) for
 information on the ports that Neo4j needs to function.  Default port numbers in the helm chart exactly follow
-default ports in other installations.
+default ports in other installations. 
+
+## Service Address
+
+Additionally, a service address inside of the cluster will be available as follows - to determine your service address, simply substitute $APP_INSTANCE_NAME with the name you deployed neo4j under, and $NAMESPACE with the kubernetes namespace where neo4j resides.
+
+`$NAME-neo4j.$NAMESPACE.svc.cluster.local`
+
+Any client may connect to this address, as it is a DNS record with multiple entries pointing to the nodes which back the cluster.  For example, bolt+routing clients can use this address to bootstrap their connection into the cluster, subject to the items in the limitations section.
+
+## Cluster Formation
+
+Immediately after deploying Neo4j, as the pods are created the cluster begins to form.  This may take up to 5 minutes, depending on a number of factors including how long it takes pods to get scheduled, and how many resources are associated with the pods.  While the cluster is forming, the Neo4j REST API and Bolt endpoints may not be available.   After a few minutes, bolt endpoints become available inside of the kubernetes cluster.  
+
+## Password
+
+After installing, your cluster will start with the password you supplied as the neo4jPassword setting. This is stored in a kubernetes secret that is attached to your deployment.   Given a deployment named “my-graph”, you can find the password as the “neo4j-password” key under the mygraph-neo4j-secrets configuration item in Kubernetes.   The password is base64 encoded, and can be recovered as plaintext by authorized users with this command:
+
+```
+export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
+```
+
+Alternatively:  if you set `existingPasswordSecret` that secret name should be used instead.
+
+This password applies for the base administrative user named “neo4j”.
+
+# Troubleshooting
+
+The most common issue associated with the helm chart is persistent volume claim reuse.  For example,
+if you deploy `mygraph`, delete this instance, and then redeploy a new, different `mygraph`, it will
+not get clean empty PVCs, but will reuse the old PVCs from the previous deployment.  This is because
+*when you uninstall a helm distribution it does not remove persistent volume claims*.  
+
+Make sure to ensure the disks you're starting with are empty to avoid file permissioning and other
+issues.
