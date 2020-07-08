@@ -8,10 +8,10 @@
   * [Prerequisites](#prerequisites)
   * [Licensing & Cost](#licensing--cost)
 - [Installation](#installation)
-  * [Deployment Scenarios](#deployment-scenarios)
   * [Causal Cluster Command Line Example](#causal-cluster-command-line-example)
   * [Standalone (Single Machine) Command Line Example](#standalone-single-machine-command-line-example)
-  * [Helm Configuration](#helm-configuration)
+  * [Deployment Scenarios](#deployment-scenarios)
+  * [Helm Configuration Reference](#helm-configuration-reference)
 - [Neo4j Tooling](#neo4j-tooling)
   * [Neo4j Browser](#neo4j-browser)
   * [Cypher Shell Usage](#cypher-shell-usage)
@@ -40,6 +40,7 @@
   * [Service Address](#service-address)
   * [Cluster Formation](#cluster-formation)
   * [Password](#password)
+- [Troubleshooting](#troubleshooting)
 
 # Introduction
 
@@ -71,24 +72,12 @@ deployment architecture and chart structure of this repository.
 
 Neo4j Enterprise Edition (EE) is available to any existing enterprise license holder of Neo4j in a Bring Your Own License (BYOL) arrangement.  Neo4j EE is also available under evaluation licenses, contact Neo4j in order to obtain one.   There is no hourly or metered cost associated with using Neo4j EE for current license holders.
 
-# Installation
+# Installation 
 
 This is a helm chart, and it is installed by running [helm install](https://helm.sh/docs/helm/helm_install/) with
 various parameters used to customize the deploy.
 
 The default for this chart is to install [Neo4j Causal Cluster](https://neo4j.com/docs/operations-manual/current/clustering/)*, with 3 core members and zero replicas, but standalone is also supported.
-
-## Deployment Scenarios
-
-See the [`deployment-scenarios`](../deployment-scenarios) folder in this repo for example YAML values files.
-These are example configurations that show settings necessary to launch
-the helm chart in different configurations.
-
-Each of these scenario files is launched the same way:
-
-```
-$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
-```
 
 ## Causal Cluster Command Line Example
 
@@ -124,7 +113,19 @@ arguments are *ignored*.
 If you attempt to scale a standalone system, you will get multiple independent DBMSes, 
 you will not get 1 causal cluster.
 
-## Helm Configuration
+## Deployment Scenarios
+
+See the [`deployment-scenarios`](../deployment-scenarios) folder in this repo for example YAML values files.
+These are example configurations that show settings necessary to launch
+the helm chart in different configurations.
+
+Each of these scenario files is launched the same way:
+
+```
+$ helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
+```
+
+## Helm Configuration Reference
 
 The following table lists the configurable parameters of the Neo4j chart and
 their default values.
@@ -210,7 +211,8 @@ The chart follows the same memory configuration settings as described in the [Me
 
 ### Default Approach
 
-Neo4j-helm behaves just like the regular Neo4j product.  No explicit heap or page cache is set.
+Neo4j-helm behaves just like the regular Neo4j product.  No explicit heap or page cache is set.  Memory
+grows dynamically according to what the JVM can allocate.
 
 ### Recommended Approach
 
@@ -232,6 +234,9 @@ used in the `neo4j.conf` file.
 
 Their meanings, formats, and defaults are the same as found in the operations manual.  See the section
 "Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
+
+To see an example of this custom configuration in use with a single instance, please see
+[the standalone custom memory config deployment scenario](../deployment-scenarios/standalone-custom-memory.config.yaml)
 
 ## Monitoring
 
@@ -411,3 +416,13 @@ export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname"
 Alternatively:  if you set `existingPasswordSecret` that secret name should be used instead.
 
 This password applies for the base administrative user named “neo4j”.
+
+# Troubleshooting
+
+The most common issue associated with the helm chart is persistent volume claim reuse.  For example,
+if you deploy `mygraph`, delete this instance, and then redeploy a new, different `mygraph`, it will
+not get clean empty PVCs, but will reuse the old PVCs from the previous deployment.  This is because
+*when you uninstall a helm distribution it does not remove persistent volume claims*.  
+
+Make sure to ensure the disks you're starting with are empty to avoid file permissioning and other
+issues.
