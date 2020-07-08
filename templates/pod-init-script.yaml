@@ -51,6 +51,18 @@ data:
 
     {{- if .Values.dbms.memory.use_memrec }}
         neo4jAdminMemrec
+    {{- else }}
+      {{- if .Values.dbms.memory.heap.initial_size }}
+      NEO4J_SETTINGS[NEO4J_dbms_memory_heap_initial__size]={{ .Values.dbms.memory.heap.initial_size }}
+      {{- end }}
+
+      {{- if .Values.dbms.memory.heap.max_size }}
+      NEO4J_SETTINGS[NEO4J_dbms_memory_heap_max__size]={{ .Values.dbms.memory.heap.max_size }}
+      {{- end }}
+
+      {{- if .Values.dbms.memory.pagecache.size }}
+      NEO4J_SETTINGS[NEO4J_dbms_memory_pagecache_size]={{ .Values.dbms.memory.pagecache.size}}
+      {{- end }}
     {{- end }}
 
     echo "Configuration override prefix = $override_prefix"
