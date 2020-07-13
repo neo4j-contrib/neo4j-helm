@@ -1,6 +1,12 @@
 # This creates a discovery Service for each member in the core set, and ties to
 # the use of the Neo4j discovery type "K8S" with the configured selectors.
 # Done as many times as there are core machines, or just once if standalone.
+#
+# IMPORTANT - related to scaling, in order for the cluster to form correctly
+# there must be one of these per core node.  As a result, we intentionally create
+# too many of them in the causal cluster scenario to ensure that when pods scale
+# up, there are extra discovery addresses to cover them.
+##########################################################################
 {{- $dot := . }}
 {{- $servers := int .Values.core.numberOfServers }}
 {{- $times := max 5 $servers }}
