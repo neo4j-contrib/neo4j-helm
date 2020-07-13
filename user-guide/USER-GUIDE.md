@@ -15,6 +15,7 @@
 - [Neo4j Tooling](#neo4j-tooling)
   * [Neo4j Browser](#neo4j-browser)
   * [Cypher Shell Usage](#cypher-shell-usage)
+  * [Plugins](#plugins)
 - [Kubernetes Operations](#kubernetes-operations)
   * [Backup](#backup)
   * [Restore](#restore)
@@ -137,7 +138,7 @@ their default values.
 | `imagePullPolicy`                     | Image pull policy                                                                                                                       | `IfNotPresent`                                  |
 | `podDisruptionBudget`                 | Pod disruption budget                                                                                                                   | `{}`                                            |
 | `authEnabled`                         | Is login/password required?                                                                                                             | `true`                                          |
-| `useAPOC`                             | Should the APOC plugins be automatically installed in the database?                                                                     | `true`                                          |
+| `plugins`                             | Plugins to automatically install. (Careful on syntax, must be valid JSON array) [Valid plugins listed here](https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json)                                                                    | `"[\"apoc\"]"`                                          |
 | `defaultDatabase`                     | The name of the default database to configure in Neo4j (dbms.default_database)                                                          | `neo4j`                                         |
 | `neo4jPassword`                       | Password to log in the Neo4J database if password is required                                                                           | (random string of 10 characters)                |
 | `core.configMap`                      | Configmap providing configuration for core cluster members.  If not specified, defaults that come with the chart will be used.          | `$NAME-neo4j-core-config`                       |
@@ -194,6 +195,24 @@ will schedule a new Neo4j pod to run called "cypher-shell" and invoke that comma
 for an example.
 
 Please consult standard Neo4j documentation on the many other usage options present, once you have a basic bolt client and cypher shell capability.
+
+## Plugins
+
+The Neo4j Docker container can take an extra environment variable `NEO4JLABS_PLUGINS` that pre-installs
+the most common plugins.  The helm chart in turn has a parameter `plugins` that lets you specify this value.
+
+The value must be a valid JSON array of plugin names.  [The list of valid names can be found here](https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json) but include APOC, Graph Data Science, Neo4j Streams (Kafka integration) and others.
+
+The way this mechanism works is that each plugin publishes a `versions.json` file that allows the Neo4j
+Docker container to determine at runtime which version of the plugin JAR to download and put in place.
+
+APOC is included by default; comment out the `plugins` parameter or set it to the empty string to disable
+APOC.  By adding other plugin names to the array, you can use multiple plugins.
+
+An example configuration has been provided in the deployment scenarios folder that shows installation of
+a standalone instance using Neo4j's Graph Data Science plugin.
+
+Other/custom plugins still require the use of initContainers to download and install the plugin at runtime.
 
 # Kubernetes Operations
 
