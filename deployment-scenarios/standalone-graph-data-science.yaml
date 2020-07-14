@@ -1,0 +1,12 @@
+# This scenario creates a single-instance standalone Neo4j
+# machine, with a custom memory configuration.
+###############################################################
+core:
+    standalone: true
+
+# Note the use of graph-data-science here.
+plugins: "[\"apoc\",\"graph-data-science\"]"
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
