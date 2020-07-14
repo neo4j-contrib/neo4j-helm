@@ -13,8 +13,8 @@ metadata:
 data:
   run.sh: |-
     export PATH=/usr/bin:$PATH
-    export host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
-    export replica_host="$NAME-neo4j.$NAMESPACE.svc.cluster.local"
+    export host="{{ template "neo4j.fullname" . }}.$NAMESPACE.svc.cluster.local"
+    export replica_host="{{ template "neo4j.fullname" . }}.$NAMESPACE.svc.cluster.local"
     echo "HOST $host"
     # This endpoint proves availability of the overall service
     export endpoint="http://$host:$PORT_HTTP"
@@ -52,11 +52,11 @@ data:
     # Pass index ID to get hostname for that pod.
     function core_hostname {
       # Example: a-neo4j-core-0.a-neo4j.default.svc.cluster.local
-      echo "$NAME-neo4j-core-$1.$NAME-neo4j.$NAMESPACE.svc.cluster.local"
+      echo "{{ template "neo4j.core.fullname" . }}-$1.{{ template "neo4j.fullname" . }}.$NAMESPACE.svc.cluster.local"
     }
 
-    function replica_hostname {
-      echo "{{ .Release.Name }}-neo4j-replica-$1.{{ .Release.Name }}-neo4j-replica.{{ .Release.Namespace }}.svc.cluster.local"
+    function replica_hostname {      
+      echo "{{ template "neo4j.replica.fullname" . }}-$1.{{ template "neo4j.replica.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local"
     }
 
     test_index=0
