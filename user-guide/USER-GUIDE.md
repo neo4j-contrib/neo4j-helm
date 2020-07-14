@@ -12,6 +12,7 @@
   * [Standalone (Single Machine) Command Line Example](#standalone-single-machine-command-line-example)
   * [Deployment Scenarios](#deployment-scenarios)
   * [Helm Configuration Reference](#helm-configuration-reference)
+  * [Naming](#naming)
 - [Neo4j Tooling](#neo4j-tooling)
   * [Neo4j Browser](#neo4j-browser)
   * [Cypher Shell Usage](#cypher-shell-usage)
@@ -176,6 +177,24 @@ their default values.
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 | `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. | (none) |
 | `existingPasswordSecret`              | The name of the kubernetes secret which contains the `neo4j-password` | (none) |
+
+## Naming
+
+This chart uses the `fullnameOverride` convention, to allow you to control the name of resources that get applied to 
+the cluster.  By default, when you install a release called `mygraph` you'll end up with resources named things like
+`mygraph-neo4j-core` and `mygraph-neo4j-replica` which is the release name, app name, and component name.
+
+If you would like to override this, you may specify any of these values:
+* `fullnameOverride`
+* `fullnamePrefix`
+* `fullnameSuffix`
+
+So for example if you set `fullnameOverride=graph` and `fullnamePrefix=marketing` then you will see the resources
+deployed named like:
+* `marketing-graph-core`
+* `marketing-graph-replica` 
+
+(And so on) which would omit both the helm release name, and the app name (neo4j).
 
 # Neo4j Tooling
 
