@@ -27,6 +27,12 @@ tolerations: []
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 affinity: {}
 
+## Labels to be added to pods
+podLabels: {}
+
+## Annotations to be added to pods
+podAnnotations: {}
+
 # Use password authentication
 authEnabled: true
 
