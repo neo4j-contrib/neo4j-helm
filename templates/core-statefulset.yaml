@@ -115,6 +115,9 @@ spec:
           mountPath: /auth
           readOnly: true
         {{- end }}  
+        {{- if .Values.core.additionalVolumeMounts }}
+{{ toYaml .Values.core.additionalVolumeMounts | indent 8}}
+        {{- end }}
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         livenessProbe:
@@ -150,6 +153,9 @@ spec:
         {{- end }}
         - name: plugins
           emptyDir: {}
+        {{- if .Values.core.additionalVolumes }}
+{{ toYaml .Values.core.additionalVolumes | indent 8}}
+        {{- end }}
 {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

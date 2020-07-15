@@ -112,6 +112,9 @@ spec:
           mountPath: /auth
           readOnly: true
         {{- end }}
+        {{- if .Values.readReplica.additionalVolumeMounts }}
+{{ toYaml .Values.readReplica.additionalVolumeMounts | indent 8}}
+        {{- end }}
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         livenessProbe:
@@ -155,6 +158,9 @@ spec:
         {{- end }}
         - name: plugins
           emptyDir: {}
+        {{- if .Values.readReplica.additionalVolumes }}
+{{ toYaml .Values.readReplica.additionalVolumes | indent 8}}
+        {{- end }}
 {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecret }}
