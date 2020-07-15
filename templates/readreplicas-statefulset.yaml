@@ -29,6 +29,15 @@ spec:
         helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         app.kubernetes.io/name: {{ template "neo4j.name" . }}
         app.kubernetes.io/component: replica
+        {{-  range $key, $value := .Values.podLabels }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations:
+        {{-  range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value }}
+        {{- end }}
+      {{- end }}
     spec:
       serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
       containers:
