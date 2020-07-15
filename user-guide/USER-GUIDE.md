@@ -154,6 +154,8 @@ their default values.
 | `core.persistentVolume.mountPath`     | Persistent Volume mount root path                                                                                                       | `/data`                                         |
 | `core.persistentVolume.subPath`       | Subdirectory of the volume to mount                                                                                                     | `nil`                                           |
 | `core.persistentVolume.annotations`   | Persistent Volume Claim annotations                                                                                                     | `{}`                                            |
+| `core.additionalVolumes`   | See the "Other Storage" section in the user guide for more information on this option.                                                                                                     | `{}`                                            |
+| `core.additionalVolumeMounts`   | See the "Other Storage" section in the user guide for more information on this option.                                                                                                     | `{}`                                            |
 | `core.service.type` | Service type | `ClusterIP` |
 | `core.service.annotations` | Service annotations | `{}` |
 | `core.service.labels` | Custom Service labels | `{}` |
@@ -170,6 +172,8 @@ their default values.
 | `readReplica.autoscaling.maxReplicas`  | Max replicas for autoscaling  | `3` |
 | `readReplica.initContainers`          | Init containers to add to the replica pods. Example use case is a script that installs custom plugins/extensions                        | `{}`                                            |
 | `readReplica.persistentVolume.*`       | See `core.persistentVolume.*` settings; they behave identically for read replicas                                                      | `true`                                          |
+| `readReplica.additionalVolumes`   | See the "Other Storage" section in the user guide for more information on this option.                                                                                                     | `{}`                                            |
+| `readReplica.additionalVolumeMounts`   | See the "Other Storage" section in the user guide for more information on this option.                                                                                                     | `{}`                                            |
 | `readReplica.service.type` | Service type | `ClusterIP` |
 | `readReplica.service.annotations` | Service annotations | `{}` |
 | `readReplica.service.labels` | Custom Service labels | `{}` |
@@ -178,6 +182,8 @@ their default values.
 | `clusterDomain`                       | Cluster domain                                                                                                                          | `cluster.local`                                 |
 | `restoreSecret`                       | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. | (none) |
 | `existingPasswordSecret`              | The name of the kubernetes secret which contains the `neo4j-password` | (none) |
+| `podLabels`              | Extra / custom labels to apply to core & replica statefulset pods | `{}` |
+| `podAnnotations`              | Extra / custom annotations to apply to core & replica statefulset pods. | `{}` |
 
 ## Naming
 
@@ -314,6 +320,16 @@ and then re-install it a second time under the *same name*, the new instance wil
 PVCs.  This would include things like usernames, passwords, roles, and so forth.
 
 For further durability of data, regularly scheduled [backups](../tools/backup/README-BACKUP.md) are recommended.
+
+## Other Storage
+
+The helm chart supports values for `additionalVolumes` and `additionalVolumeMounts` for both core and read replica sets.  These can be used
+to set up arbitrary extra mounted drives inside of the containers.  Exactly how to specify this is left to the user, because it depends on 
+whether you want to use an existing PVC, mount a configmap, or other setup.  This feature is intended to provide storage flexibility to inject
+files such as `apoc.conf`, initialization scripts, or imports directories.
+
+Use of additional volumes and mounts is not supported though, and in order to use this feature you must be very comfortable with filesystem
+basics in Kubernetes and Neo4j directory configuration.
 
 ## Fabric
 
