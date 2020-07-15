@@ -16,6 +16,7 @@
 - [Neo4j Tooling](#neo4j-tooling)
   * [Neo4j Browser](#neo4j-browser)
   * [Cypher Shell Usage](#cypher-shell-usage)
+  * [Neo4j-Admin Import](#neo4j-admin-import)
   * [Plugins](#plugins)
 - [Kubernetes Operations](#kubernetes-operations)
   * [Backup](#backup)
@@ -214,6 +215,15 @@ will schedule a new Neo4j pod to run called "cypher-shell" and invoke that comma
 for an example.
 
 Please consult standard Neo4j documentation on the many other usage options present, once you have a basic bolt client and cypher shell capability.
+
+## Neo4j-Admin Import
+
+Matt Cockayne has published the following blog post about how to use kubernetes initContainers to run 
+`neo4j-admin import` and [pre-load data in images from CSV, rather than backup sets](https://phpboyscout.uk/pre-populating-neo4j-using-kubernetes-init-containers-and-neo4j-admin-import/).
+
+More generally - the technique he uses is the one that's recommended for any and all other Neo4j shell utilities.
+Rather than building a custom Docker image, it's recommended that you run a shell script inside of an initContainer
+to do whatever shell operations are necessary to prepare the data volume prior to the Neo4j's container start.
 
 ## Plugins
 
