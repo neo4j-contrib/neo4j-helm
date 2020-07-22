@@ -21,7 +21,7 @@ data:
   NEO4J_dbms_connector_https_listen__address: 0.0.0.0:7473
   NEO4J_causal__clustering_minimum__core__cluster__size__at__formation: "3"
   NEO4J_causal__clustering_minimum__core__cluster__size__at__runtime: "2"
-  NEO4J_dbms_jvm_additional: "-XX:+ExitOnOutOfMemoryError -Dnetworkaddress.cache.negative.ttl=0 -Dakka.io.dns.inet-address.negative-ttl=never -Dnetworkaddress.cache.ttl=0"
+  NEO4J_dbms_jvm_additional: "-XX:+ExitOnOutOfMemoryError"
   NEO4J_metrics_graphite_enabled: "{{ .Values.metrics.graphite.enabled }}"
   NEO4J_metrics_graphite_server: "{{ .Values.metrics.graphite.server }}"
   NEO4J_metrics_graphite_interval: "{{ .Values.metrics.graphite.interval }}"
