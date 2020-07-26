@@ -7,5 +7,6 @@ kind: ConfigMap
 metadata:
   name: {{ template "neo4j.replicaConfig.fullname" . }}
 data:
+  NEO4J_dbms_directories_logs: "{{ .Values.readReplica.persistentVolume.mountPath }}/logs"
   NEO4J_dbms_mode: READ_REPLICA
 {{- end }}

@@ -19,6 +19,7 @@
   * [Neo4j-Admin Import](#neo4j-admin-import)
   * [Plugins](#plugins)
 - [Kubernetes Operations](#kubernetes-operations)
+  * [Logging](#logging)
   * [Backup](#backup)
   * [Restore](#restore)
   * [Memory Management](#memory-management)
@@ -242,7 +243,13 @@ The way this mechanism works is that each plugin publishes a `versions.json` fil
 Docker container to determine at runtime which version of the plugin JAR to download and put in place.
 
 APOC is included by default; comment out the `plugins` parameter or set it to the empty string to disable
-APOC.  By adding other plugin names to the array, you can use multiple plugins.
+APOC.  By adding other plugin names to the default shown below, you can use multiple plugins.
+
+```
+plugins: "[\"apoc\"]"
+```
+
+*Take care to use proper syntax and escaping: YAML can interpret JSON, and we are aiming to specify a string of JSON*.
 
 An example configuration has been provided in the deployment scenarios folder that shows installation of
 a standalone instance using Neo4j's Graph Data Science plugin.
@@ -250,6 +257,18 @@ a standalone instance using Neo4j's Graph Data Science plugin.
 Other/custom plugins still require the use of initContainers to download and install the plugin at runtime.
 
 # Kubernetes Operations
+
+## Logging
+
+Neo4j logs that would normally be stored as the `neo4j.log` file are pod logs in Kubernetes.  As a result,
+they are not written directly as a file to disk, but are accessible by just issuing `kubectl logs podname`.
+
+The debug.log file is a regular file written to disk inside of the pod.  As of the 4.1.0-4 release and later,
+the default log path has been changed to place logs on persistent storage.  They will typically be found at
+`/data/logs` inside the container, and are set to the path specified by the `dbms.directories.logs` configuration
+parameter in Neo4j.
+
+The same locations apply for other Neo4j log files such as `security.log` and `query.log`.
 
 ## Backup
 
