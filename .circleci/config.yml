@@ -173,6 +173,17 @@ jobs:
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             helm test $NAME_CLUSTERED --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-CLUSTER.txt
 
+      - run:
+          name: Harvest Logs from cluster
+          command: |
+             # Prove log persistence
+             NAMESPACE=ns-$CIRCLE_BUILD_NUM
+             for idx in 0 1 2 ; do 
+                kubectl --namespace $NAMESPACE exec $NAME_CLUSTERED-neo4j-core-$idx /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/core-$idx-debug.log ; 
+             done
+
+             kubectl --namespace $NAMESPACE exec $NAME_CLUSTERED-neo4j-replica-0 /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/replica-0-debug.log
+
       - run: 
           name: Verify that backup succeeded
           command: |

@@ -6,6 +6,7 @@ kind: ConfigMap
 metadata:
   name: {{ template "neo4j.coreConfig.fullname" . }}
 data:
+  NEO4J_dbms_directories_logs: "{{ .Values.core.persistentVolume.mountPath }}/logs"
   {{- if .Values.core.standalone }}
   # https://neo4j.com/docs/operations-manual/current/reference/configuration-settings/#config_dbms.mode
   NEO4J_dbms_mode: SINGLE
