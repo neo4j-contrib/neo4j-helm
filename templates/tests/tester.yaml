@@ -15,7 +15,7 @@ metadata:
 spec:
   containers:
   - name: {{ .Release.Name }}-ui-test
-    image: {{ .Values.testImage }}:{{ .Values.testImageTag }}
+    image: {{ .Values.testImage }}:{{ .Chart.Version }}
     imagePullPolicy: IfNotPresent
     env:
       - name: NAME
