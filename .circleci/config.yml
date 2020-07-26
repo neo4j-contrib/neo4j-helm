@@ -182,7 +182,7 @@ jobs:
                 kubectl exec $NAME_CLUSTERED-neo4j-core-$idx /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/core-$idx-debug.log ; 
              done
 
-             kubectl exec a-neo4j-replica-0 /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/replica-0-debug.log
+             kubectl exec $NAME_CLUSTERED-neo4j-replica-0 /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/replica-0-debug.log
 
       - run: 
           name: Verify that backup succeeded
