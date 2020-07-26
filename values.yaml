@@ -7,7 +7,7 @@ name: "neo4j"
 
 # Specs for the Neo4j docker image
 image: "neo4j"
-imageTag: "4.1.0-enterprise"
+imageTag: "4.1.1-enterprise"
 imagePullPolicy: "IfNotPresent"
 # imagePullSecret: registry-secret
 acceptLicenseAgreement: "no"
@@ -49,7 +49,6 @@ clusterDomain: "cluster.local"
 # Specs for the images used for running tests against the Helm package
 # https://github.com/mneedham/k8s-kubectl this is a general kubectl docker image
 testImage: "gcr.io/neo4j-helm/tester"
-testImageTag: "4.0.0"
 
 # Whether or not to use APOC: https://neo4j.com/labs/apoc/
 # Comment out if you do not want to use it.
