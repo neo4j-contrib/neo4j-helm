@@ -11,7 +11,7 @@
 {{- $servers := int .Values.core.numberOfServers }}
 {{- $instances := .Values.core.discoveryService.instances }}
 {{- if .Values.core.standalone }}
-{{- $instances := slice "0" }}
+{{- $instances := .Values.core.discoveryService.standaloneOnly }}
 {{- end }}
 {{- range $index, $value := $instances }}
 ---
