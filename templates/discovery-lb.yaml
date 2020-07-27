@@ -9,17 +9,18 @@
 ##########################################################################
 {{- $dot := . }}
 {{- $servers := int .Values.core.numberOfServers }}
-{{- $times := max 5 $servers }}
+{{- $instances := .Values.core.discoveryService.instances }}
 {{- if .Values.core.standalone }}
-{{- $times := int 1 }}
+{{- $instances := slice 0 }}
 {{- end }}
-{{- range untilStep 0 (int $times) 1 }}
+{{- range $index, $value := $instances }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: discovery-{{ template "neo4j.fullname" $dot }}-{{ . }}
   labels:
+    neo4j.com/coreindex: "{{ $index }}"
     neo4j.com/cluster: {{ template "neo4j.fullname" $dot }}
     neo4j.com/role: CORE
     app.kubernetes.io/managed-by: {{ $dot.Release.Service | quote }}
