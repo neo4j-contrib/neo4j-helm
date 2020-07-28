@@ -29,6 +29,7 @@
   * [Monitoring](#monitoring)
   * [Rolling Upgrades](#rolling-upgrades)
   * [Data Persistence](#data-persistence)
+  * [Other Storage](#other-storage)
   * [Fabric](#fabric)
     + [Fabric Topology](#fabric-topology)
     + [How Fabric Works](#how-fabric-works)
@@ -38,6 +39,7 @@
     + [Execution (Manual Scaling)](#execution-manual-scaling)
     + [Execution (Automated Scaling)](#execution-automated-scaling)
     + [Warnings and Indications](#warnings-and-indications)
+  * [Anti-Affinity Rules](#anti-affinity-rules)
 - [Hardware & Machine Shape](#hardware--machine-shape)
 - [Networking & Security](#networking--security)
   * [Exposed Services](#exposed-services)
@@ -447,6 +449,16 @@ Scaled pods inherit their configuration from their statefulset.  For neo4j, this
 If scaling down, do not scale below three core nodes; this is the minimum necessary to guarantee a properly functioning cluster with data redundancy.   Consult the neo4j clustering documentation for more information.
 Neo4j-Helm uses PVCs, and so if you scale up and then later scale down, this may orphan an underlying PVC, which 
 you may want to manually delete at a later date.
+
+## Anti-Affinity Rules
+
+For productionized installs, [anti-affinity rules](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/) are
+recommended, where pod deployment is intentionally spread out among Kubernetes worker nodes.  This improves Neo4j's failure 
+characteristics.  If Kubernetes inadvertently deploys all 3 core Neo4j pods to a single worker node, and the underlying worker
+node VM fails -- then the entire cluster will go down.  For this reason, anti-affinity rules are recommended to "spread the deployment
+out".
+
+An example of how to configure this with references to documentation is provided in the deployment scenarios directory.
 
 # Hardware & Machine Shape
 
