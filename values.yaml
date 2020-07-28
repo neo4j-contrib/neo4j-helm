@@ -131,6 +131,10 @@ core:
     annotations: {}
     labels: {}
     loadBalancerSourceRanges: []
+    # Controls how many services get created.  Usually want to over-provision so cores can
+    # scale up for things like rolling upgrades.
+    instances: [0, 1, 2, 3, 4, 5]
+    standaloneOnly: [0]
 
   ## specify additional volumes to mount in the core container, this can be used
   ## to specify additional storage of material or to inject files from ConfigMaps
