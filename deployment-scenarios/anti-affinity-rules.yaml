@@ -1,0 +1,26 @@
+acceptLicenseAgreement: "yes"
+neo4jPassword: "mySecretPassword"
+
+core:
+    standalone: false
+    numberOfServers: 3
+
+readReplica:
+    numberOfServers: 1
+
+# Attach a custom label we can use for pod repulsion
+podLabels:
+    clusterLabel: "affinity-test"
+  
+# Kubernetes documentation describing what this is about:
+# https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+affinity:
+    podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: clusterLabel
+              operator: In
+              values: 
+              - affinity-test
+          topologyKey: "kubernetes.io/hostname"
