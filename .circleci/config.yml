@@ -42,9 +42,9 @@ jobs:
             mkdir -p tools
 
       - restore_cache:
-        name: Restore NPM Package Cache
-        keys:
-          - npm-packages-{{ checksum "doc/package.json" }}
+          name: Restore NPM Package Cache
+          keys:
+            - npm-packages-{{ checksum "doc/package.json" }}
 
       - run: 
           name: Setup GCP Tooling
