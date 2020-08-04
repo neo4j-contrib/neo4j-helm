@@ -41,6 +41,11 @@ jobs:
             mkdir -p $BUILD_ARTIFACTS
             mkdir -p tools
 
+      - restore_cache:
+        name: Restore NPM Package Cache
+        keys:
+          - npm-packages-{{ checksum "doc/package.json" }}
+
       - run: 
           name: Setup GCP Tooling
           command: |
@@ -58,6 +63,19 @@ jobs:
              chmod +x kubectl
              kubectl --help
                 
+      - run:
+          name: Generate Docs
+          command: |
+             cd docs 
+             npm install
+             ./node_modules/.bin/antora doc.yml
+
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: npm-packages-{{ checksum "doc/package.json" }}
+          paths:
+            - ~/.cache/npm
+
       - run:
           name: GKE Setup / Auth
           command: |
@@ -216,3 +234,6 @@ jobs:
 
       - store_artifacts:
           path: build
+      
+      - store_artifacts:
+          path: doc/build/site
