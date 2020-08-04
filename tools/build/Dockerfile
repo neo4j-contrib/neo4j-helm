@@ -1,4 +1,12 @@
 FROM debian:stretch
+
+# Tools needed
+# gcloud
+# helm
+# kubectl
+# node
+# npm
+
 # Secure software install; required first in order to be able to process keys, packages, etc.
 RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
@@ -14,3 +22,16 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debia
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 
 RUN apt-get install -y google-cloud-sdk wget make gettext-base jq nodejs npm
+
+# Install helm
+RUN curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+RUN tar zxvf helm-v3.2.1-linux-amd64.tar.gz
+RUN mv linux-amd64/helm /usr/bin
+RUN /usr/bin/helm version
+
+# Kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x kubectl
+RUN mv kubectl /usr/bin
+RUN /usr/bin/kubectl --help
+
