@@ -1,0 +1,8 @@
+[#troubleshooting]
+= Neo4j-Helm Troubleshooting
+
+[abstract]
+--
+This chapter answers frequently asked questions
+--
+

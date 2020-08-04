@@ -1,0 +1,7 @@
+= Hardware and Machine Shape
+
+[abstract]
+--
+How to size memory, CPU, and disk for Neo4j in Kubernetes
+--
+

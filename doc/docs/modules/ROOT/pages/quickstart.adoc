@@ -3,271 +3,32 @@
 
 [abstract]
 --
-Get started fast for common scenarios, using Neo4j Streams plugin or Kafka Connect plugin
+Get started fast for common scenarios
 --
 
-== Neo4j Spark Connector Plugin
+To install the helm chart, you'll need a https://github.com/neo4j-contrib/neo4j-helm/releases[copy of a release]; download a `.tgz` package of the `neo4j` chart; we'll use that release URL below.
 
-=== Overview
+== Standalone (Single Server)
 
-Neo4j Spark Connector allows Spark to read from and write to Neo4j databases.
-
-=== Getting Started
-
-Reading all the nodes of type `Person` from your local Neo4j instance is as simple as this:
-
-```scala
-val df = spark.read.format("org.neo4j.spark.DataSource")
-        .option("url", "bolt://localhost:7687")
-        .option("labels", "Person")
-        .load()
+```shell
+helm install mygraph RELEASE_URL --set core.standalone=true --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
 
-=== Neo4j Options
+== Causal Cluster (3 core, 0 Read Replica)
 
-Spark method `option` is used to configure the Neo4j Connector.
-
-```scala
-val df = spark.read.format("org.neo4j.spark.DataSource")
-        .option("url", "bolt://localhost:7687")
-        .option("authentication.type", "basic")
-        .option("authentication.basic.username", "myuser")
-        .option("authentication.basic.password", "neo4jpassword")
-        .option("labels", "Person")
-        .load()
+```shell
+helm install mygraph RELEASE_URL --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
 
-.Most Common Needed Configuration Settings
-|===
-|Setting Name |Description |Default Value |Required 
+== Uninstalling
 
-4+|*Driver Options*
-
-|`url`
-|The url of the Neo4j instance to connect to
-|_(none)_
-|Yes
-
-|`authentication.type`
-|The authentication method to be used: `none`, `basic`, `kerberos`, `custom`. More info https://neo4j.com/docs/driver-manual/4.1/client-applications/#driver-authentication[here]
-|`basic`
-|No
-
-|`authentication.basic.username`
-|Username to use for basic authentication type
-|``
-|No
-
-|`authentication.basic.password`
-|Username to use for basic authentication type
-|``
-|No
-
-|`authentication.kerberos.ticket`
-|Kerberos Auth Ticket
-|``
-|No
-
-|`authentication.custom.principal`
-|This used to identify who this token represents
-|``
-|No
-
-|`authentication.custom.credentials`
-|This are the credentials authenticating the principal
-|``
-|No
-
-|`authentication.custom.realm`
-|This is the "realm:"", specifying the authentication provider
-|``
-|No
-
-|`encryption.enabled`
-|Specify if encryption should be enabled. This setting is totally ignored if you use a URI scheme with +s or +ssc
-|`false`
-|No
-
-|`encryption.trust.strategy`
-|Set cerificate trust strategy, is ignored in case the connection URI uses `+s` or `+ssc` as suffix.
-|`TRUST_SYSTEM_CA_SIGNED_CERTIFICATES`
-|No
-
-|`encryption.ca.certificate.path`
-|Set certificate path for `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES` trust strategy
-|``
-|No
-
-|`connection.max.lifetime.msecs`
-|Connection lifetime in milliseconds
-|(Neo4j Driver default)
-|No
-
-|`connection.liveness.timeout.msec`
-|Liveness check timeout
-|(Neo4j Driver default)
-|No
-
-|`connection.acquisition.timeout.msecs`
-|Connection acquisition timeout in milliseconds
-|(Neo4j Driver default)
-|No
-
-|`connection.timeout.msecs`
-|Connection timeout in milliseconds
-|(Neo4j Driver default)
-|No
-
-
-4+|*Session Options*
-
-|`database`
-|Database name to connect to. As the driver allows to define the database in the URL,
-in case you set this option will have the priority compared to the one defined in the URL
-|``
-|No
-
-|`access.mode`
-|Access mode
-|`write`
-|No
-
-4+|*Data Read Options*
-
-|`query`
-|Specify a query to read the data
-|``
-|Yes^*^
-
-|`labels`
-|List of labels separated by `:`. First label is the primary label
-|``
-|Yes^*^
-
-|`relationship`
-|List of labels separated by `:` (first label is the primary label)
-|``
-|Yes^*^
-
-|`schema.flatten.limit`
-|Number of records to be used to create the Schema (only if APOC are not installed)
-|`10`
-|No
-
-|===
-
-^*^ Just one of the options can be specified.
-
-== Read Data
-
-Reading data from a Neo4j Database can be done in 3 ways:
-
- * with a Cypher query
- * with a set of node Labels 
- * by specifying a relationship
-
-=== Considerations on the schema
-
-Spark works with data in a tabular fixed schema. To accomplish this Neo4j Connector has a schema infer system that creates the schema based on the data requested for the read. Each read data method has is own strategy to create it, that will be explained it each section.
-
-TK list of supported data types
-
-==== Complex Data Types
-
-Spark doesn't support all Neo4j data types (ie: Point, Time, Duration). Such types are transformed into Struct types containing all the useful data.
-
-|===
-
-|Type |Struct 
-
-|`Duration`
-a|
-----
-Struct(Array(
-    ("type", DataTypes.StringType, false),
-    ("months", DataTypes.LongType, false),
-    ("days", DataTypes.LongType, false),
-    ("seconds", DataTypes.LongType, false),
-    ("nanoseconds", DataTypes.IntegerType, false),
-    ("value", DataTypes.StringType, false)
-  ))
-----
-
-|`Point`
-a|
-----
-Struct(Array(
-    ("type", DataTypes.StringType, false),
-    ("srid", DataTypes.IntegerType, false),
-    ("x", DataTypes.DoubleType, false),
-    ("y", DataTypes.DoubleType, false),
-    ("z", DataTypes.DoubleType, true),
-  ))
-----
-
-|`Time`
-a|
-----
-Struct(Array(
-    ("type", DataTypes.StringType, false),
-    ("value", DataTypes.StringType, false)
-  ))
-----
-
-|=== 
-
-=== Read data by Node Labels
-
-You can both specify a single label, like this example
-```scala
-val df = spark.read.format("org.neo4j.spark.DataSource")
-        .option("url", "bolt://localhost:7687")
-        .option("labels", "Person")
-        .load()
-
-df.show()
+```shell
+helm uninstall mygraph
 ```
 
-Multiple labels can be specified, separated by `:`
-```scala
-val df = spark.read.format("org.neo4j.spark.DataSource")
-        .option("url", "bolt://localhost:7687")
-        .option("labels", "Person:Customer:Admin")
-        .load()
+== Where to Go For Help
 
-df.show()
-```
+If you have a question not covered in this user guide in the other sections, the 
+https://community.neo4j.com/c/neo4j-graph-platform/cloud/76[Neo4j Community Site] is a great place
+to ask for help.
 
-When reading data with this method, the Dataframe will contain all the fields contained in the nodes, plus 2 additional columns.
-
- * `<id>` the internal Neo4j id
- * `<labels>` a list of labels for that node
-
-==== Schema
-
-If APOC are installed, schema will be created with `apoc.meta.nodeTypeProperties`. Otherwise the first 10 (or any number specified by the `schema.flatten.limit` option) results will be flattened and the schema will be create from those properties.
-
-===== Example
-
-```
-CREATE (p1:Person {age: 31, name: 'Jane Doe'}),
-    (p2:Person {name: 'John Doe', age: 33, location: null}),
-    (p3:Person {age: 25, location: point({latitude: -37.659560, longitude: -68.178060})})
-```
-
-Will create this schema
-
-|===
-|Field |Type 
-
-|<id>|Int
-
-|<labels>|String[]
-
-|age|Int
-
-|name|String
-
-|location|Point
-
-|===

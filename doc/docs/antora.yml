@@ -1,6 +1,6 @@
-name: neo4j-helm
+name: neo4j-helm-docs
 version: 1.0.0
-title: Neo4j Helm Docs
+title: Neo4j-Helm User Guide
 start_page: ROOT:index.adoc
 nav:
   - modules/ROOT/nav.adoc

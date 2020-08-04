@@ -1,0 +1,219 @@
+= Configuration Reference
+
+[abstract]
+--
+The following table lists the configurable parameters of the Neo4j chart and their default values.
+--
+
+## General Configuration
+
+.General Configuration Reference
+|===
+|Parameter |Description| Default
+
+| `image`
+| Neo4j image
+| `neo4j`
+
+| `imageTag`
+| Neo4j version 
+| (The default matches the release version of the helm chart itself)
+
+| `imagePullPolicy`
+| Image pull policy
+| `IfNotPresent`
+
+| `podDisruptionBudget`
+| Pod disruption budget
+| `{}`
+
+| `authEnabled`
+| Is login/password required?
+| `true`
+
+| `plugins`
+| Plugins to automatically install. (Careful on syntax, must be valid JSON array) https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json[Valid plugins listed here]
+| `"[\"apoc\"]"`
+
+| `defaultDatabase`
+| The name of the default database to configure in Neo4j (dbms.default_database)
+| `neo4j`
+
+| `neo4jPassword`
+| Password to log in the Neo4J database if password is required
+| (random string of 10 characters)
+
+| `resources` 
+| Resources required (e.g. CPU, memory)
+| `{}` (no specific requests or limits)
+
+| `restoreSecret`
+| The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. 
+| (none)
+
+| `existingPasswordSecret`
+| The name of the kubernetes secret which contains the `neo4j-password` 
+| (none)
+
+| `podLabels`              
+| Extra / custom labels to apply to core & replica statefulset pods 
+| `{}`
+
+| `podAnnotations`
+| Extra / custom annotations to apply to core & replica statefulset pods. 
+| `{}`
+
+|===
+
+## Neo4j Core Members
+
+.Core Member Configuration Reference
+|===
+|Parameter |Description| Default
+| `core.configMap`
+| Configmap providing configuration for core cluster members.  If not specified, defaults that come with the chart will be used.
+| `$NAME-neo4j-core-config`
+
+| `core.standalone`
+| Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies. 
+| false 
+
+| `core.numberOfServers`
+| Number of machines in CORE mode
+| `3`
+
+| `core.sideCarContainers`
+| Sidecar containers to add to the core pod. Example use case is a sidecar which identifies and labels the leader when using the http API 
+| `{}`
+
+| `core.initContainers`
+| Init containers to add to the core pod. Example use case is a script that installs custom plugins/extensions
+| `{}`
+
+| `core.persistentVolume.enabled`
+| Whether or not persistence is enabled
+| `true` 
+
+| `core.persistentVolume.storageClass`
+| Storage class of backing PVC
+| `standard` (uses beta storage class annotation)
+
+| `core.persistentVolume.size`
+| Size of data volume
+| `10Gi`
+
+| `core.persistentVolume.mountPath`
+| Persistent Volume mount root path 
+| `/data`
+
+| `core.persistentVolume.subPath`
+| Subdirectory of the volume to mount
+| `nil`
+
+| `core.persistentVolume.annotations`
+| Persistent Volume Claim annotations
+| `{}`
+
+| `core.additionalVolumes`
+| See the "Other Storage" section in the user guide for more information on this option.
+| `{}`
+
+| `core.additionalVolumeMounts`
+| See the "Other Storage" section in the user guide for more information on this option.
+| `{}`
+
+| `core.service.type` 
+| Service type 
+| `ClusterIP`
+
+| `core.service.annotations` 
+| Service annotations 
+| `{}` 
+
+| `core.service.labels`
+| Custom Service labels 
+| `{}`
+
+| `core.service.loadBalancerSourceRanges` 
+| List of IP CIDRs allowed access to LB (if `core.service.type: LoadBalancer`) 
+| `[]`
+
+| `core.discoveryService.type` 
+| Service type 
+| `ClusterIP`
+
+| `core.discoveryService.annotations` 
+| Service annotations 
+| `{}`
+
+| `core.discoveryService.labels` 
+| Custom Service labels 
+| `{}`
+
+| `core.discoveryService.loadBalancerSourceRanges` 
+| List of IP CIDRs allowed access to LB (if `core.discoveryService.type: LoadBalancer`) 
+| `[]`
+|===
+
+## Neo4j Read Replicas 
+
+.Read Replica Configuration Reference
+|===
+|Parameter |Description| Default
+| `readReplica.configMap`
+| Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used. 
+| `$NAME-neo4j-replica-config`
+
+| `readReplica.numberOfServers`
+| Number of machines in READ_REPLICA. May not be used with core.standalone=true mode
+| `0`
+
+| `readReplica.autoscaling.enabled`  
+| Enable horizontal pod autoscaler  
+| `false`
+
+| `readReplica.autoscaling.targetAverageUtilization`  
+| Target CPU utilization  
+| `70` 
+
+| `readReplica.autoscaling.minReplicas` 
+| Min replicas for autoscaling  
+| `1` 
+
+| `readReplica.autoscaling.maxReplicas`  
+| Max replicas for autoscaling  
+| `3`
+
+| `readReplica.initContainers`
+| Init containers to add to the replica pods. Example use case is a script that installs custom plugins/extensions
+| `{}`
+
+| `readReplica.persistentVolume.*`
+| See `core.persistentVolume.*` settings; they behave identically for read replicas
+| `N/A`  
+
+| `readReplica.additionalVolumes`
+| See the "Other Storage" section in the user guide for more information on this option.
+| `{}`
+
+| `readReplica.additionalVolumeMounts`
+| See the "Other Storage" section in the user guide for more information on this option.
+| `{}`
+
+| `readReplica.service.type`
+| Service type
+| `ClusterIP`
+
+| `readReplica.service.annotations` 
+| Service annotations 
+| `{}`
+
+| `readReplica.service.labels` 
+| Custom Service labels 
+| `{}`
+
+| `readReplica.service.loadBalancerSourceRanges` 
+| List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`) 
+| `[]`
+
+|===

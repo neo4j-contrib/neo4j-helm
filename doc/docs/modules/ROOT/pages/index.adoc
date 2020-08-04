@@ -1,19 +1,22 @@
 
-= Neo4j Spark Connector v{docs-version}
-
-ifdef::backend-html5[(C) {copyright}]
+= Neo4j Helm Chart v{docs-version}
 
 License: link:{attachmentsdir}/LICENSE.txt[Creative Commons 4.0]
 
 [abstract]
 --
-This is the user guide for Neo4j Spark Connector version {docs-version}, authored by the Neo4j Labs Team.
+This is the user guide for Neo4j Helm Chart.
 --
 
 The guide covers the following areas:
 
-* xref:overview.adoc[Project overview]
-* xref:quickstart.adoc[Get Started Fast with the most Common Scenarios]
-* xref:neo4j-cluster.adoc[Using with Neo4j Causal Cluster]
-* xref:cloud.adoc[Configuring a connection to a Confluent Cloud]
-* xref:faq.adoc[Neo4j Spark FAQ]
+* xref::overview/overview.adoc[Overview:  What is this tool for?]
+* xref::overview/prerequisites.adoc[Prerequisites:  What do you need to run it?]
+* xref::quickstart.adoc[Quick Start:  Getting up and going fast]
+* xref::installation.adoc[Installation:  Full options for configuring deployments]
+* xref::tooling.adoc[Neo4j Tooling:  How to use Neo4j Tools in Kubernetes]
+* xref::operations.adoc[Kubernetes Operations:  Advanced Operations]
+* xref::hardware.adoc[Hardware & Machine Shape:  How to size your graph]
+* xref::networking.adoc[Networking & Security]
+* xref::troubleshooting.adoc[Troubleshooting]
+
