@@ -8,11 +8,11 @@ How to use Neo4j Tooling in conjunction with Kubernetes
 ## Neo4j Browser
 
 [NOTE]
-**In order to use Neo4j Browser you must follow the external exposure instructions found in this user guide**
+In order to use Neo4j Browser you must follow the xref::externalexposure.adoc[external exposure instructions] which provide a walk-through of how to make your cluster available on the Internet.
 
 Neo4j browser is available on port 7474 of any of the hostnames described above. However, because of the network environment that the cluster is in, hosts in the neo4j cluster advertise themselves with private internal DNS that is not resolvable from outside of the cluster.
 
-The **TODO** external exposure instructions provide a walk-through of how you can configure this for your environment.
+Additionally, to use secure communications, configuration of HTTPS and SSL certificates is recommended.
 
 ## Cypher Shell
 

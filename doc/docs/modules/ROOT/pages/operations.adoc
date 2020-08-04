@@ -47,10 +47,6 @@ This chart supports the same monitoring configuration settings as described in t
 * To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
 * To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
 
-## Rolling Upgrades
-
-**TODO**
-
 ## Data Persistence
 
 The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to PersistentVolumeClaims in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
