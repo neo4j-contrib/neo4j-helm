@@ -45,3 +45,5 @@ expanded.yaml
 package.json
 package-lock.json
 node_modules
+doc/node
+doc/build

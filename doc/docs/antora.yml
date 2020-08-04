@@ -1,0 +1,12 @@
+name: neo4j-helm
+version: 1.0.0
+title: Neo4j Helm Docs
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    theme: docs
+    docs-version: 1.0.0
+    copyright: Neo4j Inc.

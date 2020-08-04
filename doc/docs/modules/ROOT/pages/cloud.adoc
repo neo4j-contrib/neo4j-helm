@@ -1,0 +1,9 @@
+[#cloud]
+= Using with Managed Cloud Spark
+
+[abstract]
+--
+This chapter provides an introduction to the Neo4j Spark Connector with cloud managed sparks
+--
+
+(Notes here)
