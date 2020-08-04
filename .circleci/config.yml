@@ -32,8 +32,10 @@ jobs:
             curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
             add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
-            apt-get update
-            EXTRA_NEEDED_TOOLS="wget make gettext-base jq"
+            # Will run apt-get update for us.
+            curl -sL https://deb.nodesource.com/setup_14.x | bash -
+
+            EXTRA_NEEDED_TOOLS="wget make gettext-base jq nodejs"
             apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
 
             # We will install local tools so add those to path.
@@ -66,7 +68,7 @@ jobs:
       - run:
           name: Generate Docs
           command: |
-             cd docs 
+             cd doc 
              npm install
              ./node_modules/.bin/antora doc.yml
 
