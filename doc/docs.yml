@@ -3,9 +3,6 @@ site:
   url: /neo4j-helm-docs
 content:
   sources:
-    - url: https://github.com/neo4j-contrib/neo4j-helm
-      branches: 'antora'
-      start_path: doc/docs
     - url: ../
       start_path: doc/docs
       branches: HEAD
