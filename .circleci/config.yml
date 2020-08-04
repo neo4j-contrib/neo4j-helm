@@ -2,7 +2,8 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      # Custom image; see tools/build/Dockerfile
+      - image: gcr.io/neo4j-helm/build:latest
 
     environment:
       PROJECT: neo4j-helm
@@ -21,23 +22,6 @@ jobs:
       - run:
           name: Tooling pre-requisites
           command: |
-            # Secure software install; required first in order to be able to process keys, packages, etc.
-            apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-            
-            # Google Cloud stuff
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-            
-            # Docker stuff
-            curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-
-            # Will run apt-get update for us.
-            curl -sL https://deb.nodesource.com/setup_14.x | bash -
-
-            EXTRA_NEEDED_TOOLS="wget make gettext-base jq nodejs npm"
-            apt-get install -y google-cloud-sdk $EXTRA_NEEDED_TOOLS
-
             # We will install local tools so add those to path.
             echo "export PATH=./tools:.:$PATH" >> $BASH_ENV
             mkdir -p $BUILD_ARTIFACTS
