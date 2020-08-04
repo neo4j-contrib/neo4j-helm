@@ -7,9 +7,39 @@ How to work with Neo4j networking & security concepts
 
 == Exposed Services
 
+For security reasons, we have not enabled access to the database cluster from outside of Kubernetes by default, instead choosing to leave this to users to configure appropriate network access policies for their usage. If this is desired, please look at the external exposure instructions found in this repository.
+
+By default, each node will expose:
+
+* HTTP on port 7474
+* HTTPS on port 7473
+* Bolt on port 7687
+
+Exposed services and port mappings can be configured by referencing neo4j’s docker documentation. See the advanced configuration section in this document for how to change the way the docker containers in each pod are configured.
+
+Refer to the Neo4j operations manual for information on the ports that Neo4j needs to function. Default port numbers in the helm chart exactly follow default ports in other installations.
+
 == Service Address
+
+Additionally, a service address inside of the cluster will be available as follows - to determine your service address, simply substitute `$APP_INSTANCE_NAME` with the name you deployed neo4j under, and `$NAMESPACE` with the kubernetes namespace where neo4j resides.
+
+`$NAME-neo4j.$NAMESPACE.svc.cluster.local`
+
+Any client may connect to this address, as it is a DNS record with multiple entries pointing to the nodes which back the cluster. For example, bolt+routing clients can use this address to bootstrap their connection into the cluster, subject to the items in the limitations section.
 
 == Cluster Formation
 
+Immediately after deploying Neo4j, as the pods are created the cluster begins to form. This may take up to 5 minutes, depending on a number of factors including how long it takes pods to get scheduled, and how many resources are associated with the pods. While the cluster is forming, the Neo4j REST API and Bolt endpoints may not be available. After a few minutes, bolt endpoints become available inside of the kubernetes cluster.
+
 == Password
+
+After installing, your cluster will start with the password you supplied as the neo4jPassword setting. This is stored in a kubernetes secret that is attached to your deployment. Given a deployment named “my-graph”, you can find the password as the “neo4j-password” key under the mygraph-neo4j-secrets configuration item in Kubernetes. The password is base64 encoded, and can be recovered as plaintext by authorized users with this command:
+
+```shell
+export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
+```
+
+Alternatively: if you set `existingPasswordSecret` that secret name should be used instead.
+
+This password applies for the base administrative user named “neo4j”.
 

@@ -217,3 +217,20 @@ The following table lists the configurable parameters of the Neo4j chart and the
 | `[]`
 
 |===
+
+== Naming
+
+This chart uses the `f`ullnameOverride` convention, to allow you to control the name of resources that get applied to the cluster. By default, when you install a release called mygraph you'll end up with resources named things like `m`ygraph-neo4j-core` and `mygraph-neo4j-replica` which is the release name, app name, and component name.
+
+If you would like to override this, you may specify any of these values:
+
+* fullnameOverride
+* fullnamePrefix
+* fullnameSuffix
+
+So for example if you set `fullnameOverride=graph` and `fullnamePrefix=marketing` then you will see the resources deployed named like:
+
+* `marketing-graph-core`
+* `marketing-graph-replica`
+
+(And so on) which would omit both the helm release name, and the app name (neo4j).
