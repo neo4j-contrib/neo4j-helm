@@ -2,6 +2,7 @@ default: docker_build
 REGISTRY = gcr.io/neo4j-helm
 TEST_IMAGE ?= $(REGISTRY)/tester
 BACKUP_IMAGE ?= $(REGISTRY)/backup
+BUILD_IMAGE ?= $(REGISTRY)/build
 RESTORE_IMAGE ?= $(REGISTRY)/restore
 DOCKER_TAG ?= `cat ../Chart.yaml | grep version | sed 's/.*: //'`
 
@@ -12,7 +13,7 @@ docker_build:
 	  -t $(TEST_IMAGE):$(DOCKER_TAG) -f test/Dockerfile .
 
 	docker build -t $(BACKUP_IMAGE):$(DOCKER_TAG) -f backup/Dockerfile .
-
+	docker build -t $(BUILD_IMAGE):latest -f build/Dockerfile .
 	docker build -t $(RESTORE_IMAGE):$(DOCKER_TAG) -f restore/Dockerfile .
 	  
 docker_push:
@@ -20,3 +21,4 @@ docker_push:
 	docker push $(TEST_IMAGE):$(DOCKER_TAG)
 	docker push $(BACKUP_IMAGE):$(DOCKER_TAG)
 	docker push $(RESTORE_IMAGE):$(DOCKER_TAG)
+	docker push $(BUILD_IMAGE):latest 
