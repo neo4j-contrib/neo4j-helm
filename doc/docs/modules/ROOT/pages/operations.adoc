@@ -1,9 +1,8 @@
 = Operations
 
 [abstract]
---
 How to perform a variety of Neo4j system operations in Kubernetes
---
+
 
 ## Logging
 
@@ -36,7 +35,7 @@ You may set any of the following settings. The helm chart accepts these settings
 
 Their meanings, formats, and defaults are the same as found in the operations manual. See the section "Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
 
-To see an example of this custom configuration in use with a single instance, please see the https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/standalone-custom-memory.config.yaml[standalone custom memory config deployment scenario].
+To see an example of this custom configuration in use with a single instance, please see the https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/standalone-custom-memory-config.yaml[standalone custom memory config deployment scenario].
 
 ## Monitoring
 
@@ -49,14 +48,14 @@ This chart supports the same monitoring configuration settings as described in t
 
 ## Data Persistence
 
-The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to PersistentVolumeClaims in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
+The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to `Per`sistentVolumeClaims` (PVCs) in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
 
-It is recommended that you investigate the `storageClass` option for persistent volume claims, and to choose low-latency SSD disks for best performance with Neo4j.
+It is recommended that you investigate the `storageClass` option for persistent volume claims, and to choose low-latency SSD disks for best performance with Neo4j.  The `storageClass` name you need to choose will vary with different distributions of Kubernetes.
 
 [NOTE]
 **Important**: PVCs retain data between Neo4j installs. If you deploy a cluster under the name 'mygraph', later uninstall it and then re-install it a second time under the same name, the new instance will inherit all of the old data from the pre-existing PVCs. This would include things like usernames, passwords, roles, and so forth.
 
-For further durability of data, regularly scheduled backups are recommended.
+For further durability of data, xref::backup.adoc[regularly scheduled backups] are recommended.
 
 ## Other Storage
 
@@ -66,7 +65,9 @@ Use of additional volumes and mounts is not supported though, and in order to us
 
 ## Fabric
 
-In Neo4j 4.0+, https://neo4j.com/docs/operations-manual/current/fabric/introduction/[fabric] is a feature that can be enabled with regular configuration in neo4j.conf. All of the fabric configuration that is referenced in the manual can be done via custom ConfigMaps described in this documentation.
+In Neo4j 4.0+, https://neo4j.com/docs/operations-manual/current/fabric/introduction/[fabric] is a feature that can be enabled with regular configuration in `neo4j.conf`. All of the fabric configuration that is referenced in the manual can be done via custom ConfigMaps described in this documentation.
+
+### Simple Usage
 
 https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/fabric[A simple worked example of this approach can be found here.]
 
@@ -86,11 +87,11 @@ Where this gets complicated is when the architecture gets big/complex. Suppose y
 How Fabric Works
 What fabric needs to work are 3 things:
 
-* A user/role (neo4j/admin for example) that is the same on all databases subject to the fabric query
-* The ability to make a bolt connection to all cluster members participating in the fabric query
-* Some configuration.
+1. A user/role (neo4j/admin for example) that is the same on all databases subject to the fabric query
+2. The ability to make a bolt connection to all cluster members participating in the fabric query
+3. Some configuration.
 
-Custom configmaps cover #3. Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific. And #2 is where kubernetes networking may or may not come in, depending on your deployment topology. In the simplest single DBMS configurations, I think it will work out of the box.
+Custom configmaps (which are discussed in this section) cover #3. Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific. And #2 is where kubernetes networking may or may not come in, depending on your deployment topology. In the simplest single DBMS configurations, I think it will work out of the box.
 
 ## Custom Neo4j Configuration with ConfigMaps
 

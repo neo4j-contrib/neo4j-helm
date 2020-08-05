@@ -1,9 +1,7 @@
 = Configuration Reference
 
 [abstract]
---
-The following table lists the configurable parameters of the Neo4j chart and their default values.
---
+Reference tables with a list of all configurable parameters and their defaults.
 
 ## General Configuration
 
@@ -32,7 +30,7 @@ The following table lists the configurable parameters of the Neo4j chart and the
 | `true`
 
 | `plugins`
-| Plugins to automatically install. (Careful on syntax, must be valid JSON array) https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json[Valid plugins listed here]
+| Plugins to automatically install. (syntax must be valid JSON array string) https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json[Valid plugins listed here]
 | `"[\"apoc\"]"`
 
 | `defaultDatabase`
@@ -218,9 +216,9 @@ The following table lists the configurable parameters of the Neo4j chart and the
 
 |===
 
-== Naming
+== Naming your Deploy
 
-This chart uses the `f`ullnameOverride` convention, to allow you to control the name of resources that get applied to the cluster. By default, when you install a release called mygraph you'll end up with resources named things like `m`ygraph-neo4j-core` and `mygraph-neo4j-replica` which is the release name, app name, and component name.
+This chart uses the `fullnameOverride` convention, to allow you to control the name of resources that get applied to the cluster. By default, when you install a release called mygraph you'll end up with resources named things like `mygraph-neo4j-core` and `mygraph-neo4j-replica` which is the release name, app name, and component name.
 
 If you would like to override this, you may specify any of these values:
 

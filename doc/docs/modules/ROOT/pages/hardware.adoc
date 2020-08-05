@@ -1,9 +1,8 @@
 = Hardware and Machine Shape
 
 [abstract]
---
 How to size memory, CPU, and disk for Neo4j in Kubernetes
---
+
 
 In order to ensure that Neo4j is deployable on basic/default K8S clusters, the default values for hardware requests have been made fairly low, and can be found in https://github.com/neo4j-contrib/neo4j-helm/blob/master/values.yaml[values.yaml].
 

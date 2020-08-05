@@ -1,6 +1,5 @@
 * xref::index.adoc[Neo4j Helm User Guide]
-* xref::overview/overview.adoc[Overview]
-* xref::overview/prerequisites.adoc[Prerequisites]
+* xref::prerequisites.adoc[Prerequisites]
 * xref::quickstart.adoc[Quick Start]
 * xref::installation.adoc[Installation]
 * xref::configreference.adoc[Configuration Reference]

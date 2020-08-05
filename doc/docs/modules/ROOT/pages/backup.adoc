@@ -1,4 +1,4 @@
-[#restore]
+[#backup]
 # Backing up Neo4j Containers
 
 [NOTE]

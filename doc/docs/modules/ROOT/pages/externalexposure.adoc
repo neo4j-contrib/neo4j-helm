@@ -2,9 +2,7 @@
 # External Exposure of Neo4j Clusters
 
 [abstract]
---
 This chapter describes how to route traffic from the outside world or Internet to a Neo4j cluster running in Kubernetes.
---
 
 ## Overview / Problem
 

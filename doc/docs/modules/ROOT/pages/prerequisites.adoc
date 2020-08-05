@@ -1,9 +1,8 @@
 = Prerequisites
 
 [abstract]
---
 This chapter provides the tools you need to have installed before using neo4j-helm.
---
+
 
 == Required Software
 

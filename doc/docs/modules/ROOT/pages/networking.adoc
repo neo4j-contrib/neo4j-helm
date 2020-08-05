@@ -1,9 +1,8 @@
 = Networking & Security
 
 [abstract]
---
 How to work with Neo4j networking & security concepts
---
+
 
 == Exposed Services
 

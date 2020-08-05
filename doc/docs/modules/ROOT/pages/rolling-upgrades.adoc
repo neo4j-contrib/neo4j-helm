@@ -4,11 +4,10 @@
 This document expands on the Neo4j Operations Manual entry
 https://neo4j.com/docs/operations-manual/current/upgrade/causal-cluster/[Upgrade a Causal Cluster] with information about approaches on rolling upgrades in Kubernetes.
 
-**It is strongly recommended that you read all of that documentation before using this method**.
+## Before you Begin
 
-Not all relevant concepts will be described in this document.  Familiarity with the other pages will be assumed.
-
-**It is recommended to perform a test upgrade on a production-like environment to get information on the duration of the downtime, if any, that may be necessary.**
+1. Read all of that documentation before attempting rolling upgrades. Not all relevant concepts will be described in this document.  Familiarity with the other pages will be assumed.
+2. Perform a test upgrade on a production-like environment to get information on the duration of the downtime, if any, that may be necessary.
 
 ## When is this needed?
 

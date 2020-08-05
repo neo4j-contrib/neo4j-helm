@@ -2,22 +2,32 @@
 = Quick Start
 
 [abstract]
---
 Get started fast for common scenarios
---
 
-To install the helm chart, you'll need a https://github.com/neo4j-contrib/neo4j-helm/releases[copy of a release]; download a `.tgz` package of the `neo4j` chart; we'll use that release URL below.
+== Download a Release
+
+Find the URL of a https://github.com/neo4j-contrib/neo4j-helm/releases[copy of a release]; it will be named `neo4j-$RELEASEVERSION.tgz`
+
+[NOTE]
+You must set `acceptLicenseAgreement=yes` to accept the license, or your deployment will not succeed.
 
 == Standalone (Single Server)
 
 ```shell
-helm install mygraph RELEASE_URL --set core.standalone=true --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
+helm install mygraph RELEASE_URL \
+    --set core.standalone=true \
+    --set acceptLicenseAgreement=yes \
+    --set neo4jPassword=mySecretPassword
 ```
 
-== Causal Cluster (3 core, 0 Read Replica)
+== Causal Cluster
 
 ```shell
-helm install mygraph RELEASE_URL --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
+helm install mygraph RELEASE_URL \
+    --set acceptLicenseAgreement=yes \
+    --set neo4jPassword=mySecretPassword \
+    --set core.numberOfServers=3 \
+    --set readReplica.numberOfServers=0
 ```
 
 == Uninstalling

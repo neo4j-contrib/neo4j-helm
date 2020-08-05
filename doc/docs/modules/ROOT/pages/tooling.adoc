@@ -1,9 +1,8 @@
 = Tooling
 
 [abstract]
---
 How to use Neo4j Tooling in conjunction with Kubernetes
---
+
 
 ## Neo4j Browser
 

@@ -1,9 +1,8 @@
 = Installation
 
 [abstract]
---
 Explore the options for installing neo4j-helm, and how to configure advanced scenarios
---
+
 
 This is a helm chart, and it is installed by running https://helm.sh/docs/helm/helm_install/[helm install] with various parameters used to customize the deploy.
 

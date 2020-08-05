@@ -1,9 +1,8 @@
 = Local Development
 
 [abstract]
---
 This chapter provides instructions for local development of the helm chart and how to make changes to it.
---
+
 
 == Template Expansion
 

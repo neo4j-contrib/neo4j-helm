@@ -1,22 +1,32 @@
 
-= Neo4j Helm Chart v{docs-version}
+= Neo4j Helm Chart Overview 
 
-License: link:{attachmentsdir}/LICENSE.txt[Creative Commons 4.0]
+== Project Overview
 
-[abstract]
---
-This is the user guide for Neo4j Helm Chart.
---
+Neo4j-helm allows users to deploy multi-node Neo4j Enterprise Causal Clusters to Kubernetes instances, with configuration options for the most common scenarios. It represents a very rapid way to get started running the world leading native graph database on top of Kubernetes.
 
-The guide covers the following areas:
+This guide is intended only as a supplement to the Neo4j Operations Manual. Neo4j-helm is essentially a docker container based deploy of Neo4j Causal Cluster. As such, all of the information in the Operations Manual applies to its operation, and this guide will focus only on kubernetes-specific concerns.
 
-* xref::overview/overview.adoc[Overview:  What is this tool for?]
-* xref::overview/prerequisites.adoc[Prerequisites:  What do you need to run it?]
-* xref::quickstart.adoc[Quick Start:  Getting up and going fast]
-* xref::installation.adoc[Installation:  Full options for configuring deployments]
-* xref::tooling.adoc[Neo4j Tooling:  How to use Neo4j Tools in Kubernetes]
-* xref::operations.adoc[Kubernetes Operations:  Advanced Operations]
-* xref::hardware.adoc[Hardware & Machine Shape:  How to size your graph]
-* xref::networking.adoc[Networking & Security]
-* xref::troubleshooting.adoc[Troubleshooting]
+[NOTE]
+**In addition to the information in this user guide, a set of slides is available on the deployment architecture and chart structure of this repository. https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing:[Neo4j Helm Chart Structure]**
 
+== Versioning
+
+The versioning of this helm chart will follow Neo4j versions for simplicity.
+
+* Version 4.0.X-Y of the helm chart is compatible with Neo4j EE v4.0.*
+* Version 4.1.X-Y of the helm chart is compatible with Neo4j EE v4.1.*
+* (and so on)
+
+The charts in this repository are for Neo4j 4.0 going forward. There are previous available charts for the Neo4j 3.5 series, but there are substantial differences between the two versions. Careful upgrade planning is advised before attempting to upgrade an existing chart.
+
+Consult the https://neo4j.com/docs/operations-manual/current/upgrade/[upgrade guide] and expect that additional configuration of this chart will be necessary.
+
+== Licensing
+
+The source code to neo4j-helm is available under the terms of the Apache License, version 2.0.  See the LICENSE.txt file in the source code repository for full terms and conditions.
+
+This documentation is licensed under link:{attachmentsdir}/LICENSE.txt[Creative Commons 4.0]
+
+[NOTE]
+The documentation version is v{docs-version}
