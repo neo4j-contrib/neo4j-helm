@@ -1,0 +1,12 @@
+= Hardware and Machine Shape
+
+[abstract]
+How to size memory, CPU, and disk for Neo4j in Kubernetes
+
+
+In order to ensure that Neo4j is deployable on basic/default K8S clusters, the default values for hardware requests have been made fairly low, and can be found in https://github.com/neo4j-contrib/neo4j-helm/blob/master/values.yaml[values.yaml].
+
+Sizing databases is ultimately something that should be done with the workload in mind. Consult Neo4j's https://neo4j.com/developer/guide-performance-tuning/?ref=googlemarketplace[Performance Tuning Documentation] for more information. In general, heap size and page cache sizing are the most important places to start when tuning performance.
+
+It is strongly recommended that you choose request and limit values for CPU and memory prior to deploying in important environments.
+

@@ -1,0 +1,51 @@
+= Installation
+
+[abstract]
+Explore the options for installing neo4j-helm, and how to configure advanced scenarios
+
+
+This is a helm chart, and it is installed by running https://helm.sh/docs/helm/helm_install/[helm install] with various parameters used to customize the deploy.
+
+The default for this chart is to install https://neo4j.com/docs/operations-manual/current/clustering/[Neo4j Causal Cluster]*, with 3 core members and zero replicas, but standalone is also supported.
+
+== Causal Cluster Example
+
+```shell
+helm install my-neo4j \
+    --set core.numberOfServers=3,readReplica.numberOfServers=3,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
+```
+
+The above command creates a cluster containing 3 core servers and 3 read replicas.
+
+Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+
+```shell
+helm install neo4j-helm -f values.yaml .
+```
+
+[NOTE]
+*Tip*: You can copy the default https://github.com/neo4j-contrib/neo4j-helm/blob/master/values.yaml[values.yaml] file as an example to edit, with full access to all options.
+
+== Standalone (Single Machine) Command Line Example
+
+```shell
+helm install my-neo4j --set core.standalone=true,acceptLicenseAgreement=yes,neo4jPassword=mySecretPassword .
+```
+
+Important notes about standalone mode:
+
+* When running in standalone mode, core.numberOfServers is ignored and you will get 1 server.
+* Read replicas may only be used with causal cluster. When running standalone, all read replica arguments are ignored.
+* All other core settings (persistent volume size, annotations, etc) will still apply to your single instance.
+* Standalone instances installed in this way cannot be scaled into clusters.
+If you attempt to scale a standalone system, you will get multiple independent DBMSes, you will not get 1 causal cluster.
+
+== Deployment Scenarios
+
+See the https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios[deployment-scenarios folder] in the repo for example YAML values files. These are example configurations that show settings necessary to launch the helm chart in different configurations.
+
+Each of these scenario files is launched the same way:
+
+```shell
+helm install mygraph -f deployment-scenarios/my-scenario.yaml . 
+```

@@ -1,0 +1,22 @@
+[#troubleshooting]
+= Neo4j-Helm Troubleshooting
+
+== Are you starting with empty disks?
+
+The most common issue associated with the helm chart is persistent volume claim reuse. For example, if you deploy `mygraph`, delete this instance, and then redeploy a new, different `mygraph`, it will not get clean empty PVCs, but will reuse the old PVCs from the previous deployment. 
+
+[NOTE]
+**When you uninstall a helm distribution it does not remove persistent volume claims.**
+
+Make sure to ensure the disks you're starting with are empty to avoid file permissioning and other issues.
+
+== Have you checked debug.log?
+
+Neo4j comes with a built-in `debug.log` file that is stored in the logs directory.  This is the place
+to check when you run into trouble.  Inspect this file and look for `Exception` error messages, and often
+the product logs will tell you what the issue is.
+
+== Something Else?
+
+The https://community.neo4j.com/c/neo4j-graph-platform/cloud/76[Neo4j Community Site] is a great place
+to ask for help.

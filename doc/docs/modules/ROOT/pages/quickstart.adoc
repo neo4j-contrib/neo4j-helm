@@ -1,0 +1,44 @@
+
+= Quick Start
+
+[abstract]
+Get started fast for common scenarios
+
+== Download a Release
+
+Find the URL of a https://github.com/neo4j-contrib/neo4j-helm/releases[copy of a release]; it will be named `neo4j-$RELEASEVERSION.tgz`
+
+[NOTE]
+You must set `acceptLicenseAgreement=yes` to accept the license, or your deployment will not succeed.
+
+== Standalone (Single Server)
+
+```shell
+helm install mygraph RELEASE_URL \
+    --set core.standalone=true \
+    --set acceptLicenseAgreement=yes \
+    --set neo4jPassword=mySecretPassword
+```
+
+== Causal Cluster
+
+```shell
+helm install mygraph RELEASE_URL \
+    --set acceptLicenseAgreement=yes \
+    --set neo4jPassword=mySecretPassword \
+    --set core.numberOfServers=3 \
+    --set readReplica.numberOfServers=0
+```
+
+== Uninstalling
+
+```shell
+helm uninstall mygraph
+```
+
+== Where to Go For Help
+
+If you have a question not covered in this user guide in the other sections, the 
+https://community.neo4j.com/c/neo4j-graph-platform/cloud/76[Neo4j Community Site] is a great place
+to ask for help.
+

@@ -1,0 +1,18 @@
+= Prerequisites
+
+[abstract]
+This chapter provides the tools you need to have installed before using neo4j-helm.
+
+
+== Required Software
+
+* Kubernetes 1.6+ with Beta APIs enabled
+* Docker and kubectl installed locally
+* Helm >= 3.1 installed
+* PV provisioner support in the underlying infrastructure
+* Requires the following variables You must add acceptLicenseAgreement in the values.yaml file and set it to yes or include `--set acceptLicenseAgreement=yes` in the command line of helm install to accept the license.
+* This chart requires that you have a license for Neo4j Enterprise Edition. Trial licenses https://neo4j.com/lp/enterprise-cloud/?utm_content=kubernetes[can be obtained here]
+
+== Licensing & Cost
+
+Neo4j Enterprise Edition (EE) is available to any existing enterprise license holder of Neo4j in a Bring Your Own License (BYOL) arrangement. Neo4j EE is also available under evaluation licenses, contact Neo4j in order to obtain one. There is no hourly or metered cost associated with using Neo4j EE for current license holders.

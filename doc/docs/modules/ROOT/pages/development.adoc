@@ -1,0 +1,67 @@
+= Local Development
+
+[abstract]
+This chapter provides instructions for local development of the helm chart and how to make changes to it.
+
+
+== Template Expansion
+
+```shell
+helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword . > expanded.yaml
+```
+
+== Full-Cycle Test
+
+The following mini-script will provision a test cluster, monitor it for rollout, test it, report results, and teardown/destroy PVCs.
+
+=== Provision K8S Cluster
+
+Please use `tools/test/provision-k8s.sh` and customize to your Google Cloud project ID
+
+=== Standalone
+
+Standalone forms faster so we can manually lower the liveness/readiness timeouts.
+
+```shell
+export NAME=a
+export NAMESPACE=default
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set core.standalone=true --set readinessProbe.initialDelaySeconds=20 --set livenessProbe.initialDelaySeconds=20 && \
+kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
+helm test $NAME --logs | tee testlog.txt
+helm uninstall $NAME
+sleep 20
+for idx in 0 1 2 ; do
+  kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
+done
+```
+
+=== Causal Cluster
+
+```shell
+export NAME=a
+export NAMESPACE=default
+helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set readReplica.numberOfServers=1 && \
+kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
+helm test $NAME --logs | tee testlog.txt
+helm uninstall $NAME
+sleep 20
+for idx in 0 1 2 ; do
+  kubectl delete pvc datadir-$NAME-neo4j-core-$idx ;
+done
+```
+
+== Internal Tooling
+
+This repo contains internal tooling containers for backup, restore, and test of the helm chart, found
+under the `tools` directory.
+
+== Building the Containers
+
+If you want to push your own docker containers, make sure the registry in the Makefile is set to some
+where you have permissions on.
+
+```shell
+cd tools
+make docker_build
+make docker_push
+```

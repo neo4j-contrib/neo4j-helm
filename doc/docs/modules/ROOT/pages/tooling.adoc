@@ -1,0 +1,47 @@
+= Tooling
+
+[abstract]
+How to use Neo4j Tooling in conjunction with Kubernetes
+
+
+## Neo4j Browser
+
+[NOTE]
+In order to use Neo4j Browser you must follow the xref::externalexposure.adoc[external exposure instructions] which provide a walk-through of how to make your cluster available on the Internet.
+
+Neo4j browser is available on port 7474 of any of the hostnames described above. However, because of the network environment that the cluster is in, hosts in the neo4j cluster advertise themselves with private internal DNS that is not resolvable from outside of the cluster.
+
+Additionally, to use secure communications, configuration of HTTPS and SSL certificates is recommended.
+
+## Cypher Shell
+
+Upon deploying the helm chart, you will be given a command that can be used to connect to the cluster. This will schedule a new Neo4j pod to run called "cypher-shell" and invoke that command to connect. See NOTES.txt for an example.
+
+Please consult standard Neo4j documentation on the many other usage options present, once you have a basic bolt client and cypher shell capability.
+
+## Neo4j-Admin Import
+
+Matt Cockayne has published the following blog post about how to use kubernetes initContainers to run `neo4j-admin import` and https://phpboyscout.uk/pre-populating-neo4j-using-kubernetes-init-containers-and-neo4j-admin-import/[pre-load data in images from CSV, rather than backup sets].
+
+More generally - the technique he uses is the one that's recommended for any and all other Neo4j shell utilities. Rather than building a custom Docker image, it's recommended that you run a shell script inside of an initContainer to do whatever shell operations are necessary to prepare the data volume prior to the Neo4j's container start.
+
+## Plugins
+
+The Neo4j Docker container can take an extra environment variable NEO4JLABS_PLUGINS that pre-installs the most common plugins. The helm chart in turn has a parameter plugins that lets you specify this value.
+
+The value must be a valid JSON array of plugin names. https://github.com/neo4j/docker-neo4j/blob/master/neo4jlabs-plugins.json[The list of valid names can be found here] but include APOC, Graph Data Science, Neo4j Streams (Kafka integration) and others.
+
+The way this mechanism works is that each plugin publishes a versions.json file that allows the Neo4j Docker container to determine at runtime which version of the plugin JAR to download and put in place.
+
+APOC is included by default; comment out the plugins parameter or set it to the empty string to disable APOC. By adding other plugin names to the default shown below, you can use multiple plugins.
+
+```yaml
+plugins: "[\"apoc\"]"
+```
+
+[NOTE]
+Take care to use proper syntax and escaping: YAML can interpret JSON, and we are aiming to specify a string of JSON.
+
+An example configuration has been provided in the deployment scenarios folder that shows installation of a standalone instance using Neo4j's Graph Data Science plugin.
+
+Other/custom plugins still require the use of initContainers to download and install the plugin at runtime.

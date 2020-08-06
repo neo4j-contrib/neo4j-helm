@@ -1,0 +1,152 @@
+= Operations
+
+[abstract]
+How to perform a variety of Neo4j system operations in Kubernetes
+
+
+## Logging
+
+Neo4j logs that would normally be stored as the `neo4j.log` file are pod logs in Kubernetes. As a result, they are not written directly as a file to disk, but are accessible by just issuing `kubectl logs podname`.
+
+The debug.log file is a regular file written to disk inside of the pod. As of the 4.1.0-4 release and later, the default log path has been changed to place logs on persistent storage. They will typically be found at `/data/logs` inside the container, and are set to the path specified by the `dbms.directories.logs` configuration parameter in Neo4j.
+
+The same locations apply for other Neo4j log files such as `security.log` and `query.log`.
+
+## Memory Management
+
+The chart follows the same memory configuration settings as described in the https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/[Memory Configuration] section of the Operations manual.
+
+### Default Approach
+Neo4j-helm behaves just like the regular Neo4j product. No explicit heap or page cache is set. Memory grows dynamically according to what the JVM can allocate.
+
+### Recommended Approach
+
+You may use the setting `dbms.memory.use_memrec=true` and this will run https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-memrec/[neo4j-admin memrec] and use its recommendations. This use_memrec setting is an option for the helm chart, it is not a Neo4j configuration option.
+
+It's very important that you also specify CPU and memory resources on launch that are adequate to support the recommendations. Crashing pods, "unscheduleable" errors, and other problems will result if the recommended amounts of memory are higher than the Kubernetes requests/limits.
+
+### Custom Explicit Settings
+
+You may set any of the following settings. The helm chart accepts these settings, mirroring the names used in the neo4j.conf file.
+
+* `dbms.memory.heap.initial_size`
+* `dbms.memory.heap.max_size`
+* `dbms.memory.pagecache.size`
+
+Their meanings, formats, and defaults are the same as found in the operations manual. See the section "Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
+
+To see an example of this custom configuration in use with a single instance, please see the https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/standalone-custom-memory-config.yaml[standalone custom memory config deployment scenario].
+
+## Monitoring
+
+This chart supports the same monitoring configuration settings as described in the Neo4j Operations Manual. These have been ommitted from the table above because they are documented in the operational manual, but here are three quick examples:
+
+* To publish prometheus metrics, `--set metrics.prometheus.enabled=true,metrics.prometheus.endpoint=localhost:2004`
+* To publish graphite metrics, `--set metrics.graphite.enabled=true,metrics.graphite.server=localhost:2003,metrics.graphite.interval=3s`
+* To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
+* To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
+
+## Data Persistence
+
+The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to `Per`sistentVolumeClaims` (PVCs) in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
+
+It is recommended that you investigate the `storageClass` option for persistent volume claims, and to choose low-latency SSD disks for best performance with Neo4j.  The `storageClass` name you need to choose will vary with different distributions of Kubernetes.
+
+[NOTE]
+**Important**: PVCs retain data between Neo4j installs. If you deploy a cluster under the name 'mygraph', later uninstall it and then re-install it a second time under the same name, the new instance will inherit all of the old data from the pre-existing PVCs. This would include things like usernames, passwords, roles, and so forth.
+
+For further durability of data, xref::backup.adoc[regularly scheduled backups] are recommended.
+
+## Other Storage
+
+The helm chart supports values for `additionalVolumes` and `additionalVolumeMounts` for both core and read replica sets. These can be used to set up arbitrary extra mounted drives inside of the containers. Exactly how to specify this is left to the user, because it depends on whether you want to use an existing PVC, mount a configmap, or other setup. This feature is intended to provide storage flexibility to inject files such as `apoc.conf`, initialization scripts, or imports directories.
+
+Use of additional volumes and mounts is not supported though, and in order to use this feature you must be very comfortable with filesystem basics in Kubernetes and Neo4j directory configuration.
+
+## Fabric
+
+In Neo4j 4.0+, https://neo4j.com/docs/operations-manual/current/fabric/introduction/[fabric] is a feature that can be enabled with regular configuration in `neo4j.conf`. All of the fabric configuration that is referenced in the manual can be done via custom ConfigMaps described in this documentation.
+
+### Simple Usage
+
+https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/fabric[A simple worked example of this approach can be found here.]
+
+Using Neo4j Fabric in kubernetes boils down to configuring the product as normal, but with the “docker style".
+In the neo4j operations manual, it might tell you to set `fabric.database.name=myfabric` and in kubernetes that would be `NEO4J_fabric_database_name: myfabric` and so forth.
+
+So that is fairly straightforward. But this is only one half of the story. The other half is, what is the fabric deployment topology?
+
+### Fabric Topology
+
+https://neo4j.com/docs/operations-manual/current/fabric/introduction/#_multi_cluster_deployment[Fabric enables some very complex setups]. If you have a *single DBMS* you can do it with pure configuration and it will work. If you have multiple DBMSs, then the way this works behind the scenes is via account/role coordination, and bolt connections between clusters.
+
+That in turn means that you would need to have network routing bits set up so that cluster A could talk to cluster B (referring to the diagram linked above). This would mostly be kubernetes networking stuff, nothing too exotic, but this would need to be carefully planned for.
+
+Where this gets complicated is when the architecture gets big/complex. Suppose you’re using fabric to store shards of a huge “customer graph”. The shard of US customers exists in one geo region, and the shard of EU customers in another geo region. You can use fabric to query both shards and have a logical view of the “customer graph” over all geos. To do this in kubernetes though would imply kubernetes node pools in two different geos, and almost certainly 2 different neo4j clusters. To enable bolt between them (permitting fabric to work) would get into a more advanced networking setup for kubernetes specifically. But to neo4j as a product, it’s all the same. Can I make a neo4j/bolt connection to the remote source? Yes? Then it should be fine.
+
+How Fabric Works
+What fabric needs to work are 3 things:
+
+1. A user/role (neo4j/admin for example) that is the same on all databases subject to the fabric query
+2. The ability to make a bolt connection to all cluster members participating in the fabric query
+3. Some configuration.
+
+Custom configmaps (which are discussed in this section) cover #3. Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific. And #2 is where kubernetes networking may or may not come in, depending on your deployment topology. In the simplest single DBMS configurations, I think it will work out of the box.
+
+## Custom Neo4j Configuration with ConfigMaps
+
+Neo4j cluster pods are divided into two groups: cores and replicas. Those pods can be configured with ConfigMaps, which contain environment variables. Those environment variables, in turn, are used as configuration settings to the underlying Neo4j Docker Container, according to the Neo4j environment variable configuration.
+
+As a result, you can set any custom Neo4j configuration by creating your own Kubernetes configmap, and using it like this:
+
+```
+--set core.configMap=myConfigMapName --set readReplica.configMap=myReplicaConfigMap
+```
+
+[NOTE]
+Configuration of some networking specific settings is still done at container start time, and this very small set of variables may still be overridden by the helm chart, in particular advertised addresses & hostnames for the containers.
+
+## Scaling
+
+The following section describes considerations about changing the size of a cluster at runtime to handle more requests. Scaling only applies to causal cluster, and standalone instances cannot be scaled in this way.
+
+### Planning
+
+Before scaling a database running on kubernetes, make sure to consult in depth the Neo4j documentation on clustering architecture, and in particular take care to choose carefully between whether you want to add core nodes or read replicas. Additionally, this planning process should take care to include details of the kubernetes layer, and where the node pools reside. Adding extra core nodes to protect data with additional redundancy may not provide extra guarantees if all kubernetes nodes are in the same zone, for example.
+
+For many users and use cases, careful planning on initial database sizing is preferable to later attempts to rapidly scale the cluster.
+
+When adding new nodes to a neo4j cluster, upon the node joining the cluster, it will need to replicate the existing data from the other nodes in the cluster. As a result, this can create a temporary higher load on the remaining nodes as they replicate data to the new member. In the case of very large databases, this can cause temporary unavailability under heavy loads. We recommend that when setting up a scalable instance of Neo4j, you configure pods to restore from a recent backup set before starting. Instructions on how to restore are provided in this repo. In this way, new pods are mostly caught up before entering the cluster, and the "catch-up" process is minimal both in terms of time spent and load placed on the rest of the cluster.
+
+Because of the data intensive nature of any database, careful planning before scaling is highly recommended. Storage allocation for each new node is also needed; as a result, when scaling the database, the kubernetes cluster will create new persistent volume claims and GCE volumes.
+
+Because Neo4j's configuration is different in single-node mode (dbms.mode=SINGLE) you should not scale a deployment if it was initially set to 1 coreServer. This will result in multiple independent databases, not one cluster.
+
+### Execution (Manual Scaling)
+
+Neo4j-Helm consists of a StatefulSet for core nodes, and a Deployment for replicas. In configuration, even if you chose zero replicas, you will see a Deployment with zero members.
+
+Scaling the database is a matter of scaling one of these elements.
+
+Depending on the size of your database and how busy the other members are, it may take considerable time for the cluster topology to show the presence of the new member, as it connects to the cluster and performs catch-up. Once the new node is caught up, you can execute the cypher query CALL dbms.cluster.overview(); to verify that the new node is operational.
+
+### Execution (Automated Scaling)
+
+The helm chart provides settings which provide for a https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[HorizontalPodAutoscaler] for read replicas, which can automatically scale according to the CPU utilization of the underlying pods. For usage of this feature, please see the `readReplica.autoscaling.*` settings documented in the supported settings above.
+
+For further details about how this works and what it entails, please consult the https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/[kubernetes documentation on horizontal pod autoscalers].
+
+[NOTE]
+*Automated scaling applies only to read replicas*. At this time we do not recommend automatic scaling of core members of the cluster at all, and core member scaling should be limited to special operations such as rolling upgrades, documented separately.
+
+### Warnings and Indications
+
+Scaled pods inherit their configuration from their statefulset. For neo4j, this means that items like configured storage size, hardware limits, and passwords apply to scale up members.
+
+If scaling down, do not scale below three core nodes; this is the minimum necessary to guarantee a properly functioning cluster with data redundancy. Consult the neo4j clustering documentation for more information. Neo4j-Helm uses PVCs, and so if you scale up and then later scale down, this may orphan an underlying PVC, which you may want to manually delete at a later date.
+
+## Anti-Affinity Rules
+
+For productionized installs, anti-affinity rules are recommended, where pod deployment is intentionally spread out among Kubernetes worker nodes. This improves Neo4j's failure characteristics. If Kubernetes inadvertently deploys all 3 core Neo4j pods to a single worker node, and the underlying worker node VM fails -- then the entire cluster will go down. For this reason, anti-affinity rules are recommended to "spread the deployment out".
+
+An example of how to configure this with references to documentation is provided in the deployment scenarios directory.
