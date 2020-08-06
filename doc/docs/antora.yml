@@ -1,4 +1,4 @@
-name: neo4j-helm-docs
+name: neo4j-helm
 version: 1.0.0
 title: Neo4j-Helm User Guide
 start_page: ROOT:index.adoc
@@ -7,6 +7,5 @@ nav:
 
 asciidoc:
   attributes:
-    theme: docs
     docs-version: 1.0.0
     copyright: Neo4j Inc.
