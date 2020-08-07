@@ -30,12 +30,12 @@ spec:
         app.kubernetes.io/name: {{ template "neo4j.name" . }}
         app.kubernetes.io/component: replica
         {{-  range $key, $value := .Values.podLabels }}
-        {{ $key }}: {{ $value }}
+        {{ $key }}: "{{ $value }}"
         {{- end }}
       {{- if .Values.podAnnotations }}
       annotations:
         {{-  range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: {{ $value }}
+        {{ $key }}: "{{ $value }}"
         {{- end }}
       {{- end }}
     spec:
