@@ -1,0 +1,17 @@
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
+readReplica:
+    numberOfServers: 1
+
+core:
+    numberOfServers: 3
+    standalone: true
+
+podAnnotations:
+    ci-test: "true"
+
+podLabels:
+    ci-test: "true"
+    hello: world
+    

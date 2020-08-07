@@ -1,0 +1,19 @@
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+
+readinessProbe:
+   initialDelaySeconds: 20
+
+livenessProbe:
+   initialDelaySeconds: 20
+
+core:
+    standalone: true
+
+podAnnotations:
+    ci-test: "true"
+
+podLabels:
+    ci-test: "true"
+    hello: world
+    

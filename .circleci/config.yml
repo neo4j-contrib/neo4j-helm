@@ -92,23 +92,14 @@ jobs:
              cp *.tgz $BUILD_ARTIFACTS/
 
              echo "Installing $chart_archive (CAUSAL CLUSTER TEST SCENARIO)"
-             helm install $NAME_CLUSTERED $chart_archive \
+             helm install $NAME_CLUSTERED -f deployment-scenarios/ci/cluster.yaml $chart_archive \
                  --namespace $NAMESPACE \
-                 --set acceptLicenseAgreement=yes \
-                 --set neo4jPassword=mySecretPassword \
-                 --set readReplica.numberOfServers=1 \
                  -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-cluster.txt
 
              echo "Installing $chart_archive (STANDALONE SCENARIO)"
-             helm install $NAME_STANDALONE $chart_archive \
+             helm install $NAME_STANDALONE -f deployment-scenarios/ci/standalone.yaml $chart_archive \
                  --namespace $NAMESPACE \
-                 --set acceptLicenseAgreement=yes \
-                 --set readinessProbe.initialDelaySeconds=20 \
-                 --set livenessProbe.initialDelaySeconds=20 \
-                 --set neo4jPassword=mySecretPassword \
-                 --set core.standalone=true \
-                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt
-                     
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt                     
 
       #- run:
       #    name: Twiddling our Thumbs
