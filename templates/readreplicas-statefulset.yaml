@@ -40,6 +40,8 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
+      # High value permits checkpointing on Neo4j shutdown.  See: https://neo4j.com/developer/kb/checkpointing-and-log-pruning-interactions/
+      terminationGracePeriodSeconds: 300
       containers:
       - name: neo4j
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
