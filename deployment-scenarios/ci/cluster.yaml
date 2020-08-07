@@ -6,7 +6,6 @@ readReplica:
 
 core:
     numberOfServers: 3
-    standalone: true
 
 podAnnotations:
     ci-test: "true"
