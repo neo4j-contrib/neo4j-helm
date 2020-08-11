@@ -153,6 +153,7 @@ jobs:
 
       - run:
           name: Harvest Logs from cluster
+          when: always
           command: |
              # Prove log persistence
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
