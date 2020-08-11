@@ -87,22 +87,22 @@ spec:
             exec /docker-entrypoint.sh "neo4j"
         ports:
         - containerPort: 5000
-          name: discovery
+          name: tcp-discovery
         - containerPort: 7000
-          name: raft
+          name: tcp-raft
         - containerPort: 6000
-          name: tx
+          name: tcp-tx
         - containerPort: 7474
-          name: browser
+          name: tcp-browser
         - containerPort: 7687
-          name: bolt
+          name: tcp-bolt
         {{- if .Values.metrics.prometheus.enabled }}
         - containerPort: 2004
-          name: prometheus
+          name: tcp-prometheus
         {{- end }}
         {{- if .Values.metrics.graphite.enabled }}
         - containerPort: 2003
-          name: graphite
+          name: tcp-graphite
         {{- end }}
         {{- if .Values.metrics.jmx.enabled }}
         - containerPort: 3637
