@@ -105,7 +105,9 @@ data:
     # the list service API may return other hosts which aren't yet ready, and this will fail discovery
     export NEO4J_causal__clustering_kubernetes_label__selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE,neo4j.com/coreindex in (0, 1, 2)"
     export NEO4J_causal__clustering_discovery__type=K8S
-    export NEO4J_causal__clustering_kubernetes_service__port__name="discovery"
+
+    # See discovery-lb, this is the name of the port used to form.
+    export NEO4J_causal__clustering_kubernetes_service__port__name="tcp-discovery"
     {{- end }}
 
     if [ "${AUTH_ENABLED:-}" == "true" ]; then
