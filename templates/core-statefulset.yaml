@@ -80,7 +80,7 @@ spec:
             {{- if not .Values.core.standalone }}
             # We advertise the discovery-lb addresses (see discovery-lb.yaml) because
             # it is for internal cluster comms and is limited to private ports.
-            export DISCOVERY_HOST="discovery-{{ template "neo4j.fullname" . }}-${core_idx}.{{ .Release.Namespace }}.svc.cluster.local"
+            export DISCOVERY_HOST="discovery-{{ template "neo4j.fullname" . }}-${core_idx}.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}"
             export NEO4J_causal__clustering_discovery__advertised__address="$DISCOVERY_HOST:5000"
             export NEO4J_causal__clustering_transaction__advertised__address="$DISCOVERY_HOST:6000"
             export NEO4J_causal__clustering_raft__advertised__address="$DISCOVERY_HOST:7000"
