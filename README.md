@@ -4,6 +4,8 @@
 
 This repository contains a Helm chart that starts Neo4j >= 4.0 Enterprise Edition clusters in Kubernetes.
 
+[Full Documentation can be found here](https://neo4j.com/labs/neo4j-helm/1.0.0/)
+
 ## Quick Start
 
 Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) and copy the URL of the tgz package.   Make sure to note the correct version of Neo4j.
@@ -24,7 +26,7 @@ When you're done:  `helm uninstall mygraph`.
 
 ## Documentation
 
-The [User Guide](user-guide/USER-GUIDE.md) contains all the documentation for this helm chart.
+The [User Guide](https://neo4j.com/labs/neo4j-helm/1.0.0/) contains all the documentation for this helm chart.
 
 The [Neo4j Community Site](https://community.neo4j.com/c/neo4j-graph-platform/cloud/76) is a great place to go for
 discussion and questions about Neo4j & Kubernetes.
@@ -40,35 +42,6 @@ how the smart-client routing protocol that Neo4j uses interacts with Kubernetes 
 of Kubernetes
 - [How to Backup Neo4j Running in Kubernetes](https://medium.com/neo4j/how-to-backup-neo4j-running-in-kubernetes-3697761f229a)
 - [How to Restore Neo4j Backups on Kubernetes](https://medium.com/google-cloud/how-to-restore-neo4j-backups-on-kubernetes-and-gke-6841aa1e3961)
-
-## Neo4j Overview
-
-[Neo4j](https://neo4j.com/) is a highly scalable native graph database that
-leverages data relationships as first-class entities, helping enterprises build
-intelligent applications to meet today’s evolving data challenges.
-
-This chart bootstraps a [Neo4j](https://github.com/neo4j/docker-neo4j)
-deployment on a [Kubernetes](http://kubernetes.io) cluster using the
-[Helm](https://helm.sh) package manager.
-
-This package is fairly similar to the Neo4j-maintained [GKE Marketplace](https://github.com/neo-technology/neo4j-google-k8s-marketplace) 
-entry, which is also built on helm.  This package tries to avoid Kubernetes distribution-specific features to be general, while the other
-is tailored specifically to GKE.
-
-## Versioning
-
-The versioning of this helm chart will follow Neo4j versions for simplicity.
-
-* Version 4.0.X-Y of the helm chart is compatible with Neo4j EE v4.0.*
-* Version 4.1.X-Y of the helm chart is compatible with Neo4j EE v4.1.*
-* (and so on)
-
-The charts in this repository are for Neo4j 4.0 going forward.  There are previous available charts
-for the Neo4j 3.5 series, but there are *substantial differences* between the two versions.  Careful
-upgrade planning is advised before attempting to upgrade an existing chart.
-
-Consult [the upgrade guide](https://neo4j.com/docs/operations-manual/current/upgrade/) and
-expect that additional configuration of this chart will be necessary.
 
 ## Helm Testing
 
