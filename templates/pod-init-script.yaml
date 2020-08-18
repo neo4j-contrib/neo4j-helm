@@ -24,6 +24,13 @@ data:
 
     declare -A NEO4J_SETTINGS
 
+    # Populate NEO4J_SETTINGS with keys for all settings overriden as env vars
+    for variable_name in $(compgen -e) ; do
+      if [[ "${variable_name}" == "${override_prefix}"* ]]; then
+        NEO4J_SETTINGS[${variable_name#"${override_prefix}_"}]=""
+      fi
+    done
+
     # HTTPS
     NEO4J_SETTINGS[dbms_connector_https_enabled]=true
 
