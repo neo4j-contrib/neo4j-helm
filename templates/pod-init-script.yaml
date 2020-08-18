@@ -42,6 +42,13 @@ data:
     NEO4J_SETTINGS[NEO4J_dbms_connector_https_advertised__address]=${NEO4J_dbms_connector_https_advertised__address:-$HOST:7473}
     NEO4J_SETTINGS[NEO4J_causal__clustering_discovery__advertised__address]=${NEO4J_causal__clustering_discovery__advertised__address:-$HOST:5000}
 
+    # Important: note the label selector only does discovery against first 3 cores. This is intentional;
+    # the list service API may return other hosts which aren't yet ready, and this will fail discovery
+    # This setting is intentionally overridable for power users; discovery type of k8s is not.
+    # See: https://github.com/neo4j-contrib/neo4j-helm/issues/80
+    default_label_selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE,neo4j.com/coreindex in (0, 1, 2)"
+    NEO4J_SETTINGS[NEO4J_causal__clustering_kubernetes_label__selector]=${NEO4J_causal__clustering_kubernetes_label__selector:-$default_label_selector}
+
     neo4jAdminMemrec() {
         echo "Calling neo4j-admin memrec to suggest memory settings"
         # Neo4j-admin memrec outputs configuration like this: dbms.memory.heap.max_size=9000m
@@ -107,10 +114,6 @@ data:
     # These settings are *not* overrideable, because they must match the addresses the
     # core members see to avoid akka rejections, and to facilitate basic cluster formation.
     # K8S discovery requires an LB service per pod, and a service account with permissions to query the discovery API
-    #
-    # Important: note the label selector only does discovery against first 3 cores. This is intentional;
-    # the list service API may return other hosts which aren't yet ready, and this will fail discovery
-    export NEO4J_causal__clustering_kubernetes_label__selector="neo4j.com/cluster={{ template "neo4j.fullname" . }},neo4j.com/role=CORE,neo4j.com/coreindex in (0, 1, 2)"
     export NEO4J_causal__clustering_discovery__type=K8S
 
     # See discovery-lb, this is the name of the port used to form.
