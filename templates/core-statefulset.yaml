@@ -46,16 +46,15 @@ spec:
       - name: {{ template "neo4j.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
-        # Most pod config is factored into a different configMap, which is user overrideable.
         envFrom:
           - configMapRef:
               name: {{ template "neo4j.commonConfig.fullname" . }}
           - configMapRef:
-              {{- if .Values.core.configMap }}
-              name: "{{ .Values.core.configMap }}"
-              {{- else }}
               name: {{ template "neo4j.coreConfig.fullname" . }}
-              {{- end }}
+          {{- if .Values.core.configMap }}
+          - configMapRef:
+              name: "{{ .Values.core.configMap }}"
+          {{- end }}
         env:
           {{- if .Values.authEnabled }}
           - name: NEO4J_SECRETS_PASSWORD
