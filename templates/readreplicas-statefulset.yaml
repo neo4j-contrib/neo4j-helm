@@ -51,11 +51,11 @@ spec:
           - configMapRef:
               name: {{ template "neo4j.commonConfig.fullname" . }}
           - configMapRef:
-              {{- if .Values.readReplica.configMap }}
-              name: "{{ .Values.readReplica.configMap }}"
-              {{- else }}
               name: {{ template "neo4j.replicaConfig.fullname" . }}
-              {{- end }}
+          {{- if .Values.readReplica.configMap }}
+          - configMapRef:
+              name: "{{ .Values.readReplica.configMap }}"
+          {{- end }}
         env:
           {{- if .Values.authEnabled }}
           - name: NEO4J_SECRETS_PASSWORD
