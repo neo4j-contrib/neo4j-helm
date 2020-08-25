@@ -150,10 +150,10 @@ readReplica:
 
   resources: {}
   # limits:
-  #   cpu: 100m
+  #   cpu: "100m"
   #   memory: 512Mi
   # requests:
-  #   cpu: 100m
+  #   cpu: "100m"
   #   memory: 512Mi
 
   autoscaling:
@@ -212,10 +212,10 @@ readReplica:
 
 resources: {}
   # limits:
-  #   cpu: 1000m
+  #   cpu: "1000m"
   #   memory: 1G
   # requests:
-  #   cpu: 1000m
+  #   cpu: "1000m"
   #   memory: 1G
 
 # Readiness probes will send a kill signal to the container if
