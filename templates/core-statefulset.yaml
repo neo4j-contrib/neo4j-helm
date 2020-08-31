@@ -133,7 +133,7 @@ spec:
         livenessProbe:
 {{ toYaml .Values.livenessProbe | indent 10 }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+{{ toYaml .Values.core.resources | indent 10 }}
 {{- if .Values.core.sidecarContainers }}
 {{ toYaml .Values.core.sidecarContainers | indent 6 }}
 {{- end }}
