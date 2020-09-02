@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Trigger Developer Event
-        uses: peter-evans/repository-dispatch@master
+        uses: peter-evans/repository-dispatch@v1.1.1
         with:
           token: ${{ secrets.BUILD_ACCESS_TOKEN }}
           repository: neo4j-documentation/docs-refresh
