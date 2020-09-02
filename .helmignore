@@ -5,3 +5,4 @@ k8s-poc
 test
 node_modules
 doc
+.github
