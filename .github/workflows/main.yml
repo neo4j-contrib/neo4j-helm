@@ -2,8 +2,7 @@ name: Trigger Publish
 
 on:
   push:
-    branches:
-    - publish
+    branches: [ master ]
 
 jobs:
   trigger_publish:
