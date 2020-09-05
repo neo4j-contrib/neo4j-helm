@@ -7,8 +7,8 @@ kind: Service
 metadata:
   name: {{ template "neo4j.replica.fullname" . }}
   labels:
-    neo4j.com/service/bolt: true
-    neo4j.com/service/http: true
+    neo4j.com/service/bolt: "true"
+    neo4j.com/service/http: "true"
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
