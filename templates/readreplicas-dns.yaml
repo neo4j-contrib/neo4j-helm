@@ -34,6 +34,7 @@ spec:
 {{- else }}
   type: {{ .Values.readReplica.service.type }}
 {{- end }}
+  publishNotReadyAddresses: true
   ports:
     - name: tcp-http
       port: 7474
