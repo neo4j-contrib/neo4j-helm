@@ -23,6 +23,8 @@ metadata:
     neo4j.com/coreindex: "{{ $index }}"
     neo4j.com/cluster: {{ template "neo4j.fullname" $dot }}
     neo4j.com/role: CORE
+    neo4j.com/bolt: "false"
+    neo4j.com/http: "false"
     app.kubernetes.io/managed-by: {{ $dot.Release.Service | quote }}
     app.kubernetes.io/instance: {{ $dot.Release.Name | quote }}
     helm.sh/chart: "{{ $dot.Chart.Name }}-{{ $dot.Chart.Version }}"
