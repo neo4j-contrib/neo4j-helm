@@ -144,6 +144,7 @@ jobs:
           command: |
              NAMESPACE=ns-$CIRCLE_BUILD_NUM
              kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_CLUSTERED-neo4j-core --watch | tee -a $BUILD_ARTIFACTS/wait-cluster.txt
+             kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME_CLUSTERED-neo4j-replica --watch | tee -a $BUILD_ARTIFACTS/wait-cluster-rr.txt
 
       - run:
           name: Test
