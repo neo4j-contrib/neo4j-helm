@@ -1,0 +1,17 @@
+This directory contains quick instructions and an example of how to set up cluster internal ssl
+with Neo4j + Helm.
+
+Step 1:  Create custom ConfigMap.
+
+kubectl apply -f deployment-scenarios/internal-ssl/cluster-internal-ssl-configmap.yaml
+
+Step 2:  Create ssl certificate ConfigMaps and key Secret.
+
+This directory is populated with some example keys and certificates. You must use your own securely generated keys and certificates.
+
+However if you want to use the example credentials FOR TESTING PURPOSES ONLY then you can install them using you can install using:
+kubectl apply -f deployment-scenarios/internal-ssl/cluster-internal-ssl-files.yaml
+
+Step 3:  Install a Neo4j cluster using the provided parameters.
+
+helm install cluster-internal-ssl-example -f deployment-scenarios/internal-ssl/cluster-internal-ssl.yaml .

@@ -1,0 +1,102 @@
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-internal-ssl-cert-and-key
+type: Opaque
+stringData:
+  private.key: |-
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEAmE2+K+TO4WwFxeVdc72VOBTLHDt/anuHdgtgZpiXqhsvHlgj
+    uiWfA7dYcQh4aRI8w0+aup9GfSsPfnpYWuXriVslRcV9NmpuUt+fHYyA4gZT6Unu
+    dXZnr5W2knE2nAFer9u0X7AtVrwtEn6tdhjgfg4mKWbZyL9MKNMxxBuhU3GaetBH
+    /YlrbovVEAUZededl7+/ePs8mHSOA/VnAXAoGqQ8kiQtQ8Z+3wwyZs2Gb6VFMcuf
+    htMTxZJUFePa/YEaoSD5pUJJKVX45oAIkIGHtHoocwDV3ont/YsZB6Tj4G3N8bRu
+    RD4bpg0By5rvurMPwowUt9lkHh/6PbZkyG6KIwIDAQABAoIBAQCHyskD2b2avvVm
+    vFnWF/IzTlbJlULFbd4ZIYuR7ftLb3FTXMJ99Y0RgycXoLW6+Me0XAVY3ym57+qg
+    mfStFtIqZVmWG77IBZzXxwnXDq7a10l5drFliWxo4NMnPkmyToZdxUXNCwdhjeWh
+    19BQu11tBrB/uXPzyJveym5Uq03rVr6IqWCgetWHgvjC/M0y5avWGSjP2qzAc+Dk
+    xZjQqWAlUIvTtp5egTXtk5SkhxTdgh64az2gkJqwHBQBBE3dyro0aCUGTD2RS9df
+    6LeWhQmr0UoaCCl837lzh7FcOk/KhEvlRHwWgu1x6brxOZFdykt/Bt2r3IlLHvBB
+    R51JcHgBAoGBAMZat/dMm1L+lyUNe+mSTnR9nY95lbTSuMJrfGspNNhtO1zVKMQV
+    ZFGOtXOn2B+1f8NJcsOl0b7SbjQymJxGBjqC4on+31pgqwBqPr27D5IqYmDrF9Dd
+    5sj7syoypGHx6JkHQWE00EdoXrKedPcfUJbx035YAAqoE5AtwMle3FZxAoGBAMSQ
+    60Vuov5ZsoNmrrBlfYedDkjF5obP9xfBPdTFt0/ktuOBP1PHVybwrsd5BNoW2zgw
+    FZud7bmbstPGBsN5Z7QZm2pmPZ+VUIFoEPYodOcGeEd7NmSYSk1MtClG7l6UtMaJ
+    7AkEN7IU7BR0sv+Dtdk66PhKSLaon6Q+QpTje3vTAoGBALvEbvfcfgC/3qaFsDI4
+    fKpLq1aBW1V0UNBC3eG3fT4PkS1c351XPsLx3BUi4zWJI+vi4JASrY39N7OT3eG5
+    a/YBpp/JNPgiIF5hNQl4RdIw6zYh9kaTeP/zPPSKQhAx5uTN+HcjfrLKOzLNS54P
+    98McIwAsH8X2u6Y1mZVGhkARAoGAMYAtP3b1JQiBpAWfyFxGmHg8uKbdvuVwXFMV
+    txdzanM2e2R5BigVEoFaAnG/fwxyeFvjlSTYUP2csygTW/ae3wPz13+X1TBM7cm/
+    O75Eckl20Ml+kSaoz36ZgCuUq8zXGYhyIHMnc3lBWoVo7l/E08e6E4zhct5UFZB4
+    Q/ZlinECgYBaCBhUCMSmoqnJ8s3EpHCsYZUjFhEyQmNraG5kFVTcANDg/NNkdqQp
+    HMHMBsvFWlgiEAcngM8LBC8yUtX1a/FL8YbmxZ9bqVlln0E7Z/+OawcR4LdyhMuh
+    WL+fj/Kny16wyIWck+QR7cpXtXS8vFP+jI2mcKxOoB+hTVJexbWhlg==
+    -----END RSA PRIVATE KEY-----
+  public.crt: |-
+    -----BEGIN CERTIFICATE-----
+    MIIEEzCCAvugAwIBAgIJAMxkASGTREE2MA0GCSqGSIb3DQEBCwUAMHsxCzAJBgNV
+    BAYTAkdCMQswCQYDVQQIDAJHQjEPMA0GA1UEBwwGTG9uZG9uMSEwHwYDVQQKDBhN
+    eSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkxEDAOBgNVBAsMB0RpZ2l0YWwxGTAXBgNV
+    BAMMEG15X2NhX19yb290X2NlcnQwHhcNMjAwODIwMDkyNTA2WhcNMjUwODE5MDky
+    NTA2WjCBsTEiMCAGA1UEAwwZZGVmYXVsdC5zdmMuY2x1c3Rlci5sb2NhbDEuMCwG
+    CSqGSIb3DQEJARYfYWRtaW5AZGVmYXVsdC5zdmMuY2x1c3Rlci5sb2NhbDEYMBYG
+    A1UECgwPRXhhbXBsZSBDb21wYW55MRUwEwYDVQQLDAxFeGFtcGxlIFVuaXQxDTAL
+    BgNVBAcMBENpdHkxDjAMBgNVBAgMBVN0YXRlMQswCQYDVQQGEwJVUzCCASIwDQYJ
+    KoZIhvcNAQEBBQADggEPADCCAQoCggEBAJhNvivkzuFsBcXlXXO9lTgUyxw7f2p7
+    h3YLYGaYl6obLx5YI7olnwO3WHEIeGkSPMNPmrqfRn0rD356WFrl64lbJUXFfTZq
+    blLfnx2MgOIGU+lJ7nV2Z6+VtpJxNpwBXq/btF+wLVa8LRJ+rXYY4H4OJilm2ci/
+    TCjTMcQboVNxmnrQR/2Ja26L1RAFGXnXnZe/v3j7PJh0jgP1ZwFwKBqkPJIkLUPG
+    ft8MMmbNhm+lRTHLn4bTE8WSVBXj2v2BGqEg+aVCSSlV+OaACJCBh7R6KHMA1d6J
+    7f2LGQek4+BtzfG0bkQ+G6YNAcua77qzD8KMFLfZZB4f+j22ZMhuiiMCAwEAAaNj
+    MGEwHwYDVR0jBBgwFoAU/6oW29HV8UxJMX7HfipHrhbfDHIwCQYDVR0TBAIwADAL
+    BgNVHQ8EBAMCBPAwJgYDVR0RBB8wHYIbKi5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxv
+    Y2FsMA0GCSqGSIb3DQEBCwUAA4IBAQAardQ4u2ezwxWeUHrK7hDI7kjWVB8vvaqC
+    W3Gi9scdMzZExnMk/adk07aYjF6jso8m7+MH0MFIO7d2q4r1gPIOR9ToEkcwg/VO
+    8qMCtMm7TBpM7uyR9GoirZ4QPsvh3f2qDd0BH/i3/aHJFguo4L3SOHsiNB23GsQ/
+    Rqe5DqDbCr3osHoT8E4cDXUxdQO0rbAMsr79ME7oaJBFh0+reH1UI8LK7FWqm5pi
+    atbTCMXzH650Zc4yNh+m0/lHmii8kKZXuNWZ0su1xA6jfVRViqB2yvLvB78NRUKH
+    iq/a6qatJorvd6akaxAMupp18BUtLeyshEXkv2EoN3MFgBfl/jif
+    -----END CERTIFICATE-----
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-internal-ssl-trusted-certs
+data:
+  #Add trusted public certificates as new keys to this configmap
+  root.crt: |-
+    -----BEGIN CERTIFICATE-----
+    MIIDyTCCArGgAwIBAgIJANRHW99Q6S6EMA0GCSqGSIb3DQEBCwUAMHsxCzAJBgNV
+    BAYTAkdCMQswCQYDVQQIDAJHQjEPMA0GA1UEBwwGTG9uZG9uMSEwHwYDVQQKDBhN
+    eSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkxEDAOBgNVBAsMB0RpZ2l0YWwxGTAXBgNV
+    BAMMEG15X2NhX19yb290X2NlcnQwHhcNMjAwODIwMDkyNTA1WhcNMzAwODE4MDky
+    NTA1WjB7MQswCQYDVQQGEwJHQjELMAkGA1UECAwCR0IxDzANBgNVBAcMBkxvbmRv
+    bjEhMB8GA1UECgwYTXkgQ2VydGlmaWNhdGUgQXV0aG9yaXR5MRAwDgYDVQQLDAdE
+    aWdpdGFsMRkwFwYDVQQDDBBteV9jYV9fcm9vdF9jZXJ0MIIBIjANBgkqhkiG9w0B
+    AQEFAAOCAQ8AMIIBCgKCAQEA3hcl3lVYOoAb6B0ji0DRRfUD2bq/kJveT6V96B1p
+    ItAeikaVDDrYm4w8mcg/rb/3ny5Sr5p71lBbQAygXDvOwQLon+BQuEfMPmUmmWPC
+    IVQIQ3wHHmF2vs+oBGamDASlX8dLrm1BCPuiL4XtPOejomHdVucbGhtSUe3APRyz
+    AGTjj/HiysEHWiTn5PnCSRduYjof9lraosolsW4NrnYiX2f5miC6DREqsnHgUivA
+    Q/Q3q26fPXGxLIanIU6P1wDlGrm0C//FCNSLlYNlDRzDsW5NHClT1xI047edBsMF
+    MwGM12cscIqupujcWwdIvApzjeAF7MpRfyQtBIyFR4ebewIDAQABo1AwTjAdBgNV
+    HQ4EFgQU/6oW29HV8UxJMX7HfipHrhbfDHIwHwYDVR0jBBgwFoAU/6oW29HV8UxJ
+    MX7HfipHrhbfDHIwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAPGfZ
+    5/a4Y9/j4TMAqO7VRLNpt8YhIful54cI75srpBdG+AG/XD2uhDT/X5cJo/0c1ssZ
+    JXzg4Ht5GTrs+LmxgksnLRelF2dd1yPS2aJWLenIrorFkMkf+p4440pXzWf/qMqO
+    j9dpQsa588mw7+bFrujys/6OTu8ocSiO+EXq9H+D6HAtQMJ0SJpE0/RnAYJ3sxPu
+    7Eb/AUdzjeIKlZBxsTsrtHEZAhgrJPSxhyYm7ZGyWaurhegiHpFSCrvbIK2IRiaH
+    YfqOKWO4QP/JSQkldSs1PXNRtSqQ10k+XY+A5Tzy5yTzuCodtVmMLEovull5hg7h
+    nGwJ+IlGC+Q0z94LUw==
+    -----END CERTIFICATE-----
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-internal-ssl-revoked-certs
+data:
+  # Add revoked public certificates as new keys to this configmap e.g. `revoked1.crt: |- ...`

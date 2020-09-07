@@ -1,0 +1,86 @@
+imageTag: "4.0.8-enterprise"
+
+core:
+  configMap: "cluster-internal-ssl-config"
+  additionalVolumes:
+    - name: cluster-internal-cert-and-key
+      secret:
+        secretName: cluster-internal-ssl-cert-and-key
+    - name: cluster-internal-revoked-certs
+      configMap:
+        name: cluster-internal-ssl-revoked-certs
+    - name: cluster-internal-trusted-certs
+      configMap:
+        name: cluster-internal-ssl-trusted-certs
+  additionalVolumeMounts:
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/cluster
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/cluster/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/cluster/trusted
+      readOnly: true
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/fabric
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/fabric/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/fabric/trusted
+      readOnly: true
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/backup
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/backup/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/backup/trusted
+      readOnly: true
+
+readReplica:
+  configMap: "cluster-internal-ssl-config"
+  additionalVolumes:
+    - name: cluster-internal-cert-and-key
+      secret:
+        secretName: cluster-internal-ssl-cert-and-key
+    - name: cluster-internal-revoked-certs
+      configMap:
+        name: cluster-internal-ssl-revoked-certs
+    - name: cluster-internal-trusted-certs
+      secret:
+        secretName: cluster-internal-ssl-trusted-certs
+  additionalVolumeMounts:
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/cluster
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/cluster/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/cluster/trusted
+      readOnly: true
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/fabric
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/fabric/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/fabric/trusted
+      readOnly: true
+    - name: cluster-internal-cert-and-key
+      mountPath: /ssl/backup
+      readOnly: true
+    - name: cluster-internal-revoked-certs
+      mountPath: /ssl/backup/revoked
+      readOnly: true
+    - name: cluster-internal-trusted-certs
+      mountPath: /ssl/backup/trusted
+      readOnly: true
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
