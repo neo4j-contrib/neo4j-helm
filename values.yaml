@@ -205,11 +205,11 @@ readReplica:
   ## specify additional volumes to mount in the read replica container, this can
   ## be used to specify additional storage of material or to inject files from
   ## ConfigMaps into the running container
-  additionalVolumes: {}
+  additionalVolumes: []
 
   ## specify where the additional volumes are mounted in the read replica
   ## container
-  additionalVolumeMounts: {}
+  additionalVolumeMounts: []
   terminationGracePeriodSeconds: 300
 
 resources: {}
