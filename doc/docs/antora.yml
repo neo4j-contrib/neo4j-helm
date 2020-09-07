@@ -9,4 +9,4 @@ asciidoc:
   attributes:
     docs-version: 1.0.0
     copyright: Neo4j Inc.
-    page-product: Neo4j Streams
+    page-product: Neo4j Helm
