@@ -79,7 +79,7 @@ Standalone forms faster so we can manually lower the liveness/readiness timeouts
 ```
 export NAME=a
 export NAMESPACE=default
-helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set core.standalone=true --set readinessProbe.initialDelaySeconds=20 --set livenessProbe.initialDelaySeconds=20 && \
+helm install $NAME . -f deployment-scenarios/ci/standalone.yaml && \
 kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
 helm test $NAME --logs | tee testlog.txt
 helm uninstall $NAME
@@ -94,7 +94,7 @@ done
 ```
 export NAME=a
 export NAMESPACE=default
-helm install $NAME . --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword --set readReplica.numberOfServers=1 && \
+helm install $NAME . -f deployment-scenarios/ci/cluster.yaml && \
 kubectl rollout status --namespace $NAMESPACE StatefulSet/$NAME-neo4j-core --watch && \
 helm test $NAME --logs | tee testlog.txt
 helm uninstall $NAME
