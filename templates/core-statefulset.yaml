@@ -54,7 +54,8 @@ spec:
           {{- if .Values.core.configMap }}
           - configMapRef:
               name: "{{ .Values.core.configMap }}"
-          {{- end }}{{ toYaml .Values.core.envFrom | nindent 10 }}
+          {{- end }}
+          {{- if .Values.core.envFrom }}{{ toYaml .Values.core.envFrom | nindent 10 }}{{- end }}
         env:
           {{- if .Values.authEnabled }}
           - name: NEO4J_SECRETS_PASSWORD

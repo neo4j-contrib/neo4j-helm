@@ -55,7 +55,8 @@ spec:
           {{- if .Values.readReplica.configMap }}
           - configMapRef:
               name: "{{ .Values.readReplica.configMap }}"
-          {{- end }}{{ toYaml .Values.readReplica.envFrom | nindent 10 }}
+          {{- end }}
+          {{- if .Values.readReplica.envFrom }}{{ toYaml .Values.readReplica.envFrom | nindent 10 }}{{- end }}
         env:
           {{- if .Values.authEnabled }}
           - name: NEO4J_SECRETS_PASSWORD
