@@ -55,8 +55,8 @@ jobs:
             - ~/.cache/npm
 
       - run:
-        name: Lint
-        command: helm lint .    
+          name: Lint
+          command: helm lint .    
 
       - run:
           name: GKE Setup / Auth
