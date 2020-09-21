@@ -72,6 +72,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Configmap providing configuration for core cluster members.  If not specified, defaults that come with the chart will be used.
 | `$NAME-neo4j-core-config`
 
+| `core.envFrom`
+| YAML list of `envFrom` entries, permitting config for pods to be set from any number of ConfigMaps and secrets.
+| `[]`
+
 | `core.standalone`
 | Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies. 
 | false 
@@ -165,6 +169,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `readReplica.configMap`
 | Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used. 
 | `$NAME-neo4j-replica-config`
+
+| `readReplica.envFrom`
+| YAML list of `envFrom` entries, permitting config for pods to be set from any number of ConfigMaps and secrets.
+| `[]`
 
 | `readReplica.numberOfServers`
 | Number of machines in READ_REPLICA. May not be used with core.standalone=true mode

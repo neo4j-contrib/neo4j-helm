@@ -93,7 +93,11 @@ What fabric needs to work are 3 things:
 
 Custom configmaps (which are discussed in this section) cover #3. Your security configuration (whatever you choose) would cover #1 and isn’t kubernetes specific. And #2 is where kubernetes networking may or may not come in, depending on your deployment topology. In the simplest single DBMS configurations, I think it will work out of the box.
 
-## Custom Neo4j Configuration with ConfigMaps
+## Custom Neo4j Configuration
+
+Because neo4j-helm runs Neo4j as a docker container, make sure you understand the link:https://neo4j.com/docs/operations-manual/current/docker/configuration/[Neo4j Docker configuration reference] for environment variable naming, and how environment variables turn into configuration.
+
+### With ConfigMaps
 
 Neo4j cluster pods are divided into two groups: cores and replicas. Those pods can be configured with ConfigMaps, which contain environment variables. Those environment variables, in turn, are used as configuration settings to the underlying Neo4j Docker Container, according to the Neo4j environment variable configuration.
 
@@ -105,6 +109,25 @@ As a result, you can set any custom Neo4j configuration by creating your own Kub
 
 [NOTE]
 Configuration of some networking specific settings is still done at container start time, and this very small set of variables may still be overridden by the helm chart, in particular advertised addresses & hostnames for the containers.
+
+### With Secrets
+
+You may also specify `envFrom` within the core set or read replica set to use any number
+of additional config maps and secrets as well to inject additional configuration, which is
+applied last, after the other layers of configuration.
+
+As an example of a values file that accomplishes this:
+
+```
+core:
+    standalone: true
+    envFrom: 
+        - secretRef:
+            name: my-secret-config
+```
+
+Whichever keys and values are in my-secret-config will be injected as envirionment variables.  Using kubernetes secrets injected in configuration this way is a good option for specifying
+passwords.
 
 ## Scaling
 
