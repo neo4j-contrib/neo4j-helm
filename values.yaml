@@ -63,6 +63,7 @@ defaultDatabase: "neo4j"
 # Cores
 core:
   # configMap: "my-custom-configmap"
+  envFrom: []
   standalone: false
   numberOfServers: 3
   persistentVolume:
@@ -148,6 +149,7 @@ core:
 # Read Replicas
 readReplica:
   # configMap: "my-custom-configmap"
+  envFrom: []
 
   resources: {}
   # limits:
