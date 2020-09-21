@@ -9,6 +9,9 @@ livenessProbe:
 
 core:
     standalone: true
+    envFrom: 
+        - secretRef:
+            name: my-secret-config
 
 podAnnotations:
     ci-test: "true"

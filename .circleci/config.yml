@@ -55,16 +55,16 @@ jobs:
             - ~/.cache/npm
 
       - run:
+        name: Lint
+        command: helm lint .    
+
+      - run:
           name: GKE Setup / Auth
           command: |
              echo "GKE SETUP"
              export CLUSTER_NAME=$CLUSTER-$CIRCLE_BUILD_NUM
              ./tools/test/provision-k8s.sh $CLUSTER_NAME
       
-      - run:
-          name: Lint
-          command: helm lint . 
-
       - run:
           name: Create test namespace
           command: |
@@ -76,12 +76,18 @@ jobs:
             EOF
 
       - run:
-          name: Install service key secret for maintenance ops
+          name: Install secrets for maintenance ops and testing
           command: |
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl create secret generic neo4j-service-key \
               --namespace $NAMESPACE \
               --from-file=credentials.json=$SERVICE_KEY_FILE
+            # This secret is injected in the test process to demonstrate that
+            # config works.  This is just any valid config we can check inside of
+            # a running system.
+            kubectl create secret generic my-secret-config \
+              --namespace $NAMESPACE \
+              --from-literal=NEO4J_dbms_transaction_concurrent_maximum=0
 
       - run:
           name: Package and Install Neo4j-Helm Chart

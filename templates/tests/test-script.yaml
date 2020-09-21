@@ -100,6 +100,19 @@ data:
       fi
     }
 
+    function check_secret_config_test {
+       ENDPOINT=$1
+       getconfig="call dbms.listConfig() yield name, value where name='dbms.transaction.concurrent.maximum' return value;"
+       res=$(cypher "$getconfig" $ENDPOINT)
+
+       echo $res | grep '"0"'
+       if [ $? -eq 0 ] ; then
+         succeed "$test"
+       else
+         fail "$test" "Expected it to be set to 0 - Output of config was $res"
+       fi
+    }
+
     # At this point the service endpoint proves that at least one host is up.
     # Provide just a bit more time for all of them to finish coming up because we'll
     # be testing them individually.
@@ -215,6 +228,9 @@ data:
       else
         fail "$test" "Canary read failed to execute -- exit code $exit_code / RESULT -- $result"
       fi
+
+      test="Core host $id has the k8s secret configuration key"
+      check_secret_config_test "$core_endpoint"
     done
 
     echo "Now testing read replicas"
@@ -240,6 +256,9 @@ data:
 
       test="Replica host $id of $READ_REPLICAS -- $replica_ep has APOC installed correctly"
       runtest "$test" "RETURN apoc.version();" "$replica_ep"
+
+      test="Replica host $id of $READ_REPLICAS has the k8s secret config key"
+      check_secret_config_test "$replica_ep"
     done
     {{- end }}
 

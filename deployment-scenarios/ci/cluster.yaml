@@ -3,9 +3,15 @@ neo4jPassword: mySecretPassword
 
 readReplica:
     numberOfServers: 1
+    envFrom: 
+        - secretRef:
+            name: my-secret-config
 
 core:
     numberOfServers: 3
+    envFrom: 
+        - secretRef:
+            name: my-secret-config
 
 podAnnotations:
     ci-test: "true"
@@ -13,4 +19,12 @@ podAnnotations:
 podLabels:
     ci-test: "true"
     hello: world
-    
+
+metrics:
+    prometheus:
+        enabled: true
+        endpoint: 0.0.0.0:2004
+
+    graphite:
+        enabled: true
+        endpoint: 0.0.0.0:2003
