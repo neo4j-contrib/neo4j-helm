@@ -10,7 +10,7 @@ metadata:
   name: $DEPLOYMENT-neo4j-external-$IDX
 spec:
   loadBalancerIP: $IP
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   ports:
   - name: bolt
     port: 7687
