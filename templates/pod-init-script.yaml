@@ -50,17 +50,24 @@ data:
     NEO4J_SETTINGS[NEO4J_causal__clustering_kubernetes_label__selector]=${NEO4J_causal__clustering_kubernetes_label__selector:-$default_label_selector}
 
     neo4jAdminMemrec() {
-        echo "Calling neo4j-admin memrec to suggest memory settings"
-        # Neo4j-admin memrec outputs configuration like this: dbms.memory.heap.max_size=9000m
-        # with a lot of comments.  We strip the comments, then 
-        # process its output into a docker env var by following the Neo4j docker rules:
-        # underscores doubled, dots -> _
-        # So dbms.memory.heap.max_size=9000m => export NEO4J_dbms_memory_heap_max__size=9000m
-        for line in $(/var/lib/neo4j/bin/neo4j-admin memrec | grep -v '^\#' | sed 's/_/__/g' | sed 's/\./_/g' | sed 's/^/NEO4J_/g') ; do 
-            echo export $line ; 
-        done > /var/lib/neo4j/conf/memory-recommendations.sh
+      echo "Calling neo4j-admin memrec to suggest memory settings:"
+      # Neo4j-admin memrec outputs configuration like this: dbms.memory.heap.max_size=9000m
+      # with a lot of comments.  We strip the comments, then
+      # process its output into a docker env var by following the Neo4j docker rules:
+      # underscores doubled, dots -> _
+      # So dbms.memory.heap.max_size=9000m => export NEO4J_dbms_memory_heap_max__size=9000m
 
-        . /var/lib/neo4j/conf/memory-recommendations.sh
+      # Try and read the cgroup memory setting
+      local memrec_args="$( [ -e /sys/fs/cgroup/memory/memory.limit_in_bytes ] && echo "--memory=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)B" || echo '' )"
+
+      echo '' > /var/lib/neo4j/conf/memory-recommendations.sh
+      for line in $( /var/lib/neo4j/bin/neo4j-admin memrec ${memrec_args} | grep -v '^\#' ) ; do
+          # print out the memory recommendation that is being applied
+          echo "${line}"
+          echo "export $( echo "${line}" | sed 's/_/__/g' | sed 's/\./_/g' | sed 's/^/NEO4J_/g' )" >> /var/lib/neo4j/conf/memory-recommendations.sh
+      done
+
+      . /var/lib/neo4j/conf/memory-recommendations.sh
     }
 
     {{- if .Values.dbms.memory.use_memrec }}
