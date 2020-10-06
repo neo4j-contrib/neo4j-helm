@@ -46,6 +46,7 @@ jobs:
           command: |
              cd doc 
              npm install
+             echo "Generating docs"
              ./node_modules/.bin/antora --stacktrace docs.yml
 
       - save_cache:

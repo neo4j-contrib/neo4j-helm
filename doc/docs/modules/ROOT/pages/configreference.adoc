@@ -41,10 +41,6 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Password to log in the Neo4J database if password is required
 | (random string of 10 characters)
 
-| `resources` 
-| Resources required (e.g. CPU, memory)
-| `{}` (no specific requests or limits)
-
 | `restoreSecret`
 | The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. 
 | (none)
@@ -79,6 +75,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `core.standalone`
 | Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies. 
 | false 
+
+| `core.resources` 
+| Resources required (e.g. CPU, memory) for the core database members
+| `{}` (no specific requests or limits)
 
 | `core.numberOfServers`
 | Number of machines in CORE mode
@@ -173,6 +173,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `readReplica.envFrom`
 | YAML list of `envFrom` entries, permitting config for pods to be set from any number of ConfigMaps and secrets.
 | `[]`
+
+| `readReplica.resources` 
+| Resources required (e.g. CPU, memory) for the read replica database members
+| `{}` (no specific requests or limits)
 
 | `readReplica.numberOfServers`
 | Number of machines in READ_REPLICA. May not be used with core.standalone=true mode
