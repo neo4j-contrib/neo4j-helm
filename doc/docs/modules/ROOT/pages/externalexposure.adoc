@@ -79,7 +79,7 @@ done
 
 **If you are doing this with Azure** please note that the static IP addresses must be in the same 
 resource group as your kubernetes cluster, and can be created with 
-[az network public-ip create](https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az-network-public-ip-create) like this (just one single sample):
+link:https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az-network-public-ip-create[az network public-ip create] like this (just one single sample):
 `az network public-ip create -g resource_group_name -n core01 --sku standard --dns-name neo4jcore01 --allocation-method Static`.  The Azure SKU used must be standard, and the resource group you need can be found in the kubernetes Load Balancer that [following the Azure Tutorial](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough) sets up for you.
 
 For the remainder of this tutorial, let's assume that the core IP addresses I've allocated here are
@@ -205,7 +205,10 @@ associated with DNS later on.  Had we used NodePorts, we'd be at the mercy of mo
 and also have to worry about a Kubernetes cluster member itself falling over.  ClusterIPs aren't suitable
 at all, as they don't give you external addresses.
 
-There are other fancier options, such as the [nginx-ingress controller](https://kubernetes.github.io/ingress-nginx/)
+Inside of these services, we use an `externalTrafficPolicy: Local`.  Because we're routing to single pods and
+don't need any load spreading, local is fine.  link:https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/[Refer to the kubernetes docs] for more information on this topic.
+
+There are other fancier options, such as the link:https://kubernetes.github.io/ingress-nginx/[nginx-ingress controller]
 but in this config we're shooting for something as simple as possible that you can do with existing
 kubernetes primities without installing new packages you might not already have.
 

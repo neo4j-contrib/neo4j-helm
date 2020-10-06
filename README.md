@@ -16,7 +16,7 @@ Check the [releases page](https://github.com/neo4j-contrib/neo4j-helm/releases) 
 $ helm install mygraph RELEASE_URL --set core.standalone=true --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
 ```
 
-### Causal Clustere (3 core, 0 read replicas)
+### Casual Cluster (3 core, 0 read replicas)
 
 ```bash
 $ helm install mygraph RELEASE_URL --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword
