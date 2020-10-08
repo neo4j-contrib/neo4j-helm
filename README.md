@@ -59,7 +59,7 @@ helm test mygraph
 To see what helm will actually deploy based on the templates:
 
 ```
-helm template --name tester --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword . > expanded.yaml
+helm template --name-template tester --set acceptLicenseAgreement=yes --set neo4jPassword=mySecretPassword . > expanded.yaml
 ```
 
 ### Full-Cycle Test
