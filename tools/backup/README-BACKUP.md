@@ -4,6 +4,8 @@
 
 By default, tasks run every 12 hours. You can set your own schedule(https://crontab.guru/#0_*/12_*_*_*)
 
+By default cloud provider is set to gcp. You need to create a secret for the cloud provider you want to use
+
 ####AWS
 
 ```
