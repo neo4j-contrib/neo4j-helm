@@ -18,7 +18,7 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 RUN mkdir /data
-ADD backup.sh /scripts/backup.sh
+ADD backup/backup.sh /scripts/backup.sh
 RUN chmod +x /scripts/backup.sh
 
 CMD ["/scripts/backup.sh"]
