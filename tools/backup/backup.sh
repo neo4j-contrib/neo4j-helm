@@ -68,11 +68,11 @@ function cloud_copy() {
   case $CLOUD_PROVIDER in
   aws)
     aws s3 cp $backup_path $bucket_path
-    aws s3 cp $backup_path "${bucket_path}latest.tar.gz"
+    aws s3 cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
   gcp)
     gsutil cp $backup_path $bucket_path
-    gsutil cp $backup_path "${bucket_path}latest.tar.gz"
+    gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
   esac
 }
@@ -81,6 +81,7 @@ function backup_database() {
   db=$1
 
   export BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
+  export LATEST_POINTER="$db-latest.tar.gz"
 
   echo "=============== BACKUP $db ==================="
   echo "Beginning backup from $NEO4J_ADDR to /data/$BACKUP_SET"
