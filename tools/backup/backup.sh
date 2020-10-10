@@ -68,9 +68,11 @@ function cloud_copy() {
   case $CLOUD_PROVIDER in
   aws)
     aws s3 cp $backup_path $bucket_path
+    aws s3 cp $backup_path "${bucket_path}latest.tar.gz"
     ;;
   gcp)
     gsutil cp $backup_path $bucket_path
+    gsutil cp $backup_path "${bucket_path}latest.tar.gz"
     ;;
   esac
 }
