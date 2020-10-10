@@ -10,7 +10,6 @@ By default cloud provider is set to gcp. You need to create a secret for the clo
 
 ```
 kubectl create secret generic neo4j-aws-credentials \
-    -n test-neo4j \
     --from-file=credentials=aws-credentials
 ```
 
@@ -18,7 +17,6 @@ kubectl create secret generic neo4j-aws-credentials \
 
 ```
 kubectl create secret generic neo4j-gcp-credentials \
-    -n test-neo4j \
     --from-file=credentials.json=gcp-credentials.json 
 ```
 

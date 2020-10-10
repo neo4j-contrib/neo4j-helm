@@ -48,22 +48,30 @@ spec:
                 - name: CHECK_PROPERTY_OWNERS
                   value: "{{ .Values.checkPropertyOwners }}"
               volumeMounts:
+                {{ if eq .Values.cloudProvider "aws" }}
                 - name: aws-credentials
                   mountPath: /credentials/aws
                   readOnly: true
+                {{ end }}
+                {{ if eq .Values.cloudProvider "gcp" }}
                 - name: gcp-credentials
                   mountPath: /credentials/gcp
                   readOnly: true
+                {{ end }}
           volumes:
+            {{ if eq .Values.cloudProvider "aws" }}
             - name: aws-credentials
               secret:
                 secretName: neo4j-aws-credentials
                 items:
                   - key: credentials
                     path: credentials
+            {{ end }}
+            {{ if eq .Values.cloudProvider "gcp" }}
             - name: gcp-credentials
               secret:
                 secretName: neo4j-gcp-credentials
                 items:
                   - key: credentials.json
                     path: credentials.json
+            {{ end }}
