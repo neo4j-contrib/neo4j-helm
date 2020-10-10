@@ -25,12 +25,12 @@ spec:
           # See https://neo4j.com/docs/operations-manual/current/backup/performing/
           - name: NEO4J_ADDR
             value: {{ .Values.neo4jaddr }}
+          - name: DATABASE
+            value: { { .Values.database } }
+          - name: CLOUD_PROVIDER
+            value: {{ .Values.cloudProvider }}
           - name: BUCKET
             value: {{ .Values.bucket }}
-          - name: DATABASE
-            value: {{ .Values.database }}
-          - name: GOOGLE_APPLICATION_CREDENTIALS
-            value: {{ .Values.credentials }}
           - name: HEAP_SIZE
             value: {{ .Values.heapSize }}
           - name: PAGE_CACHE
@@ -48,13 +48,22 @@ spec:
           - name: CHECK_PROPERTY_OWNERS
             value: "{{ .Values.checkPropertyOwners }}"
           volumeMounts:
-          - name: creds
-            mountPath: /auth
-            readOnly: true
+            - name: aws-credentials
+              mountPath: /credentials/aws
+              readOnly: true
+            - name: gcp-credentials
+              mountPath: /credentials/gcp
+              readOnly: true
       volumes:
-      - name: creds
-        secret:
-          secretName: {{ .Values.secretName }}
-          items:
-          - key: credentials.json
-            path: credentials.json
+        - name: aws-credentials
+          secret:
+            secretName: neo4j-aws-credentials
+            items:
+              - key: credentials
+                path: credentials
+        - name: gcp-credentials
+          secret:
+            secretName: neo4j-gcp-credentials
+            items:
+              - key: credentials.json
+                path: credentials.json
