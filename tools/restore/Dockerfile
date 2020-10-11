@@ -12,7 +12,10 @@ RUN echo "neo4j-enterprise neo4j/question select I ACCEPT" | debconf-set-selecti
 RUN echo "neo4j-enterprise neo4j/license note" | debconf-set-selections
 
 RUN apt-get update && apt-get install -y neo4j-enterprise=1:4.1.0
-RUN apt-get install -y google-cloud-sdk unzip
+RUN apt-get install -y google-cloud-sdk unzip less
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
 RUN mkdir /data
 ADD restore/restore.sh /scripts/restore.sh
