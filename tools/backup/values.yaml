@@ -4,6 +4,7 @@ neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
 bucket: gs://test-neo4j
 database: neo4j,system
 cloudProvider: gcp
+secretName: "neo4j-gcp-credentials"
 pageCache: 2G
 heapSize: 2G
 fallbackToFull: "true"

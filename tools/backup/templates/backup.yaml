@@ -62,7 +62,7 @@ spec:
             {{ if eq .Values.cloudProvider "aws" }}
             - name: aws-credentials
               secret:
-                secretName: neo4j-aws-credentials
+                secretName: {{ .Values.secretName }}
                 items:
                   - key: credentials
                     path: credentials
@@ -70,7 +70,7 @@ spec:
             {{ if eq .Values.cloudProvider "gcp" }}
             - name: gcp-credentials
               secret:
-                secretName: neo4j-gcp-credentials
+                secretName: {{ .Values.secretName }}
                 items:
                   - key: credentials.json
                     path: credentials.json
