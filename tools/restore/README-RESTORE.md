@@ -54,13 +54,6 @@ readReplica:
     timestamp: "latest"
     forceOverwrite: true
     purgeOnComplete: true
-resources:
-  requests:
-    cpu: 100m
-    memory: 1024Mi
-  limits:
-    cpu: 500m
-    memory: 2048Mi
 ```
 
 ```
