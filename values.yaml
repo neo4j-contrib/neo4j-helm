@@ -147,7 +147,7 @@ core:
   terminationGracePeriodSeconds: 300
 
   restore:
-    enabled: true
+    enabled: false
     image: gcr.io/neo4j-helm/restore
     imageTag: 4.1.0-1
     secretName: neo4j-gcp-credentials
@@ -227,7 +227,7 @@ readReplica:
   terminationGracePeriodSeconds: 300
 
   restore:
-    enabled: true
+    enabled: false
     image: gcr.io/neo4j-helm/restore
     imageTag: 4.1.0-1
     secretName: neo4j-gcp-credentials
