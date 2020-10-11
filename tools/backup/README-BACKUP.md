@@ -30,6 +30,7 @@ helm install my-backup-deployment . \
     --set bucket=s3://my-bucket \
     --set database="neo4j\,system" \
     --set cloudProvider=aws \
+    --set secretName=neo4j-aws-credentials \
     --set jobSchedule="0 */12 * * *"
 ```
 
@@ -41,6 +42,7 @@ helm install my-backup-deployment . \
     --set bucket=gs://my-bucket \
     --set database="neo4j\,system" \
     --set cloudProvider=gcp \
+    --set secretName=neo4j-gcp-credentials \
     --set jobSchedule="0 */12 * * *"
 ```
 
