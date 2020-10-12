@@ -17,7 +17,7 @@ kubectl create secret generic neo4j-aws-credentials \
 
 ```
 kubectl create secret generic neo4j-gcp-credentials \
-    --from-file=credentials.json=gcp-credentials.json 
+    --from-file=credentials=gcp-credentials.json 
 ```
 
 ##Usage 

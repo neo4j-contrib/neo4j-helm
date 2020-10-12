@@ -48,30 +48,13 @@ spec:
                 - name: CHECK_PROPERTY_OWNERS
                   value: "{{ .Values.checkPropertyOwners }}"
               volumeMounts:
-                {{ if eq .Values.cloudProvider "aws" }}
-                - name: aws-credentials
-                  mountPath: /credentials/aws
+                - name: credentials
+                  mountPath: /credentials
                   readOnly: true
-                {{ end }}
-                {{ if eq .Values.cloudProvider "gcp" }}
-                - name: gcp-credentials
-                  mountPath: /credentials/gcp
-                  readOnly: true
-                {{ end }}
           volumes:
-            {{ if eq .Values.cloudProvider "aws" }}
-            - name: aws-credentials
+            - name: credentials
               secret:
                 secretName: {{ .Values.secretName }}
                 items:
                   - key: credentials
                     path: credentials
-            {{ end }}
-            {{ if eq .Values.cloudProvider "gcp" }}
-            - name: gcp-credentials
-              secret:
-                secretName: {{ .Values.secretName }}
-                items:
-                  - key: credentials.json
-                    path: credentials.json
-            {{ end }}
