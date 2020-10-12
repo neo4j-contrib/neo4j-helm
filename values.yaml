@@ -51,7 +51,7 @@ clusterDomain: "cluster.local"
 testImage: "gcr.io/neo4j-helm/tester"
 
 # Whether or not to use APOC: https://neo4j.com/labs/apoc/
-# Comment out if you do not want to use it.
+# If you do not want APOC, make the array empty []
 plugins: "[\"apoc\"]"
 
 # The default name of the Neo4j database to use.

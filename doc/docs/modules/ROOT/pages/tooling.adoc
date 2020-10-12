@@ -33,7 +33,7 @@ The value must be a valid JSON array of plugin names. https://github.com/neo4j/d
 
 The way this mechanism works is that each plugin publishes a versions.json file that allows the Neo4j Docker container to determine at runtime which version of the plugin JAR to download and put in place.
 
-APOC is included by default; comment out the plugins parameter or set it to the empty string to disable APOC. By adding other plugin names to the default shown below, you can use multiple plugins.
+APOC is included by default; to disable APOC, set the plugins parameter to the empty array `[]`. By adding other plugin names to the default shown below, you can use multiple plugins.
 
 ```yaml
 plugins: "[\"apoc\"]"
