@@ -139,16 +139,9 @@ spec:
         volumeMounts:
           - name: datadir
             mountPath: /data
-          {{ if eq .Values.readReplica.restore.cloudProvider "aws" }}
-          - name: aws-credentials
-            mountPath: /credentials/aws
+          - name: credentials
+            mountPath: /credentials
             readOnly: true
-          {{ end }}
-          {{ if eq .Values.readReplica.restore.cloudProvider "gcp" }}
-          - name: gcp-credentials
-            mountPath: /credentials/gcp
-            readOnly: true
-          {{ end }}
         env:
           - name: DATABASE
             value: {{ .Values.readReplica.restore.database }}
@@ -162,7 +155,7 @@ spec:
             value: "{{ .Values.readReplica.restore.forceOverwrite }}"
           - name: PURGE_ON_COMPLETE
             value: "{{ .Values.readReplica.restore.purgeOnComplete }}"
-        {{ end }}
+      {{ end }}
 {{- if .Values.readReplica.initContainers }}
 {{ toYaml .Values.readReplica.initContainers | indent 6 }}
 {{- end }}
@@ -183,22 +176,12 @@ spec:
           configMap: 
             name: "{{ .Release.Name }}-init-script"
         {{ if .Values.readReplica.restore.enabled }}
-        {{ if eq .Values.readReplica.restore.cloudProvider "aws" }}
-        - name: aws-credentials
+        - name: credentials
           secret:
             secretName: {{ .Values.readReplica.restore.secretName }}
             items:
               - key: credentials
                 path: credentials
-        {{ end }}
-        {{ if eq .Values.readReplica.restore.cloudProvider "gcp" }}
-        - name: gcp-credentials
-          secret:
-            secretName: {{ .Values.readReplica.restore.secretName }}
-            items:
-              - key: credentials.json
-                path: credentials.json
-        {{ end }}
         {{ end }}
         {{- if not .Values.readReplica.persistentVolume.enabled }}
         - name: datadir

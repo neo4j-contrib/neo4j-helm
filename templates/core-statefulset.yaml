@@ -145,16 +145,9 @@ spec:
         volumeMounts:
           - name: datadir
             mountPath: /data
-          {{ if eq .Values.core.restore.cloudProvider "aws" }}
-          - name: aws-credentials
-            mountPath: /credentials/aws
+          - name: credentials
+            mountPath: /credentials
             readOnly: true
-          {{ end }}
-          {{ if eq .Values.core.restore.cloudProvider "gcp" }}
-          - name: gcp-credentials
-            mountPath: /credentials/gcp
-            readOnly: true
-          {{ end }}
         env:
           - name: DATABASE
             value: {{ .Values.core.restore.database }}
@@ -177,22 +170,12 @@ spec:
           configMap: 
             name: "{{ .Release.Name }}-init-script"
         {{ if .Values.core.restore.enabled }}
-        {{ if eq .Values.core.restore.cloudProvider "aws" }}
-        - name: aws-credentials
+        - name: credentials
           secret:
             secretName: {{ .Values.core.restore.secretName }}
             items:
               - key: credentials
                 path: credentials
-        {{ end }}
-        {{ if eq .Values.core.restore.cloudProvider "gcp" }}
-        - name: gcp-credentials
-          secret:
-            secretName: {{ .Values.core.restore.secretName }}
-            items:
-              - key: credentials.json
-                path: credentials.json
-        {{ end }}
         {{ end }}
         {{- if not .Values.core.persistentVolume.enabled }}
         - name: datadir

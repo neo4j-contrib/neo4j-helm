@@ -233,7 +233,7 @@ function restore_database {
 
 function activate_gcp() {
   echo "Activating google credentials before beginning"
-  gcloud auth activate-service-account --key-file "/credentials/gcp/credentials.json"
+  gcloud auth activate-service-account --key-file "/credentials/credentials"
 
   if [ $? -ne 0 ]; then
     echo "Credentials failed; no way to copy to google."
@@ -244,7 +244,7 @@ function activate_gcp() {
 function activate_aws() {
   echo "Activating aws credentials before beginning"
   mkdir -p /root/.aws/
-  cp /credentials/aws/credentials ~/.aws/config
+  cp /credentials/credentials ~/.aws/config
 
   if [ $? -ne 0 ]; then
     echo "Credentials failed; no way to copy to aws."
