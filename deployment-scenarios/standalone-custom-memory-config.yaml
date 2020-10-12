@@ -3,12 +3,11 @@
 ###############################################################
 core:
     standalone: true
-
-resources:
-    limits:
-        memory: 2G
-    requests:
-        memory: 2G
+    resources:
+        limits:
+            memory: 2G
+        requests:
+            memory: 2G
 
 dbms:
     memory:
