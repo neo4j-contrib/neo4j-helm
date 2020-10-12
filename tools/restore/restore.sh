@@ -278,7 +278,7 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "No supported cloud provider could be found"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
   exit 1
   ;;
 esac
