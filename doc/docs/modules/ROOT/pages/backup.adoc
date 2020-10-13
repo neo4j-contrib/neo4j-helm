@@ -50,34 +50,76 @@ In Neo4j 4.0, the system can be multidatabase; most systems have at least 2 DBs,
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
 
-```shell
-MY_SERVICE_ACCOUNT_KEY=$HOME/.google/my-service-key.json
-kubectl create secret generic neo4j-service-key \
-   --from-file=credentials.json=$MY_SERVICE_ACCOUNT_KEY
+**AWS**
+
+- You must create the credential file and this file should look like this:
+```aws-credentials
+[default]
+region=
+aws_access_key_id=
+aws_secret_access_key=
 ```
 
-The backup container is going to take this kubernetes secret
-(named `neo4j-service-key`) and is going to mount it as a file
-inside of the backup container (`/auth/credentials.json`).  That
-file will then be used to authenticate the storage client that we
-need to upload the backupset to cloud storage when it's complete.
+- You have to create a secret for this file
+```shell
+kubectl create secret generic neo4j-aws-credentials \
+    --from-file=credentials=aws-credentials
+```
+
+**GCP**
+
+- You must create the credential file and this file should look like this:
+```gcp-credentials.json
+{
+  "type": "",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": ""
+}
+
+```
+
+- You have to create a secret for this file
+```shell
+kubectl create secret generic neo4j-gcp-credentials \
+    --from-file=credentials=gcp-credentials.json
+```
+
 
 ### Running a Backup
 
 The backup method is itself a mini-helm chart, and so to run a backup, you just
 do this as a minimal required example:
 
-```shell
-helm install my-backup-deployment . \
-    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
-    --set bucket=gs://my-bucket/ \
-    --set database="neo4j\,system" \
-    --set secretName=neo4j-service-key
-``` 
+**AWS**
 
-from within the tools/backup directory
-where the chart resides.  You must have first created a `neo4j-service-key`
-secret in the same namespace as your Neo4j is running.
+```shell
+helm install my-neo4j-backup . \
+    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
+    --set bucket=s3://my-bucket \
+    --set database="neo4j\,system" \
+    --set cloudProvider=aws \
+    --set secretName=neo4j-aws-credentials \
+    --set jobSchedule="0 */12 * * *"
+```
+
+**GCP**
+```shell
+helm install my-neo4j-backup . \
+    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
+    --set bucket=gs://my-bucket \
+    --set database="neo4j\,system" \
+    --set cloudProvider=gcp \
+    --set secretName=neo4j-gcp-credentials \
+    --set jobSchedule="0 */12 * * *"
+```
+
 
 If all goes well, after a period of time when the Kubernetes Job is complete, you
 will simply see the backup files appear in the designated bucket.
@@ -86,13 +128,23 @@ will simply see the backup files appear in the designated bucket.
 **If your backup does not appear, consult the job container logs to find out
 why**
 
+
+**If you want to get a hot backup before schedule, you can use this command:**
+
+```shell
+kubectl create job --from=cronjob/my-neo4j-backup-job neo4j-hot-backup
+```
+
 **Required parameters**
 
 * `neo4jaddr` pointing to an address where your cluster is running, ideally the
 discovery address.
-* `bucket` where you want the backup copied to.  It should be `gs://bucketname`.  This parameter may include a relative path (`gs://bucketname/mycluster`)
+* `bucket` where you want the backup copied to.  It should be `gs://bucketname` or `s3://bucketname`.
 * `databases` a comma separated list of databases to back up.  The default is
 `neo4j,system`.  If your DBMS has many individual databases, you should change this.
+* `cloudProvider` Which cloud service do you want to keep backups on?(gcp or aws)
+* `secretName` the name of the secret you created (neo4j-gcp-credentials|neo4j-aws-credentials)
+* `jobSchedule` what intervals do you want to take backup? It should be cron like "0 */12 * * *". You can set your own schedule(https://crontab.guru/#0_*/12_*_*_*)
 
 **Optional environment variables**
 
