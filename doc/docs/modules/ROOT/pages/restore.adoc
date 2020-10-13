@@ -27,29 +27,48 @@ directory structure that come out of archived backups in order to restore proper
 
 ### Create a service key secret to access cloud storage
 
-First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
+First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore.
 
+**AWS**
+
+- You must create the credential file and this file should look like this:
+```aws-credentials
+[default]
+region=
+aws_access_key_id=
+aws_secret_access_key=
+```
+
+- You have to create a secret for this file
 ```shell
-MY_SERVICE_ACCOUNT_KEY=$HOME/.google/my-service-key.json
-kubectl create secret generic neo4j-service-key \
-   --from-file=credentials.json=$MY_SERVICE_ACCOUNT_KEY
+kubectl create secret generic neo4j-aws-credentials \
+    --from-file=credentials=aws-credentials
 ```
 
-The restore container is going to take this kubernetes secret
-(named `neo4j-service-key`) and is going to mount it as a file
-inside of the backup container (`/auth/credentials.json`).  That
-file will then be used to authenticate the storage client that we
-need to upload the backupset to cloud storage when it's complete.
+**GCP**
 
-In `values.yaml`, then configure the secret you set here like so:
+- You must create the credential file and this file should look like this:
+```gcp-credentials.json
+{
+  "type": "",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": ""
+}
 
-```yaml
-restoreSecret: neo4j-service-key
 ```
 
-This allows the core and read replica nodes to access that service key
-as a volume.  That volume being present within the containers is necessary for the
-next step, and will be mounted as `/auth/credentials.json` inside the container.
+- You have to create a secret for this file
+```shell
+kubectl create secret generic neo4j-gcp-credentials \
+    --from-file=credentials=gcp-credentials.json
+```
 
 If this service key secret is not in place, the auth information will not be able to be mounted as
 a volume in the initContainer, and your pods may get stuck/hung at "ContainerCreating" phase.
@@ -61,35 +80,50 @@ Refer to the single instance restore deploy scenario to see how the initContaine
 What you will need to customize and ensure:
 * Ensure you have created the appropriate secret and set its name
 * Ensure that the volume mount to /auth matches the secret name you created above.
-* Ensure that your BUCKET, and GOOGLE_APPLICATION_CREDENTIALS are
-set correctly given the way you created your secret.
+* Ensure that your BUCKET, and credentials are set correctly given the way you created your secret.
 
 The example scenario above creates the initContainer just for core nodes.  It's strongly recommended you do the same for `readReplica.initContainers` if you are using read replicas. If you restore only to core nodes and not to read replicas, when they start the core nodes will replicate the data to the read replicas.   This will work just fine, but may result in longer startup times and much more bandwidth.
 
 ## Restore Environment Variables for the Init Container
 
-### Required
+- To restore you need to add the necessary parameters to values.yaml and this file should look like this:
+```values.yaml
+...
+core:
+  ...
+  restore:
+    enabled: true
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials) #required
+    database: neo4j,system #required
+    cloudProvider: (gcp|aws) #required
+    bucket: (gs|s3)://test-neo4j #required
+    timestamp: "latest" #optional #default:"latest"
+    forceOverwrite: true #optional #default:true
+    purgeOnComplete: true #optinal #default:true
+readReplica:
+  ...
+  restore:
+    enabled: true
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials) #required
+    database: neo4j,system #required
+    cloudProvider: (gcp|aws) #required
+    bucket: (gs|s3)://test-neo4j #required
+    timestamp: "2020-06-16-12:32:57" #optional #default:"latest"
+    forceOverwrite: true #optional #default:true
+    purgeOnComplete: true #optinal #default:true
+...
+```
 
-- `GOOGLE_APPLICATION_CREDENTIALS` - path to a file with a JSON service account key (see credentials below).   Defaults to /auth/credentials.json
-- `BUCKET` - the storage bucket where backups are located, e.g. `gs://bucketname`.   This parameter may include a relative path (`gs://bucketname/mycluster`)
-- `DATABASE` - comma-separated list of databases to restore, e.g. neo4j,system
-* `TIMESTAMP` - this defaults to "latest".  See the backup container's documentation
-on the latest pointer.  But you may set this to a particular timestamp to restore
-that exact moment in time.   This timestamp must match the filename in storage.
-So if you want to restore the backup set at `neo4j-2020-06-16-12:32:57.tar.gz	` then
-the TIMESTAMP would be `2020-06-16-12:32:57`.
+- standard neo4j installation
+```
+helm install \
+    neo4j neo4j/neo4j \
+    -f values.yaml \
+    --set acceptLicenseAgreement=yes \
+    --version 4.1.1-1
+```
 
-### Optional
-
-- `PURGE_ON_COMPLETE` (defaults to true).  If this is set to the value "true", the restore process will remove the restore artifacts from disk.  With any other 
-value, they will be left in place.  This is useful for debugging restores, to 
-see what was copied down from cloud storage and how it was expanded.
-- `FORCE_OVERWRITE` if this is the value "true", then the restore process will overwrite and
-destroy any existing data that is on the volume.  Take care when using this in combination with
-persistent volumes.  The default is false; if data already exists on the drive, the restore operation will fail but preserve your data.  **You must set this to true
-if you want restore to work over-top of an existing database**.
-
-## Warnings 
+## Warnings
 
 A common way you might deploy Neo4j would be restore from last backup when a container initializes.  This would be good for a cluster, because it would minimize how much catch-up
 is needed when a node is launched.  Any difference between the last backup and the rest of the
