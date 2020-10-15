@@ -69,6 +69,7 @@ kubectl create secret generic neo4j-aws-credentials \
 **GCP**
 
 - You must create the credential file and this file should look like this:
+- You don't actually need to create this file; this is the natural format of a JSON service key from Google
 ```gcp-credentials.json
 {
   "type": "",
@@ -90,6 +91,9 @@ kubectl create secret generic neo4j-aws-credentials \
 kubectl create secret generic neo4j-gcp-credentials \
     --from-file=credentials=gcp-credentials.json
 ```
+
+[NOTE]
+**'--from-file=credentials=<your-config-path>' here is important**
 
 
 ### Running a Backup
@@ -119,6 +123,9 @@ helm install my-neo4j-backup . \
     --set secretName=neo4j-gcp-credentials \
     --set jobSchedule="0 */12 * * *"
 ```
+
+[NOTE]
+**This command must be run in 'https://github.com/neo4j-contrib/neo4j-helm/tree/master/tools/backup'**
 
 
 If all goes well, after a period of time when the Kubernetes Job is complete, you
