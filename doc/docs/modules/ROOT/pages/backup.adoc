@@ -50,7 +50,7 @@ In Neo4j 4.0, the system can be multidatabase; most systems have at least 2 DBs,
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
 
-**AWS**
+#### AWS
 
 - You must create the credential file and this file should look like this:
 ```aws-credentials
@@ -66,10 +66,10 @@ kubectl create secret generic neo4j-aws-credentials \
     --from-file=credentials=aws-credentials
 ```
 
-**GCP**
+#### GCP
 
-- You must create the credential file and this file should look like this:
-- You don't actually need to create this file; this is the natural format of a JSON service key from Google
+Download a JSON formatted service key from Google Cloud that looks like this:
+
 ```gcp-credentials.json
 {
   "type": "",
@@ -93,8 +93,7 @@ kubectl create secret generic neo4j-gcp-credentials \
 ```
 
 [NOTE]
-**'--from-file=credentials=<your-config-path>' here is important**
-
+**'--from-file=credentials=<your-config-path>' here is important**; the credentials under the secret must be named `credentials`
 
 ### Running a Backup
 
