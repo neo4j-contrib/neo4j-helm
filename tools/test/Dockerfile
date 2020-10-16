@@ -5,8 +5,8 @@ RUN echo 'deb http://ftp.debian.org/debian stretch-backports main' | tee /etc/ap
 RUN apt-get update
 RUN apt-get install -y ca-certificates ca-certificates-java
 RUN curl https://debian.neo4j.com/neotechnology.gpg.key | apt-key add -
-RUN echo 'deb http://debian.neo4j.com stable latest' | tee -a /etc/apt/sources.list.d/neo4j.list
+RUN echo 'deb http://debian.neo4j.com stable 4.1' | tee -a /etc/apt/sources.list.d/neo4j.list
 RUN apt-get update
-RUN apt-get install -y cypher-shell=4.1.1
+RUN apt-get install -y cypher-shell=4.1.2
 
 CMD ["/bin/bash"]

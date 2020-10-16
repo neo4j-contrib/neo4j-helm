@@ -82,7 +82,7 @@ jobs:
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl create secret generic neo4j-service-key \
               --namespace $NAMESPACE \
-              --from-file=credentials.json=$SERVICE_KEY_FILE
+              --from-file=credentials=$SERVICE_KEY_FILE
             # This secret is injected in the test process to demonstrate that
             # config works.  This is just any valid config we can check inside of
             # a running system.
@@ -144,7 +144,13 @@ jobs:
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
                 --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
                 --set database="neo4j\,system" \
+                --set cloudProvider=gcp \
+                --set jobSchedule="0 */12 * * *" \
                 --set secretName=neo4j-service-key
+              
+              sleep 5
+              echo "Taking a backup"
+              kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup neo4j-hot-backup
 
       - run:
           name: Wait for GKE CLUSTERED deployment to succeed and become ready
