@@ -146,6 +146,18 @@ core:
   additionalVolumeMounts: []
   terminationGracePeriodSeconds: 300
 
+  restore:
+    enabled: false
+    image: gcr.io/neo4j-helm/restore
+    imageTag: 4.1.0-1
+    secretName: neo4j-gcp-credentials
+    database: neo4j,system
+    cloudProvider: gcp
+    bucket: gs://test-neo4j
+    timestamp: "latest"
+    forceOverwrite: true
+    purgeOnComplete: true
+
 # Read Replicas
 readReplica:
   # configMap: "my-custom-configmap"
@@ -213,6 +225,18 @@ readReplica:
   ## container
   additionalVolumeMounts: []
   terminationGracePeriodSeconds: 300
+
+  restore:
+    enabled: false
+    image: gcr.io/neo4j-helm/restore
+    imageTag: 4.1.0-1
+    secretName: neo4j-gcp-credentials
+    database: neo4j,system
+    cloudProvider: gcp
+    bucket: gs://test-neo4j
+    timestamp: "latest"
+    forceOverwrite: true
+    purgeOnComplete: true
 
 resources: {}
   # limits:

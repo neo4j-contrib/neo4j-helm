@@ -119,11 +119,6 @@ spec:
           {{- if .Values.readReplica.persistentVolume.subPath }}
           subPath: {{ .Values.readReplica.persistentVolume.subPath }}
           {{- end }}
-        {{- if .Values.restoreSecret }}
-        - name: creds
-          mountPath: /auth
-          readOnly: true
-        {{- end }}
         {{- if .Values.readReplica.additionalVolumeMounts }}
 {{ toYaml .Values.readReplica.additionalVolumeMounts | indent 8}}
         {{- end }}
@@ -136,8 +131,32 @@ spec:
 {{- if .Values.core.sidecarContainers }}
 {{ toYaml .Values.core.sidecarContainers | indent 6 }}
 {{- end }}
-{{- if .Values.readReplica.initContainers }}
       initContainers:
+      {{ if .Values.readReplica.restore.enabled }}
+      - name: restore-from-backup
+        image: "{{ .Values.readReplica.restore.image }}:{{ .Values.readReplica.restore.imageTag }}"
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: datadir
+            mountPath: /data
+          - name: credentials
+            mountPath: /credentials
+            readOnly: true
+        env:
+          - name: DATABASE
+            value: {{ .Values.readReplica.restore.database }}
+          - name: CLOUD_PROVIDER
+            value: {{ .Values.readReplica.restore.cloudProvider }}
+          - name: BUCKET
+            value: {{ .Values.readReplica.restore.bucket }}
+          - name: TIMESTAMP
+            value: "{{ .Values.readReplica.restore.timestamp }}"
+          - name: FORCE_OVERWRITE
+            value: "{{ .Values.readReplica.restore.forceOverwrite }}"
+          - name: PURGE_ON_COMPLETE
+            value: "{{ .Values.readReplica.restore.purgeOnComplete }}"
+      {{ end }}
+{{- if .Values.readReplica.initContainers }}
 {{ toYaml .Values.readReplica.initContainers | indent 6 }}
 {{- end }}
 {{- with .Values.nodeSelector }}
@@ -156,14 +175,14 @@ spec:
         - name: init-script
           configMap: 
             name: "{{ .Release.Name }}-init-script"
-        {{- if .Values.restoreSecret }}
-        - name: creds
+        {{ if .Values.readReplica.restore.enabled }}
+        - name: credentials
           secret:
-            secretName: {{ .Values.restoreSecret }}
+            secretName: {{ .Values.readReplica.restore.secretName }}
             items:
-            - key: credentials.json
-              path: credentials.json
-        {{- end }}
+              - key: credentials
+                path: credentials
+        {{ end }}
         {{- if not .Values.readReplica.persistentVolume.enabled }}
         - name: datadir
           emptyDir: {}

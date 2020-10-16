@@ -2,7 +2,7 @@
 
 # Validation of inputs upfront
 if [ -z $BUCKET ] ; then
-   echo "You must specify a bucket, such as gs://my-backups/"
+   echo "You must specify a bucket, such as (gs|s3)://my-backups"
    exit 1
 fi
 
@@ -11,20 +11,44 @@ if [ -z $DATABASE ]; then
     exit 1
 fi
 
+if [ -z $CLOUD_PROVIDER ]; then
+  echo "You must specify a CLOUD_PROVIDER env var"
+  exit 1
+fi
+
 if [ -z $TIMESTAMP ]; then
     echo "No TIMESTAMP was provided, we are using latest"
     TIMESTAMP=latest
-fi
-
-if [ -z $GOOGLE_APPLICATION_CREDENTIALS ] ; then
-    echo "Setting default google credential location to /auth/credentials.json"
-    export GOOGLE_APPLICATION_CREDENTIALS=/auth/credentials.json
 fi
 
 if [ -z $PURGE_ON_COMPLETE ]; then
     echo "Setting PURGE_ON_COMPLETE=true"
     PURGE_ON_COMPLETE=true
 fi
+
+function fetch_backup_from_cloud() {
+  database=$1
+  restore_path=$2
+
+  bucket_path=""
+  if [ "${BUCKET: -1}" = "/" ]; then
+      bucket_path="${BUCKET%?}/$database/"
+  else
+      bucket_path="$BUCKET/$database/"
+  fi
+  backup_path="${bucket_path}$database-$TIMESTAMP.tar.gz"
+
+  echo "Fetching $backup_path -> $restore_path"
+
+  case $CLOUD_PROVIDER in
+  aws)
+    aws s3 cp $backup_path $restore_path
+    ;;
+  gcp)
+    gsutil cp $backup_path $restore_path
+    ;;
+  esac
+}
 
 function restore_database {
     db=$1
@@ -60,22 +84,9 @@ function restore_database {
     echo "Making restore directory"
     mkdir -p "$RESTORE_ROOT"
 
-    # Trim trailing slash from BUCKET if it's there, because it messes up the
-    # copy commands if you copy gs://a//foo to gs://a//bar (double slash in path)
-    # https://stackoverflow.com/a/17542946/2920686
-    if [ "${BUCKET: -1}" = "/" ]; then
-        BUCKET="${BUCKET%?}"
-    fi
-
-    REMOTE_BACKUPSET="$BUCKET/$db-$TIMESTAMP.tar.gz"
-    echo "Copying $REMOTE_BACKUPSET -> $RESTORE_ROOT"
-
-    # By copying recursively, the user can specify a dir with an uncompressed
-    # backup if preferred. The -m flag downloads in parallel if possible.
-    gsutil -m cp -r "$REMOTE_BACKUPSET" "$RESTORE_ROOT"
+    fetch_backup_from_cloud $db $RESTORE_ROOT
 
     if [ $? -ne 0 ] ; then
-        echo "Copy remote backupset $REMOTE_BACKUPSET FAILED"
         echo "Cannot restore $db"
         return
     fi
@@ -88,7 +99,7 @@ function restore_database {
     # foo.zip, we need to assume that this unarchives to a directory called
     # foo, as neo4j backup sets are directories.  So we'll remove the suffix
     # after unarchiving and use that as the actual backup target.
-    BACKUP_FILENAME=$(basename "$REMOTE_BACKUPSET")
+    BACKUP_FILENAME="$db-$TIMESTAMP.tar.gz"
     RESTORE_FROM=uninitialized
     if [[ $BACKUP_FILENAME =~ \.tar\.gz$ ]] ; then
         echo "Untarring backup file"
@@ -220,10 +231,37 @@ function restore_database {
     echo "RESTORE OF $db COMPLETE"
 }
 
+function activate_gcp() {
+  echo "Activating google credentials before beginning"
+  gcloud auth activate-service-account --key-file "/credentials/credentials"
+
+  if [ $? -ne 0 ]; then
+    echo "Credentials failed; no way to copy to google."
+    exit 1
+  fi
+}
+
+function activate_aws() {
+  echo "Activating aws credentials before beginning"
+  mkdir -p /root/.aws/
+  cp /credentials/credentials ~/.aws/config
+
+  if [ $? -ne 0 ]; then
+    echo "Credentials failed; no way to copy to aws."
+    exit 1
+  fi
+
+  aws sts get-caller-identity
+  if [ $? -ne 0 ]; then
+    echo "Credentials failed; no way to copy to aws."
+    exit 1
+  fi
+}
+
 echo "=============== Restore ==============================="
-echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
-echo "TIMESTAMP=$TIMESTAMP"
+echo "CLOUD_PROVIDER=$CLOUD_PROVIDER"
 echo "BUCKET=$BUCKET"
+echo "TIMESTAMP=$TIMESTAMP"
 echo "FORCE_OVERWRITE=$FORCE_OVERWRITE"
 echo "PURGE_ON_COMPLETE=$PURGE_ON_COMPLETE"
 echo "Starting point database contents: "
@@ -232,14 +270,18 @@ echo "Starting point transactions: "
 ls /data/transactions
 echo "============================================================"
 
-echo "Activating google credentials before beginning"
-ls -l $GOOGLE_APPLICATION_CREDENTIALS
-gcloud auth activate-service-account --key-file "$GOOGLE_APPLICATION_CREDENTIALS"
-
-if [ $? -ne 0 ] ; then
-    echo "Credentials failed; copying from Google will likely fail unless the bucket is public"
-    echo "Ensure GOOGLE_APPLICATION_CREDENTIALS is appropriately set."
-fi
+case $CLOUD_PROVIDER in
+aws)
+  activate_aws
+  ;;
+gcp)
+  activate_gcp
+  ;;
+*)
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  exit 1
+  ;;
+esac
 
 # See: https://neo4j.com/docs/operations-manual/current/backup/restoring/#backup-restoring-cluster
 echo "Unbinding previous cluster state, if applicable"

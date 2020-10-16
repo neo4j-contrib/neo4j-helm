@@ -121,11 +121,6 @@ spec:
           {{- end }}
         - name: plugins
           mountPath: /plugins
-        {{- if .Values.restoreSecret }}
-        - name: creds
-          mountPath: /auth
-          readOnly: true
-        {{- end }}  
         {{- if .Values.core.additionalVolumeMounts }}
 {{ toYaml .Values.core.additionalVolumeMounts | indent 8}}
         {{- end }}
@@ -141,23 +136,47 @@ spec:
 {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecret }}
-{{- end -}}
-{{- if .Values.core.initContainers }}
+{{- end }}
       initContainers:
+      {{ if .Values.core.restore.enabled }}
+      - name: restore-from-backup
+        image: "{{ .Values.core.restore.image }}:{{ .Values.core.restore.imageTag }}"
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: datadir
+            mountPath: /data
+          - name: credentials
+            mountPath: /credentials
+            readOnly: true
+        env:
+          - name: DATABASE
+            value: {{ .Values.core.restore.database }}
+          - name: CLOUD_PROVIDER
+            value: {{ .Values.core.restore.cloudProvider }}
+          - name: BUCKET
+            value: {{ .Values.core.restore.bucket }}
+          - name: TIMESTAMP
+            value: "{{ .Values.core.restore.timestamp }}"
+          - name: FORCE_OVERWRITE
+            value: "{{ .Values.core.restore.forceOverwrite }}"
+          - name: PURGE_ON_COMPLETE
+            value: "{{ .Values.core.restore.purgeOnComplete }}"
+      {{ end }}
+{{- if .Values.core.initContainers }}
 {{ toYaml .Values.core.initContainers | indent 6 }}
 {{- end }}
       volumes:
         - name: init-script
           configMap: 
             name: "{{ .Release.Name }}-init-script"
-        {{- if .Values.restoreSecret }}
-        - name: creds
+        {{ if .Values.core.restore.enabled }}
+        - name: credentials
           secret:
-            secretName: {{ .Values.restoreSecret }}
+            secretName: {{ .Values.core.restore.secretName }}
             items:
-            - key: credentials.json
-              path: credentials.json
-        {{- end }}
+              - key: credentials
+                path: credentials
+        {{ end }}
         {{- if not .Values.core.persistentVolume.enabled }}
         - name: datadir
           emptyDir: {}
