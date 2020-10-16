@@ -193,8 +193,8 @@ jobs:
             echo "Backup pods $backup_pods" | tee -a $BUILD_ARTIFACTS/backup.log            
             kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $BUILD_ARTIFACTS/backup.log
 
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
 
       - run:
           name: Uninstall / Cleanup
