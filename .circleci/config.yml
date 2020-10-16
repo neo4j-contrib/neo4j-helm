@@ -149,6 +149,7 @@ jobs:
                 --set secretName=neo4j-service-key
               
               sleep 5
+              kubectl get all -n $NAMESPACE
               echo "Taking a backup"
               kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup neo4j-hot-backup
 
