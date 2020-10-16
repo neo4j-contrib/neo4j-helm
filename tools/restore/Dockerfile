@@ -7,11 +7,10 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 RUN echo "deb http://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 RUN echo "deb http://httpredir.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-backports.list
 
-
 RUN echo "neo4j-enterprise neo4j/question select I ACCEPT" | debconf-set-selections
 RUN echo "neo4j-enterprise neo4j/license note" | debconf-set-selections
 
-RUN apt-get update && apt-get install -y neo4j-enterprise=1:4.1.0
+RUN apt-get update && apt-get install -y neo4j-enterprise=1:4.1.3
 RUN apt-get install -y google-cloud-sdk unzip less
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
