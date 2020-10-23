@@ -75,9 +75,16 @@ function cloud_copy() {
     gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
   azure)
-    az storage blob upload --container-name testone \
-                       --file Dockerfile \
-                       --name Dockerfile \
+    az storage blob upload --container-name "$database" \
+                       --file "$backup_path" \
+                       --name $(basename "$backup_path") \
+                       --auth-mode key \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY" \
+                       --subscription "$SUBSCRIPTION"
+    az storage blob upload --container-name "$database" \
+                       --file "$backup_path" \
+                       --name "${LATEST_POINTER}" \
                        --auth-mode key \
                        --account-name "$ACCOUNT_NAME" \
                        --account-key "$ACCOUNT_KEY" \
