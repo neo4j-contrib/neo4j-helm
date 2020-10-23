@@ -74,6 +74,15 @@ function cloud_copy() {
     gsutil cp $backup_path $bucket_path
     gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
+  azure)
+    az storage blob upload --container-name testone \
+                       --file Dockerfile \
+                       --name Dockerfile \
+                       --auth-mode key \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY" \
+                       --subscription "$SUBSCRIPTION"
+    ;;
   esac
 }
 
@@ -172,7 +181,20 @@ function activate_aws() {
   fi
 }
 
+function activate_azure() {
+  echo "Activating azure credentials before beginning"
+  source "/credentials/credentials"
+
+  if [ $? -ne 0 ]; then
+    echo "Credentials failed for azure;"
+    exit 1
+  fi
+}
+
 case $CLOUD_PROVIDER in
+azure)
+  activate_azure
+  ;;
 aws)
   activate_aws
   ;;
@@ -180,7 +202,7 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp|azure)"
   exit 1
   ;;
 esac
