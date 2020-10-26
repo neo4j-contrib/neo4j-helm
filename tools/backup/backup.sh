@@ -79,16 +79,14 @@ function cloud_copy() {
                        --file "$backup_path" \
                        --name $(basename "$backup_path") \
                        --auth-mode key \
-                       --account-name "$ACCOUNT_NAME" \
-                       --account-key "$ACCOUNT_KEY" \
-                       --subscription "$SUBSCRIPTION"
-    az storage blob upload --container-name "$database" \
+                       --account-name $ACCOUNT_NAME \
+                       --subscription $SUBSCRIPTION
+    az storage blob upload --container-name $database \
                        --file "$backup_path" \
                        --name "${LATEST_POINTER}" \
                        --auth-mode key \
-                       --account-name "$ACCOUNT_NAME" \
-                       --account-key "$ACCOUNT_KEY" \
-                       --subscription "$SUBSCRIPTION"
+                       --account-name $ACCOUNT_NAME \
+                       --subscription $SUBSCRIPTION
     ;;
   esac
 }
@@ -191,7 +189,7 @@ function activate_aws() {
 function activate_azure() {
   echo "Activating azure credentials before beginning"
   source "/credentials/credentials"
-
+  az login --service-principal --username "$SP_ID" --password "$SP_PASSWORD" --tenant "$TENANT_ID"
   if [ $? -ne 0 ]; then
     echo "Credentials failed for azure;"
     exit 1
