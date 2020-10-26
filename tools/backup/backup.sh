@@ -75,16 +75,15 @@ function cloud_copy() {
     gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
   azure)
+    az storage container create -n "$database" --account-name $ACCOUNT_NAME --subscription $SUBSCRIPTION
     az storage blob upload --container-name "$database" \
                        --file "$backup_path" \
                        --name $(basename "$backup_path") \
-                       --auth-mode key \
                        --account-name $ACCOUNT_NAME \
                        --subscription $SUBSCRIPTION
     az storage blob upload --container-name $database \
                        --file "$backup_path" \
                        --name "${LATEST_POINTER}" \
-                       --auth-mode key \
                        --account-name $ACCOUNT_NAME \
                        --subscription $SUBSCRIPTION
     ;;
