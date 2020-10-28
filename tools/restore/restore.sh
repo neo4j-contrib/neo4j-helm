@@ -47,6 +47,13 @@ function fetch_backup_from_cloud() {
   gcp)
     gsutil cp $backup_path $restore_path
     ;;
+  azure)
+    az storage blob download --container-name "$BUCKET-$database" \
+                             --name $(basename "$backup_path") \
+                             --file $restore_path \
+                             --account-name $ACCOUNT_NAME \
+                             --subscription $SUBSCRIPTION
+    ;;
   esac
 }
 
@@ -258,6 +265,16 @@ function activate_aws() {
   fi
 }
 
+function activate_azure() {
+  echo "Activating azure credentials before beginning"
+  source "/credentials/credentials"
+  az login --service-principal --username "$SP_ID" --password "$SP_PASSWORD" --tenant "$TENANT_ID"
+  if [ $? -ne 0 ]; then
+    echo "Credentials failed for azure;"
+    exit 1
+  fi
+}
+
 echo "=============== Restore ==============================="
 echo "CLOUD_PROVIDER=$CLOUD_PROVIDER"
 echo "BUCKET=$BUCKET"
@@ -271,6 +288,9 @@ ls /data/transactions
 echo "============================================================"
 
 case $CLOUD_PROVIDER in
+azure)
+  activate_azure
+  ;;
 aws)
   activate_aws
   ;;
