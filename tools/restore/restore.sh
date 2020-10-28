@@ -49,10 +49,10 @@ function fetch_backup_from_cloud() {
     ;;
   azure)
     az storage blob download --container-name "$BUCKET-$database" \
-                             --name $(basename "$backup_path") \
-                             --file $restore_path \
-                             --account-name $ACCOUNT_NAME \
-                             --subscription $SUBSCRIPTION
+                             --name "$(basename "$backup_path")" \
+                             --file "$restore_path/$(basename "$backup_path")" \
+                             --account-name "$ACCOUNT_NAME" \
+                             --subscription "$SUBSCRIPTION"
     ;;
   esac
 }
