@@ -15,6 +15,7 @@ jobs:
       BUILD_ARTIFACTS: build
       SERVICE_KEY_FILE: /tmp/service-key.json
       BUCKET: gs://circleci-build-system
+      AZURE_CONTAINER_NAME: circleci-build-system
 
     steps:
       - checkout
@@ -179,7 +180,7 @@ jobs:
               helm install standalone-backup-azure tools/backup \
                 --namespace $NAMESPACE \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
-                --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
+                --set bucket=$CIRCLE_BUILD_NUM \
                 --set database="neo4j\,system" \
                 --set cloudProvider=azure \
                 --set jobSchedule="0 */12 * * *" \
