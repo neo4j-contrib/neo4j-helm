@@ -2,8 +2,8 @@
 # Backing up Neo4j Containers
 
 [NOTE]
-**This approach assumes you have Google Cloud credentials and wish to store your backups
-on Google Cloud Storage**.  If this is not the case, you will need to adjust the backup
+**This approach supports Google Cloud, AWS, and Azure storage, and assumes you have credentials and wish
+to store your backups on those cloud storage systems**.  If this is not the case, you will need to adjust the backup
 script for your desired cloud storage method, but the approach will work for any backup location.
 
 [NOTE]
@@ -61,6 +61,12 @@ First you want to create a kubernetes secret that contains the content of your a
 ```azure-credentials.sh
 export ACCOUNT_NAME=<NAME_STORAGE_ACCOUNT>
 export ACCOUNT_KEY=<STORAGE_ACCOUNT_KEY>
+```
+
+If you're unsure what the account key secret should be, you can recover it with the following command: 
+
+```
+ACCOUNT_KEY=$(az storage account keys list --resource-group "$AKS_RESOURCE_GROUP" --account-name "$STORAGE_ACCOUNT" --query [0].value -o tsv)
 ```
 
 - You have to create a secret for this file
