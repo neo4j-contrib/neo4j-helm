@@ -83,7 +83,7 @@ function cloud_copy() {
     # See: https://stackoverflow.com/a/10987027
     CONTAINER_PATH=${BUCKET#$CONTAINER}
     if [ "${CONTAINER_PATH: -1}" = "/" ]; then
-       CONTAINER_PATH=${CONTAINER_PATH%?}
+       CONTAINER_PATH=$(basename ${CONTAINER_PATH})
     fi
     CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
 
