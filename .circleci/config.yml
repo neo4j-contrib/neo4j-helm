@@ -100,6 +100,7 @@ jobs:
             echo "export ACCOUNT_NAME=$ACCOUNT_NAME" >> azure-credentials.sh
             echo "export ACCOUNT_KEY=$ACCOUNT_KEY" >> azure-credentials.sh
             kubectl create secret generic azure-credentials \
+              --namespace $NAMESPACE \
               --from-file=credentials=azure-credentials.sh
 
       - run:
