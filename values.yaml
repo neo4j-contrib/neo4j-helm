@@ -64,6 +64,15 @@ defaultDatabase: "neo4j"
 core:
   # configMap: "my-custom-configmap"
   envFrom: []
+
+  resources: {}
+  # limits:
+  #   cpu: "100m"
+  #   memory: 512Mi
+  # requests:
+  #   cpu: "100m"
+  #   memory: 512Mi
+
   standalone: false
   numberOfServers: 3
   persistentVolume:
@@ -237,14 +246,6 @@ readReplica:
     timestamp: "latest"
     forceOverwrite: true
     purgeOnComplete: true
-
-resources: {}
-  # limits:
-  #   cpu: "1000m"
-  #   memory: 1G
-  # requests:
-  #   cpu: "1000m"
-  #   memory: 1G
 
 # Readiness probes will send a kill signal to the container if
 # it fails enough times.  It's therefore very important
