@@ -254,7 +254,7 @@ jobs:
 
             az storage blob list -c $AZURE_CONTAINER_NAME --account-name helmbackups --prefix build-$CIRCLE_BUILD_NUM/ | tee -a files.txt
             cat files.txt >> $LOGFILE
-            total_files=$(cat files | grep name | wc -l)
+            total_files=$(cat files.txt | grep name | wc -l)
             if [ $total_files = 4 ] ; then
               echo "Test pass" ;
             else
