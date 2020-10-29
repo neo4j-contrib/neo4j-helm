@@ -222,15 +222,17 @@ jobs:
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             sleep 60
             kubectl get all -n $NAMESPACE
-            kubectl get job --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
-            helm status standalone-backup-gcp --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/backup.log
+            export LOGFILE=$BUILD_ARTIFACTS/gcp-backup.log
+            kubectl get job --namespace $NAMESPACE | tee -a $LOGFILE
+            helm status standalone-backup-gcp --namespace $NAMESPACE | tee -a $LOGFILE
 
             backup_pods=$(kubectl get pods --namespace $NAMESPACE | grep gcp-hot-backup | sed 's/ .*$//' | head -n 1)
-            echo "Backup pods $backup_pods" | tee -a $BUILD_ARTIFACTS/backup.log            
-            kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $BUILD_ARTIFACTS/backup.log
+            echo "Backup pods $backup_pods" | tee -a $LOGFILE
+            kubectl describe pod --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
+            kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
 
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
-            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/neo4j/neo4j-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/gcp-backup.log
+            gsutil ls "$BUCKET/$CIRCLE_BUILD_NUM/system/system-latest.tar.gz" 2>&1 | tee -a $BUILD_ARTIFACTS/gcp-backup.log
 
       - run: 
           name: Verify that Azure backup succeeded
@@ -239,12 +241,14 @@ jobs:
             # build number, we should be good.
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
             kubectl get all -n $NAMESPACE
-            kubectl get job --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/azure-backup.log
-            helm status standalone-backup-azure --namespace $NAMESPACE | tee -a $BUILD_ARTIFACTS/azure-backup.log
+            export LOGFILE=$BUILD_ARTIFACTS/azure-backup.log
+            kubectl get job --namespace $NAMESPACE | tee -a $LOGFILE
+            helm status standalone-backup-azure --namespace $NAMESPACE | tee -a $LOGFILE
 
             backup_pods=$(kubectl get pods --namespace $NAMESPACE | grep azure-hot-backup | sed 's/ .*$//' | head -n 1)
-            echo "Backup pods $backup_pods" | tee -a $BUILD_ARTIFACTS/azure-backup.log            
-            kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $BUILD_ARTIFACTS/azure-backup.log
+            echo "Backup pods $backup_pods" | tee -a $LOGFILE
+            kubectl describe pod --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
+            kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
 
             # AZ command TODO
 
