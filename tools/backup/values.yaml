@@ -5,7 +5,7 @@ neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
 # bucket: azure-storage-container
 bucket: gs://test-neo4j
 database: neo4j,system
-# cloudProvider can be either gcp,aws or azure
+# cloudProvider can be either gcp, aws, or azure
 cloudProvider: gcp
 secretName: "neo4j-gcp-credentials"
 pageCache: 2G

@@ -303,7 +303,8 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  echo "Invalid CLOUD_PROVIDER=$CLOUD_PROVIDER"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp|azure)"
   exit 1
   ;;
 esac
