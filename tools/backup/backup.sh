@@ -88,7 +88,7 @@ function cloud_copy() {
     CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
 
     echo "Azure storage blob copy to $CONTAINER :: $CONTAINER_FILE"
-    az storage blob upload --container-name "$BUCKET" \
+    az storage blob upload --container-name "$CONTAINER" \
                        --file "$backup_path" \
                        --name $CONTAINER_FILE \
                        --account-name "$ACCOUNT_NAME" \
@@ -96,7 +96,7 @@ function cloud_copy() {
 
     latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
     echo "Azure storage blob copy to $CONTAINER :: $latest_name"
-    az storage blob upload --container-name "$BUCKET" \
+    az storage blob upload --container-name "$CONTAINER" \
                        --file "$backup_path" \
                        --name "$latest_name" \
                        --account-name "$ACCOUNT_NAME" \
