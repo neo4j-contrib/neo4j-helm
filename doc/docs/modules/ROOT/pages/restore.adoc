@@ -29,6 +29,20 @@ directory structure that come out of archived backups in order to restore proper
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore.
 
+**Azure**
+
+- You must create the credential file and this file should look like this:
+```azure-credentials.sh
+export ACCOUNT_NAME=<NAME_STORAGE_ACCOUNT>
+export ACCOUNT_KEY=<STORAGE_ACCOUNT_KEY>
+```
+
+- You have to create a secret for this file
+```shell
+kubectl create secret generic neo4j-azure-credentials \
+    --from-file=credentials=azure-credentials.sh
+```
+
 **AWS**
 
 - You must create the credential file and this file should look like this:

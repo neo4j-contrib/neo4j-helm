@@ -74,6 +74,19 @@ function cloud_copy() {
     gsutil cp $backup_path $bucket_path
     gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
+  azure)
+    # Container creation works even if the container exists. The storage account needs to be created in advance.
+    az storage blob upload --container-name "$BUCKET" \
+                       --file "$backup_path" \
+                       --name $(basename "$backup_path") \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY"
+    az storage blob upload --container-name "$BUCKET" \
+                       --file "$backup_path" \
+                       --name "${LATEST_POINTER}" \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY"
+    ;;
   esac
 }
 
@@ -172,7 +185,25 @@ function activate_aws() {
   fi
 }
 
+function activate_azure() {
+  echo "Activating azure credentials before beginning"
+  source "/credentials/credentials"
+
+  if [ -z $ACCOUNT_NAME ]; then
+    echo "You must specify a ACCOUNT_NAME export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+
+  if [ -z $ACCOUNT_KEY ]; then
+    echo "You must specify a ACCOUNT_KEY export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+}
+
 case $CLOUD_PROVIDER in
+azure)
+  activate_azure
+  ;;
 aws)
   activate_aws
   ;;
@@ -180,7 +211,7 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp|azure)"
   exit 1
   ;;
 esac
