@@ -180,7 +180,7 @@ jobs:
               helm install standalone-backup-azure tools/backup \
                 --namespace $NAMESPACE \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
-                --set bucket=build-$CIRCLE_BUILD_NUM \
+                --set bucket=$AZURE_CONTAINER_NAME/build-$CIRCLE_BUILD_NUM/ \
                 --set database="neo4j\,system" \
                 --set cloudProvider=azure \
                 --set jobSchedule="0 */12 * * *" \
