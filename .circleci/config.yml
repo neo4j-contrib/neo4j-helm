@@ -42,6 +42,12 @@ jobs:
             gcloud auth configure-docker
                
       - run:
+          name: Setup Azure Tooling
+          command: |
+            # az command is built into the testing container.
+            az login --service-principal --username "$SP_ID" --password "$SP_PASSWORD" --tenant "$TENANT_ID"
+
+      - run:
           name: Generate Docs
           command: |
              cd doc 
@@ -83,12 +89,18 @@ jobs:
             kubectl create secret generic neo4j-service-key \
               --namespace $NAMESPACE \
               --from-file=credentials=$SERVICE_KEY_FILE
+            
             # This secret is injected in the test process to demonstrate that
             # config works.  This is just any valid config we can check inside of
             # a running system.
             kubectl create secret generic my-secret-config \
               --namespace $NAMESPACE \
               --from-literal=NEO4J_dbms_transaction_concurrent_maximum=0
+
+            echo "export ACCOUNT_NAME=$ACCOUNT_NAME" >> azure-credentials.sh
+            echo "export ACCOUNT_KEY=$ACCOUNT_KEY" >> azure-credentials.sh
+            kubectl create secret generic azure-credentials \
+              --from-file=credentials=azure-credentials.sh
 
       - run:
           name: Package and Install Neo4j-Helm Chart
@@ -130,8 +142,8 @@ jobs:
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
               helm test $NAME_STANDALONE --namespace $NAMESPACE --logs | tee -a $BUILD_ARTIFACTS/TEST-STANDALONE.txt
 
-      - run:
-          name: Package and install BACKUP chart on STANDALONE
+      - run: 
+          name: Package backup chart
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
               
@@ -139,7 +151,12 @@ jobs:
               chart_archive=$(ls neo4j*.tgz)
               cp *.tgz $BUILD_ARTIFACTS/
 
-              helm install standalone-backup tools/backup \
+      - run:
+          name: Install GCP Bacup chart on standalone
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              
+              helm install standalone-backup-gcp tools/backup \
                 --namespace $NAMESPACE \
                 --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
                 --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
@@ -151,7 +168,26 @@ jobs:
               sleep 5
               kubectl get all -n $NAMESPACE
               echo "Taking a backup"
-              kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup-job neo4j-hot-backup
+              kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup-gcp-job gcp-hot-backup
+
+      - run:
+          name: Install Azure Bacup chart on standalone
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              
+              helm install standalone-backup-azure tools/backup \
+                --namespace $NAMESPACE \
+                --set neo4jaddr=$NAME_STANDALONE-neo4j.$NAMESPACE.svc.cluster.local:6362 \
+                --set bucket=$BUCKET/$CIRCLE_BUILD_NUM/ \
+                --set database="neo4j\,system" \
+                --set cloudProvider=azure \
+                --set jobSchedule="0 */12 * * *" \
+                --set secretName=azure-credentials
+              
+              sleep 5
+              kubectl get all -n $NAMESPACE
+              echo "Taking a backup"
+              kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup-azure-job azure-hot-backup
 
       - run:
           name: Wait for GKE CLUSTERED deployment to succeed and become ready
@@ -179,7 +215,7 @@ jobs:
              kubectl --namespace $NAMESPACE exec $NAME_CLUSTERED-neo4j-replica-0 -- /bin/cat /data/logs/debug.log > $BUILD_ARTIFACTS/replica-0-debug.log
 
       - run: 
-          name: Verify that backup succeeded
+          name: Verify that GCP backup succeeded
           command: |
             # If "latest" backup pointer files exist in a dir that is specific to this
             # build number, we should be good.
