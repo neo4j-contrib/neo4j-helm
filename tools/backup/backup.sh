@@ -76,17 +76,16 @@ function cloud_copy() {
     ;;
   azure)
     # Container creation works even if the container exists. The storage account needs to be created in advance.
-    az storage container create -n "$BUCKET-$database" --account-name $ACCOUNT_NAME --subscription $SUBSCRIPTION
-    az storage blob upload --container-name "$BUCKET-$database" \
+    az storage blob upload --container-name "$BUCKET" \
                        --file "$backup_path" \
                        --name $(basename "$backup_path") \
                        --account-name "$ACCOUNT_NAME" \
-                       --subscription "$SUBSCRIPTION"
-    az storage blob upload --container-name "$BUCKET-$database" \
+                       --account-key "$ACCOUNT_KEY"
+    az storage blob upload --container-name "$BUCKET" \
                        --file "$backup_path" \
                        --name "${LATEST_POINTER}" \
                        --account-name "$ACCOUNT_NAME" \
-                       --subscription "$SUBSCRIPTION"
+                       --account-key "$ACCOUNT_KEY"
     ;;
   esac
 }
@@ -189,34 +188,14 @@ function activate_aws() {
 function activate_azure() {
   echo "Activating azure credentials before beginning"
   source "/credentials/credentials"
-  if [ -z $SP_ID ]; then
-    echo "You must specify a SP_ID export statement in the credentials secret which is the Service Principal ID"
-    exit 1
-  fi
-
-  if [ -z $SP_PASSWORD ]; then
-    echo "You must specify a SP_PASSWORD export statement in the credentials secret which is the Service Principal ID generated secret"
-    exit 1
-  fi
-
-  if [ -z $TENANT_ID ]; then
-    echo "You must specify a TENANT_ID export statement in the credentials secret"
-    exit 1
-  fi
-
-  if [ -z $SUBSCRIPTION ]; then
-    echo "You must specify a SUBSCRIPTION export statement in the credentials secret"
-    exit 1
-  fi
 
   if [ -z $ACCOUNT_NAME ]; then
     echo "You must specify a ACCOUNT_NAME export statement in the credentials secret which is the storage account where backups are stored"
     exit 1
   fi
 
-  az login --service-principal --username "$SP_ID" --password "$SP_PASSWORD" --tenant "$TENANT_ID"
-  if [ $? -ne 0 ]; then
-    echo "Credentials failed for azure;"
+  if [ -z $ACCOUNT_KEY ]; then
+    echo "You must specify a ACCOUNT_KEY export statement in the credentials secret which is the storage account where backups are stored"
     exit 1
   fi
 }

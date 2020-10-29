@@ -34,10 +34,7 @@ First you want to create a kubernetes secret that contains the content of your a
 - You must create the credential file and this file should look like this:
 ```azure-credentials.sh
 export ACCOUNT_NAME=<NAME_STORAGE_ACCOUNT>
-export SUBSCRIPTION=<SUBSCRIPTION_NAME_OR_ID>
-export SP_ID=<SERVICE_PRINCIPAL_NAME_OR_ID>
-export SP_PASSWORD=<GENERATED_SERVICE_PRINCIPAL_SECRET>
-export TENANT_ID=<SERVICE_PRINCIPAL_NAME_OR_ID>
+export ACCOUNT_KEY=<STORAGE_ACCOUNT_KEY>
 ```
 
 - You have to create a secret for this file
