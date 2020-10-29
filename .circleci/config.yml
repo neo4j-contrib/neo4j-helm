@@ -154,7 +154,7 @@ jobs:
               cp *.tgz $BUILD_ARTIFACTS/
 
       - run:
-          name: Install GCP Bacup chart on standalone
+          name: Install GCP Backup chart on standalone
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
               
@@ -173,7 +173,7 @@ jobs:
               kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup-gcp-job gcp-hot-backup
 
       - run:
-          name: Install Azure Bacup chart on standalone
+          name: Install Azure Backup chart on standalone
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
               
@@ -252,7 +252,15 @@ jobs:
             kubectl describe pod --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
             kubectl logs --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
 
-            # AZ command TODO
+            az storage blob list -c $AZURE_CONTAINER_NAME --account-name helmbackups --prefix build-$CIRCLE_BUILD_NUM/ | tee -a files.txt
+            cat files.txt >> $LOGFILE
+            total_files=$(cat files | grep name | wc -l)
+            if [ $total_files = 4 ] ; then
+              echo "Test pass" ;
+            else
+              echo "$total_files total files on Azure storage; failed"
+              exit 1
+            fi
 
       - run:
           name: Uninstall / Cleanup
