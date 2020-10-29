@@ -82,7 +82,10 @@ function cloud_copy() {
 
     # See: https://stackoverflow.com/a/10987027
     CONTAINER_PATH=${BUCKET#$CONTAINER}
-    CONTAINER_FILE=$CONTAINER_PATH/$(basename "$backup_path")
+    if [ "${CONTAINER_PATH: -1}" = "/" ]; then
+       CONTAINER_PATH=${CONTAINER_PATH%?}
+    fi
+    CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
 
     echo "Azure storage blob copy to $CONTAINER :: $CONTAINER_FILE"
     az storage blob upload --container-name "$BUCKET" \
