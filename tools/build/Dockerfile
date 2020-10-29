@@ -23,6 +23,8 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 
 RUN apt-get install -y google-cloud-sdk wget make gettext-base jq nodejs npm
 
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
 # Install helm
 RUN curl -LO https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
 RUN tar zxvf helm-v3.2.1-linux-amd64.tar.gz
@@ -34,4 +36,3 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
 RUN chmod +x kubectl
 RUN mv kubectl /usr/bin
 RUN /usr/bin/kubectl --help
-
