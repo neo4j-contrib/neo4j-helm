@@ -107,9 +107,9 @@ core:
   ...
   restore:
     enabled: true
-    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials) #required
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials) #required
     database: neo4j,system #required
-    cloudProvider: (gcp|aws) #required
+    cloudProvider: (gcp|aws|azure) #required
     bucket: (gs|s3)://test-neo4j #required
     timestamp: "latest" #optional #default:"latest"
     forceOverwrite: true #optional #default:true
@@ -118,9 +118,9 @@ readReplica:
   ...
   restore:
     enabled: true
-    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials) #required
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials) #required
     database: neo4j,system #required
-    cloudProvider: (gcp|aws) #required
+    cloudProvider: (gcp|aws|azure) #required
     bucket: (gs|s3)://test-neo4j #required
     timestamp: "2020-06-16-12:32:57" #optional #default:"latest"
     forceOverwrite: true #optional #default:true
