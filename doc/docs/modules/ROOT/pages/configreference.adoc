@@ -41,10 +41,6 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Password to log in the Neo4J database if password is required
 | (random string of 10 characters)
 
-| `restoreSecret`
-| The name of the kubernetes secret to mount to `/creds` in the container.  Please see the [restore documentation](../tools/restore/README-RESTORE.md) for how to use this. 
-| (none)
-
 | `existingPasswordSecret`
 | The name of the kubernetes secret which contains the `neo4j-password` 
 | (none)

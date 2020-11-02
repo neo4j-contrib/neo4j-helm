@@ -1,0 +1,15 @@
+core:
+    standalone: true
+    restore:
+      enabled: true
+      secretName: azure-credentials
+      database: neo4j,system
+      cloudProvider: azure
+      bucket: circleci-build-system/testy/mcbuild/
+      purgeOnComplete: true
+      forceOverwrite: true
+      timestamp: "latest"
+
+acceptLicenseAgreement: "yes"
+neo4jPassword: mySecretPassword
+

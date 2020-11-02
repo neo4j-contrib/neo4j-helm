@@ -33,6 +33,9 @@ The value must be a valid JSON array of plugin names. https://github.com/neo4j/d
 
 The way this mechanism works is that each plugin publishes a versions.json file that allows the Neo4j Docker container to determine at runtime which version of the plugin JAR to download and put in place.
 
+[NOTE]
+This plugin approach requires the ability for your containers to download files, which requires external internet access.  If you are in a locked down network environment, you should specify `plugins: []` and use the initContainer approach to install APOC manually.
+
 ### APOC
 
 link:https://neo4j.com/labs/apoc/4.1/installation/[Starting in Neo4j 4.1], a subset of APOC procedures (APOC core) is included with all Neo4j distributions, in a special directory that is not enabled by default.  This creates a separation between "APOC Core" and "APOC Full" (all procedures & functions).

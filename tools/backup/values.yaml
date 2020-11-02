@@ -1,8 +1,11 @@
 image: gcr.io/neo4j-helm/backup
-imageTag: 4.1.3-1
+imageTag: 4.1.3-2
 neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
+# In case of azure the bucket is used as the container where the backup is stored
+# bucket: azure-storage-container
 bucket: gs://test-neo4j
 database: neo4j,system
+# cloudProvider can be either gcp, aws, or azure
 cloudProvider: gcp
 secretName: "neo4j-gcp-credentials"
 pageCache: 2G

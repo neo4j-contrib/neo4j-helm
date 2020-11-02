@@ -47,6 +47,25 @@ function fetch_backup_from_cloud() {
   gcp)
     gsutil cp $backup_path $restore_path
     ;;
+  azure)
+    # For this tool, you specify BUCKET but this has to be parsed into 
+    # CONTAINER/path/file
+    IFS='/' read -r -a pathParts <<< "$BUCKET"
+    CONTAINER=${pathParts[0]}
+    CONTAINER_PATH=${BUCKET#$CONTAINER}
+    # Remove all leading and doubled slashes to avoid reading empty folders in azure
+    backup_path=$CONTAINER_PATH/$database/$database-$TIMESTAMP.tar.gz    
+    backup_path=$(echo "$backup_path" | sed 's|^/*||')
+    backup_path=$(echo "$backup_path" | sed s'|//|/|g')
+
+    copy_to_local="$restore_path/$(basename "$backup_path")"
+    echo "Azure storage blob copy $backup_path :: $copy_to_local"
+    az storage blob download --container-name "$CONTAINER" \
+                             --name "$backup_path" \
+                             --file "$copy_to_local" \
+                             --account-name "$ACCOUNT_NAME" \
+                             --account-key "$ACCOUNT_KEY"
+    ;;
   esac
 }
 
@@ -258,6 +277,21 @@ function activate_aws() {
   fi
 }
 
+function activate_azure() {
+  echo "Activating azure credentials before beginning"
+  source "/credentials/credentials"
+
+  if [ -z $ACCOUNT_NAME ]; then
+    echo "You must specify a ACCOUNT_NAME export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+
+  if [ -z $ACCOUNT_KEY ]; then
+    echo "You must specify a ACCOUNT_KEY export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+}
+
 echo "=============== Restore ==============================="
 echo "CLOUD_PROVIDER=$CLOUD_PROVIDER"
 echo "BUCKET=$BUCKET"
@@ -271,6 +305,9 @@ ls /data/transactions
 echo "============================================================"
 
 case $CLOUD_PROVIDER in
+azure)
+  activate_azure
+  ;;
 aws)
   activate_aws
   ;;
@@ -278,7 +315,8 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  echo "Invalid CLOUD_PROVIDER=$CLOUD_PROVIDER"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp|azure)"
   exit 1
   ;;
 esac

@@ -2,8 +2,8 @@
 # Backing up Neo4j Containers
 
 [NOTE]
-**This approach assumes you have Google Cloud credentials and wish to store your backups
-on Google Cloud Storage**.  If this is not the case, you will need to adjust the backup
+**This approach supports Google Cloud, AWS, and Azure storage, and assumes you have credentials and wish
+to store your backups on those cloud storage systems**.  If this is not the case, you will need to adjust the backup
 script for your desired cloud storage method, but the approach will work for any backup location.
 
 [NOTE]
@@ -55,6 +55,26 @@ In Neo4j 4.0, the system can be multidatabase; most systems have at least 2 DBs,
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
 
+#### Azure
+
+- You must create the credential file and this file should look like this:
+```azure-credentials.sh
+export ACCOUNT_NAME=<NAME_STORAGE_ACCOUNT>
+export ACCOUNT_KEY=<STORAGE_ACCOUNT_KEY>
+```
+
+If you're unsure what the account key secret should be, you can recover it with the following command: 
+
+```
+ACCOUNT_KEY=$(az storage account keys list --resource-group "$AKS_RESOURCE_GROUP" --account-name "$STORAGE_ACCOUNT" --query [0].value -o tsv)
+```
+
+- You have to create a secret for this file
+```shell
+kubectl create secret generic neo4j-azure-credentials \
+    --from-file=credentials=azure-credentials.sh
+```
+
 #### AWS
 
 - You must create the credential file and this file should look like this:
@@ -105,6 +125,9 @@ kubectl create secret generic neo4j-gcp-credentials \
 The backup method is itself a mini-helm chart, and so to run a backup, you just
 do this as a minimal required example:
 
+[NOTE]
+**This command must be run in 'https://github.com/neo4j-contrib/neo4j-helm/tree/master/tools/backup'**
+
 **AWS**
 
 ```shell
@@ -128,9 +151,25 @@ helm install my-neo4j-backup . \
     --set jobSchedule="0 */12 * * *"
 ```
 
-[NOTE]
-**This command must be run in 'https://github.com/neo4j-contrib/neo4j-helm/tree/master/tools/backup'**
+**Azure**
 
+```shell
+helm install my-neo4j-backup . \
+    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
+    --set bucket=my-blob-container-name \
+    --set database="neo4j\,system" \
+    --set cloudProvider=azure \
+    --set secretName=neo4j-azure-credentials \
+    --set jobSchedule="0 */12 * * *"
+```
+
+[NOTE]
+**Special notes for Azure Storage**.  The chart requires a "bucket" but for Azure storage, 
+the naming is slightly different; the bucket specified is the "blob container name" 
+where the files will be placed.  Relative paths will be respected; if you set bucket 
+to be `container/path/to/directory`, then you will find your backup files stored in 
+`container` at the path `/path/to/directory/db/db-latest.tar.gz` where "db" is the 
+name of the database being backed up (i.e. neo4j and system).
 
 If all goes well, after a period of time when the Kubernetes Job is complete, you
 will simply see the backup files appear in the designated bucket, under directories named

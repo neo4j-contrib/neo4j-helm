@@ -74,6 +74,40 @@ function cloud_copy() {
     gsutil cp $backup_path $bucket_path
     gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
     ;;
+  azure)
+    # Container is specified via BUCKET input, which can contain a path, i.e.
+    # my-container/foo
+    # AZ CLI doesn't allow this so we need to split it into container and container path.
+    IFS='/' read -r -a pathParts <<< "$BUCKET"
+    CONTAINER=${pathParts[0]}
+
+    # See: https://stackoverflow.com/a/10987027
+    CONTAINER_PATH=${BUCKET#$CONTAINER}
+        
+    CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
+    # Remove all leading and doubled slashes to avoid creating empty folders in azure
+    CONTAINER_FILE=$(echo "$CONTAINER_FILE" | sed 's|^/*||')
+    CONTAINER_FILE=$(echo "$CONTAINER_FILE" | sed s'|//|/|g')
+
+    echo "Azure storage blob copy to $CONTAINER :: $CONTAINER_FILE"
+    az storage blob upload --container-name "$CONTAINER" \
+                       --file "$backup_path" \
+                       --name $CONTAINER_FILE \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY"
+
+    latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
+    # Remove all leading and doubled slashes to avoid creating empty folders in azure
+    latest_name=$(echo "$latest_name" | sed 's|^/*||')
+    latest_name=$(echo "$latest_name" | sed s'|//|/|g')
+
+    echo "Azure storage blob copy to $CONTAINER :: $latest_name"
+    az storage blob upload --container-name "$CONTAINER" \
+                       --file "$backup_path" \
+                       --name "$latest_name" \
+                       --account-name "$ACCOUNT_NAME" \
+                       --account-key "$ACCOUNT_KEY"
+    ;;
   esac
 }
 
@@ -172,7 +206,25 @@ function activate_aws() {
   fi
 }
 
+function activate_azure() {
+  echo "Activating azure credentials before beginning"
+  source "/credentials/credentials"
+
+  if [ -z $ACCOUNT_NAME ]; then
+    echo "You must specify a ACCOUNT_NAME export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+
+  if [ -z $ACCOUNT_KEY ]; then
+    echo "You must specify a ACCOUNT_KEY export statement in the credentials secret which is the storage account where backups are stored"
+    exit 1
+  fi
+}
+
 case $CLOUD_PROVIDER in
+azure)
+  activate_azure
+  ;;
 aws)
   activate_aws
   ;;
@@ -180,7 +232,8 @@ gcp)
   activate_gcp
   ;;
 *)
-  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp)"
+  echo "Invalid CLOUD_PROVIDER=$CLOUD_PROVIDER"
+  echo "You must set CLOUD_PROVIDER to be one of (aws|gcp|azure)"
   exit 1
   ;;
 esac

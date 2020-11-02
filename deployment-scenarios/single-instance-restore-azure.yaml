@@ -1,6 +1,5 @@
 # This scenario creates a single-instance standalone Neo4j
-# machine, that automatically restores from a backup with the given
-# parameters in the "initContainers" section.
+# machine, that automatically restores from a backup 
 #
 # IN ORDER FOR THIS TO WORK - you must have pre-created a secret, and 
 # you must modify the BUCKET parameter, and make sure backups are in place
@@ -10,10 +9,10 @@ core:
     standalone: true
     restore:
       enabled: true
-      secretName: gcp-credentials
+      secretName: azure-credentials
       database: neo4j,system
-      cloudProvider: gcp
-      bucket: gs://graph-backup-storage
+      cloudProvider: azure
+      bucket: circleci-build-system/testy/mcbuild/
       purgeOnComplete: true
       forceOverwrite: true
       timestamp: "latest"

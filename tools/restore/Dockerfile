@@ -15,6 +15,7 @@ RUN apt-get install -y google-cloud-sdk unzip less
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
 RUN ./aws/install
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 RUN mkdir /data
 ADD restore/restore.sh /scripts/restore.sh
