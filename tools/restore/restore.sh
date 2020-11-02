@@ -48,9 +48,21 @@ function fetch_backup_from_cloud() {
     gsutil cp $backup_path $restore_path
     ;;
   azure)
-    az storage blob download --container-name "$BUCKET-$database" \
-                             --name "$(basename "$backup_path")" \
-                             --file "$restore_path/$(basename "$backup_path")" \
+    # For this tool, you specify BUCKET but this has to be parsed into 
+    # CONTAINER/path/file
+    IFS='/' read -r -a pathParts <<< "$BUCKET"
+    CONTAINER=${pathParts[0]}
+    CONTAINER_PATH=${BUCKET#$CONTAINER}
+    # Remove all leading and doubled slashes to avoid reading empty folders in azure
+    backup_path=$CONTAINER_PATH/$database/$database-$TIMESTAMP.tar.gz    
+    backup_path=$(echo "$backup_path" | sed 's|^/*||')
+    backup_path=$(echo "$backup_path" | sed s'|//|/|g')
+
+    copy_to_local="$restore_path/$(basename "$backup_path")"
+    echo "Azure storage blob copy $backup_path :: $copy_to_local"
+    az storage blob download --container-name "$CONTAINER" \
+                             --name "$backup_path" \
+                             --file "$copy_to_local" \
                              --account-name "$ACCOUNT_NAME" \
                              --account-key "$ACCOUNT_KEY"
     ;;
