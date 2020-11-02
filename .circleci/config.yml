@@ -285,7 +285,7 @@ jobs:
                 --namespace $NAMESPACE \
                 --image=neo4j:4.1.3-enterprise --restart=Never \
                 --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
-                -a neo4j://$NAME_RESTORE-neo4j.default.svc.cluster.local 2>&1 | tee restore-result.log
+                -a neo4j://$NAME_RESTORE-neo4j.$NAMESPACE.svc.cluster.local 2>&1 | tee restore-result.log
               cp restore-result.log $BUILD_ARTIFACTS/
 
               # Strip all cypher shell output down to a single integer result cound for n
