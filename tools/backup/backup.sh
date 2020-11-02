@@ -97,6 +97,10 @@ function cloud_copy() {
                        --account-key "$ACCOUNT_KEY"
 
     latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
+    # Remove all leading and doubled slashes to avoid creating empty folders in azure
+    latest_name=$(echo "$latest_name" | sed 's|^/*||')
+    latest_name=$(echo "$latest_name" | sed s'|//|/|g')
+
     echo "Azure storage blob copy to $CONTAINER :: $latest_name"
     az storage blob upload --container-name "$CONTAINER" \
                        --file "$backup_path" \
