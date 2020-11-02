@@ -85,8 +85,11 @@ function cloud_copy() {
     if [ "${CONTAINER_PATH: -1}" = "/" ]; then
        CONTAINER_PATH=$(basename ${CONTAINER_PATH})
     fi
+        
     CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
-
+    # Remove all leading slashes to avoid creating empty folders in azure
+    CONTAINER_FILE=$(echo "$CONTAINER_FILE" | sed 's|^/*||')
+    
     echo "Azure storage blob copy to $CONTAINER :: $CONTAINER_FILE"
     az storage blob upload --container-name "$CONTAINER" \
                        --file "$backup_path" \
