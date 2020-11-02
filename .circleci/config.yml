@@ -12,6 +12,7 @@ jobs:
       NODES: 3
       NAME_CLUSTERED: testrunc
       NAME_STANDALONE: testrunsa
+      NAME_RESTORE: testrevive
       BUILD_ARTIFACTS: build
       SERVICE_KEY_FILE: /tmp/service-key.json
       BUCKET: gs://circleci-build-system
@@ -120,7 +121,12 @@ jobs:
              echo "Installing $chart_archive (STANDALONE SCENARIO)"
              helm install $NAME_STANDALONE -f deployment-scenarios/ci/standalone.yaml $chart_archive \
                  --namespace $NAMESPACE \
-                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt                     
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-standalone.txt
+
+             echo "Installing $chart_archive (AZURE RESTORE SCENARIO)"
+             helm install $NAME_RESTORE -f deployment-scenarios/ci/single-instance-restore.yaml $chart_archive \
+                 --namespace $NAMESPACE \
+                 -v 3 | tee -a $BUILD_ARTIFACTS/INSTALL-restore.txt
 
       #- run:
       #    name: Twiddling our Thumbs
@@ -263,6 +269,19 @@ jobs:
               echo "$total_files total files on Azure storage; failed"
               exit 1
             fi
+
+      - run:
+          name: Verify Azure RESTORE succeeded to single instance
+          command: |
+              NAMESPACE=ns-$CIRCLE_BUILD_NUM
+              export NEO4J_PASSWORD=mySecretPassword
+              kubectl logs --namespace $NAMESPACE $NAME_RESTORE-neo4j-core-0 \
+                -c restore-from-backup | tee -a $BUILD_ARTIFACTS/restore.log
+              echo "MATCH (n) RETURN count(n);" | kubectl run -i --rm cypher-shell \
+                --namespace $NAMESPACE \
+                --image=neo4j:4.1.3-enterprise --restart=Never \
+                --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
+                -a neo4j://$NAME_RESTORE-neo4j.default.svc.cluster.local
 
       - run:
           name: Uninstall / Cleanup
