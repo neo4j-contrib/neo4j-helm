@@ -289,8 +289,9 @@ jobs:
               cp restore-result.log $BUILD_ARTIFACTS/
 
               # Strip all cypher shell output down to a single integer result cound for n
-              record_count=$(cat restore-result.log | sed 's|^.*n ||' | sed 's| .*$||')
-              if [ $record_count -gt 1000 ] ; then 
+              export record_count=$(cat restore-result.log | sed 's|^.*n ||' | sed 's| .*$||')
+              echo "record_count=$record_count" >> $BUILD_ARTIFACTS/restore-result.log
+              if [ "$record_count" -gt "1000" ] ; then 
                 echo "Test pass" ; 
               else 
                 echo "Test FAIL with record count $record_count"
