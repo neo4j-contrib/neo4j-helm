@@ -78,18 +78,17 @@ function cloud_copy() {
     # Container is specified via BUCKET input, which can contain a path, i.e.
     # my-container/foo
     # AZ CLI doesn't allow this so we need to split it into container and container path.
-    CONTAINER=$(echo $BUCKET | sed 's/\/.*//')
+    IFS='/' read -r -a pathParts <<< "$BUCKET"
+    CONTAINER=${pathParts[0]}
 
     # See: https://stackoverflow.com/a/10987027
     CONTAINER_PATH=${BUCKET#$CONTAINER}
-    if [ "${CONTAINER_PATH: -1}" = "/" ]; then
-       CONTAINER_PATH=$(basename ${CONTAINER_PATH})
-    fi
         
     CONTAINER_FILE=$CONTAINER_PATH/$database/$(basename "$backup_path")
-    # Remove all leading slashes to avoid creating empty folders in azure
+    # Remove all leading and doubled slashes to avoid creating empty folders in azure
     CONTAINER_FILE=$(echo "$CONTAINER_FILE" | sed 's|^/*||')
-    
+    CONTAINER_FILE=$(echo "$CONTAINER_FILE" | sed s'|//|/|g')
+
     echo "Azure storage blob copy to $CONTAINER :: $CONTAINER_FILE"
     az storage blob upload --container-name "$CONTAINER" \
                        --file "$backup_path" \
