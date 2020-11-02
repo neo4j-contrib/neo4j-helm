@@ -230,7 +230,7 @@ jobs:
             backup_pods=$(kubectl get pods --namespace $NAMESPACE | grep gcp-hot-backup | sed 's/ .*$//' | head -n 1)
 
             # Wait for them to complete if necessary
-            kubectl rollout status --namespace $NAMESPACE $backup_pods --watch
+            kubectl rollout status --namespace $NAMESPACE pod/$backup_pods --watch
 
             echo "Backup pods $backup_pods" | tee -a $LOGFILE
             kubectl describe pod --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
@@ -253,7 +253,7 @@ jobs:
             backup_pods=$(kubectl get pods --namespace $NAMESPACE | grep azure-hot-backup | sed 's/ .*$//' | head -n 1)
 
             # Wait for them to complete if necessary
-            kubectl rollout status --namespace $NAMESPACE $backup_pods --watch
+            kubectl rollout status --namespace $NAMESPACE pod/$backup_pods --watch
 
             echo "Backup pods $backup_pods" | tee -a $LOGFILE
             kubectl describe pod --namespace $NAMESPACE "$backup_pods" | tee -a $LOGFILE
