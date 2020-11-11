@@ -1,24 +1,51 @@
 [#troubleshooting]
-= Neo4j-Helm Troubleshooting
+= Troubleshooting & FAQs
 
-== Are you starting with empty disks?
+[NOTE]
+This material covers only Kubernetes specifics of running Neo4j.  It is not intended to
+be troubleshooting guidance for the Neo4j product itself; for that, please consult the Neo4j 
+operations manual and other sources.
+
+== I specified a password on install and it didn't work
+
+Are you starting with empty disks?
 
 The most common issue associated with the helm chart is persistent volume claim reuse. For example, if you deploy `mygraph`, delete this instance, and then redeploy a new, different `mygraph`, it will not get clean empty PVCs, but will reuse the old PVCs from the previous deployment. 
+
+A common problem is to install an instance with one password, which gets written to Neo4j's system 
+database.  Later, when those PVCs are reused, an intial password cannot be set because it's already
+been set.
 
 [NOTE]
 **When you uninstall a helm distribution it does not remove persistent volume claims.**
 
 Make sure to ensure the disks you're starting with are empty to avoid file permissioning and other issues.
 
+== APOC installation Fails
+
+Neo4j's method for installing plugins requires internet access.  If you are in a locked-down networking environment, the automatic plugin installation may fail.  In this case, you should
+set `plugins: []` and use an `initContainer` to copy the appropriate plugins and extensions into
+your install manually.
+
 == I tried to run a backup and it started a new cluster!
 
 This repo contains two helm charts; one for backup and the other to install a cluster or standalone instance.  Ensure that when you run `helm install` you are pointing to the right directory.
 
-== Have you checked debug.log?
+== Something's going wrong, where do I look for logs?
 
 Neo4j comes with a built-in `debug.log` file that is stored in the logs directory.  This is the place
 to check when you run into trouble.  Inspect this file and look for `Exception` error messages, and often
 the product logs will tell you what the issue is.
+
+== Can I host my own docker containers?
+
+Yes.
+
+When you use this repo, you'll be pulling images for causal cluster, backup, and so on from
+the repository that's provided.  If you wish to host your own Docker images, you need to adjust
+the Makefile in `tools` that builds the docker images to point to your repo.  You may then specify
+values to your install process that change the `image` and `imageTag` you are running.  Check the
+repo's top level README for information about building the tooling containers.
 
 == Something Else?
 

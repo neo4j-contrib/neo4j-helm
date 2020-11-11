@@ -4,6 +4,9 @@
 [abstract]
 Recommended practices for moving Neo4j into production in Kubernetes environments
 
+[NOTE]
+This material covers only Kubernetes specifics of running Neo4j.  Other best practices for Neo4j apply, and should be consulted.
+
 == Use the Best Storage Available
 
 This comes in two pieces:

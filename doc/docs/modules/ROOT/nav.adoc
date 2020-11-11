@@ -11,6 +11,6 @@
 * xref::externalexposure.adoc[External Exposure]
 * xref::hardware.adoc[Hardware & Machine Shape]
 * xref::networking.adoc[Networking & Security]
-* xref::troubleshooting.adoc[Troubleshooting]
+* xref::troubleshooting.adoc[Troubleshooting & FAQs]
 * xref::bestpractices.adoc[Best Practices for Deployment]
 * xref::development.adoc[Local Development of the Chart]
