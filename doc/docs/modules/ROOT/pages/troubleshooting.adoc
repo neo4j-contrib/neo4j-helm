@@ -10,6 +10,10 @@ The most common issue associated with the helm chart is persistent volume claim 
 
 Make sure to ensure the disks you're starting with are empty to avoid file permissioning and other issues.
 
+== I tried to run a backup and it started a new cluster!
+
+This repo contains two helm charts; one for backup and the other to install a cluster or standalone instance.  Ensure that when you run `helm install` you are pointing to the right directory.
+
 == Have you checked debug.log?
 
 Neo4j comes with a built-in `debug.log` file that is stored in the logs directory.  This is the place
