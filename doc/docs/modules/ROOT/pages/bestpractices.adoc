@@ -1,0 +1,52 @@
+[#bestpractices]
+= Best Practices for Deployment
+
+[abstract]
+Recommended practices for moving Neo4j into production in Kubernetes environments
+
+[NOTE]
+This material covers only Kubernetes specifics of running Neo4j.  Other best practices for Neo4j apply, and should be consulted.
+
+== Use the Best Storage Available
+
+This comes in two pieces:
+* The highest `storageClass` for your persistent volume claims, ideally solid state disks
+* Large disks (possibly larger than you need) to ensure that you get high IOPS/throughput
+
+In cloud environments, small disks typically get less throughput.  Neo4j performance is very
+sensitive to the storage layer's performance, so make sure you have disk that is as fast as possible.
+
+== Set CPU & Memory Requests and Limits
+
+Prior to production deploy, you should size your Neo4j workload so that your needed CPU and memory
+can be known ahead of time.  Ensure that your CPU requests and limits are set, and that they are
+the same, to prevent kubernetes resource "bursting" from being used, and to ensure that the
+database has a consistent set of available resources.
+
+In particular, *avoid large differences between memory request and limits*.  In certain scenarios,
+this can lead to Kubernetes killing your pods, when the worker node comes under memory pressure.
+
+== Use ConfigMaps for explicit configuration
+
+By configuring Neo4j with an external `ConfigMap` you can be explicit about any aspect of your
+database configuration, which you can later version & change using Kubernetes built-in tools.
+
+== Use Anti-Affinity Rules
+
+Following the examples provided in this manual, define anti-affinity rules to spread out your
+Neo4j cluster members across worker nodes.  This applies to Causal Cluster, and helps ensure
+that your Neo4j deployment will be highly available, since the cluster will continue to function
+even if an underlying Kubernetes worker node fails.
+
+== Front your Pods with Backup and Restore
+
+We strongly suggest you use regularly scheduled backups in some form (examples are provided in this
+repo) and that all new pods start with a restore from the last backup.  This provides many benefits:
+
+* Consistently scheduled backups are a basic best practice
+* Faster recovery during failure
+* Data safety even if the cluster runs into trouble
+* Faster startup time for new machines, because they have less state to catch up on
+* Easier ability to scale by adding a new read replica, if needed
+* Less load on the core members, who do not need to replicate database state to a new 
+cluster member "starting cold"
