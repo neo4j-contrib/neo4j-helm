@@ -42,6 +42,8 @@ authEnabled: true
 
 ## Specify secret name containing the password for neo4j user
 # existingPasswordSecret
+## Specify the key in existingPasswordSecret, in which the password is contained
+# existingPasswordSecretKey
 
 # Specify cluster domain (used eg. as suffix in the eventual internal hostnames)
 clusterDomain: "cluster.local"

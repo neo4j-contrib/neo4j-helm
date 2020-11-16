@@ -63,10 +63,11 @@ spec:
               secretKeyRef:
                 {{- if .Values.existingPasswordSecret }}
                 name: {{ .Values.existingPasswordSecret }}
+                key: {{ .Values.existingPasswordSecretKey | default "neo4j-password" }}
                 {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
-                {{- end}}
                 key: neo4j-password
+                {{- end}}
           {{- end }}      
         command:
           - "/bin/bash"
