@@ -298,3 +298,7 @@ dbms:
       max_size: ""
     pagecache:
       size: ""
+
+serviceAccount:
+  annotations: {}
+  name: '{{ template "neo4j.fullname" . }}-sa'
