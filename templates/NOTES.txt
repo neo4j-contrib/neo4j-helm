@@ -27,7 +27,7 @@ $ kubectl logs --namespace {{ .Release.Namespace }} -l \
 We can now run a query to find the topology of the cluster.
 
 export NEO4J_PASSWORD=$(kubectl get secrets
-    {{- if .Values.existingPasswordSecret }}{{ .Values.existingPasswordSecret | indent 1 }}{{- else }}{{ include "neo4j.secrets.fullname" . | indent 1 }}{{- end }} --namespace {{ .Release.Namespace }} -o yaml | grep {{ template "neo4j.secrets.key" . }} | sed 's/.*: //' | base64 -d)
+    {{- if .Values.existingPasswordSecret }}{{ .Values.existingPasswordSecret | indent 1 }}{{- else }}{{ include "neo4j.secrets.fullname" . | indent 1 }}{{- end }} --namespace {{ .Release.Namespace }} -o jsonpath='{.data.{{- template "neo4j.secrets.key" . -}}}' | base64 -d)
 kubectl run -it --rm cypher-shell \
     --image={{ .Values.image }}:{{ .Values.imageTag }} \
     --restart=Never \

@@ -55,7 +55,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- if and .Values.existingPasswordSecret .Values.existingPasswordSecretKey -}}
 {{- .Values.existingPasswordSecretKey -}}
 {{- else -}}
-"neo4j-password"
+neo4j-password
 {{- end -}}
 {{- end -}}
 
