@@ -14,7 +14,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `neo4j`
 
 | `imageTag`
-| Neo4j version 
+| Neo4j version
 | (The default matches the release version of the helm chart itself)
 
 | `imagePullPolicy`
@@ -42,15 +42,19 @@ Reference tables with a list of all configurable parameters and their defaults.
 | (random string of 10 characters)
 
 | `existingPasswordSecret`
-| The name of the kubernetes secret which contains the `neo4j-password` 
+| The name of the kubernetes secret which contains the neo4j password
 | (none)
 
-| `podLabels`              
-| Extra / custom labels to apply to core & replica statefulset pods 
+| `existingPasswordSecretKey`
+| The key in `existingPasswordSecret` which contains the neo4j password
+| `neo4j-password`
+
+| `podLabels`
+| Extra / custom labels to apply to core & replica statefulset pods
 | `{}`
 
 | `podAnnotations`
-| Extra / custom annotations to apply to core & replica statefulset pods. 
+| Extra / custom annotations to apply to core & replica statefulset pods.
 | `{}`
 
 |===
@@ -69,10 +73,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `[]`
 
 | `core.standalone`
-| Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies. 
-| false 
+| Whether to run in single-server STANDALONE mode.   When using standalone mode, core.numberOfServers is *ignored* and you will only get 1 Neo4j Pod.  The remainder of core configuration applies.
+| false
 
-| `core.resources` 
+| `core.resources`
 | Resources required (e.g. CPU, memory) for the core database members
 | `{}` (no specific requests or limits)
 
@@ -81,7 +85,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `3`
 
 | `core.sideCarContainers`
-| Sidecar containers to add to the core pod. Example use case is a sidecar which identifies and labels the leader when using the http API 
+| Sidecar containers to add to the core pod. Example use case is a sidecar which identifies and labels the leader when using the http API
 | `{}`
 
 | `core.initContainers`
@@ -90,7 +94,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 
 | `core.persistentVolume.enabled`
 | Whether or not persistence is enabled
-| `true` 
+| `true`
 
 | `core.persistentVolume.storageClass`
 | Storage class of backing PVC
@@ -101,7 +105,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 | `10Gi`
 
 | `core.persistentVolume.mountPath`
-| Persistent Volume mount root path 
+| Persistent Volume mount root path
 | `/data`
 
 | `core.persistentVolume.subPath`
@@ -124,53 +128,53 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Underlying pod termination grace period; permits Neo4j shutting down to properly flush buffers to disk before exiting, avoiding data corruption.
 | `300`
 
-| `core.service.type` 
-| Service type 
+| `core.service.type`
+| Service type
 | `ClusterIP`
 
-| `core.service.annotations` 
-| Service annotations 
-| `{}` 
+| `core.service.annotations`
+| Service annotations
+| `{}`
 
 | `core.service.labels`
-| Custom Service labels 
+| Custom Service labels
 | `{}`
 
-| `core.service.loadBalancerSourceRanges` 
-| List of IP CIDRs allowed access to LB (if `core.service.type: LoadBalancer`) 
+| `core.service.loadBalancerSourceRanges`
+| List of IP CIDRs allowed access to LB (if `core.service.type: LoadBalancer`)
 | `[]`
 
-| `core.discoveryService.type` 
-| Service type 
+| `core.discoveryService.type`
+| Service type
 | `ClusterIP`
 
-| `core.discoveryService.annotations` 
-| Service annotations 
+| `core.discoveryService.annotations`
+| Service annotations
 | `{}`
 
-| `core.discoveryService.labels` 
-| Custom Service labels 
+| `core.discoveryService.labels`
+| Custom Service labels
 | `{}`
 
-| `core.discoveryService.loadBalancerSourceRanges` 
-| List of IP CIDRs allowed access to LB (if `core.discoveryService.type: LoadBalancer`) 
+| `core.discoveryService.loadBalancerSourceRanges`
+| List of IP CIDRs allowed access to LB (if `core.discoveryService.type: LoadBalancer`)
 | `[]`
 |===
 
-## Neo4j Read Replicas 
+## Neo4j Read Replicas
 
 .Read Replica Configuration Reference
 |===
 |Parameter |Description| Default
 | `readReplica.configMap`
-| Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used. 
+| Configmap providing configuration for RR cluster members.  If not specified, defaults that come with the chart will be used.
 | `$NAME-neo4j-replica-config`
 
 | `readReplica.envFrom`
 | YAML list of `envFrom` entries, permitting config for pods to be set from any number of ConfigMaps and secrets.
 | `[]`
 
-| `readReplica.resources` 
+| `readReplica.resources`
 | Resources required (e.g. CPU, memory) for the read replica database members
 | `{}` (no specific requests or limits)
 
@@ -178,20 +182,20 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Number of machines in READ_REPLICA. May not be used with core.standalone=true mode
 | `0`
 
-| `readReplica.autoscaling.enabled`  
-| Enable horizontal pod autoscaler  
+| `readReplica.autoscaling.enabled`
+| Enable horizontal pod autoscaler
 | `false`
 
-| `readReplica.autoscaling.targetAverageUtilization`  
-| Target CPU utilization  
-| `70` 
+| `readReplica.autoscaling.targetAverageUtilization`
+| Target CPU utilization
+| `70`
 
-| `readReplica.autoscaling.minReplicas` 
-| Min replicas for autoscaling  
-| `1` 
+| `readReplica.autoscaling.minReplicas`
+| Min replicas for autoscaling
+| `1`
 
-| `readReplica.autoscaling.maxReplicas`  
-| Max replicas for autoscaling  
+| `readReplica.autoscaling.maxReplicas`
+| Max replicas for autoscaling
 | `3`
 
 | `readReplica.initContainers`
@@ -200,7 +204,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 
 | `readReplica.persistentVolume.*`
 | See `core.persistentVolume.*` settings; they behave identically for read replicas
-| `N/A`  
+| `N/A`
 
 | `readReplica.additionalVolumes`
 | See the "Other Storage" section in the user guide for more information on this option.
@@ -218,16 +222,16 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Service type
 | `ClusterIP`
 
-| `readReplica.service.annotations` 
-| Service annotations 
+| `readReplica.service.annotations`
+| Service annotations
 | `{}`
 
-| `readReplica.service.labels` 
-| Custom Service labels 
+| `readReplica.service.labels`
+| Custom Service labels
 | `{}`
 
-| `readReplica.service.loadBalancerSourceRanges` 
-| List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`) 
+| `readReplica.service.loadBalancerSourceRanges`
+| List of IP CIDRs allowed accessto LB (if `readReplica.service.type: LoadBalancer`)
 | `[]`
 
 |===

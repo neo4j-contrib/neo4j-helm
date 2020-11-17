@@ -51,6 +51,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{ template "neo4j.fullname" . }}-secrets
 {{- end -}}
 
+{{- define "neo4j.secrets.key" -}}
+{{- if and .Values.existingPasswordSecret .Values.existingPasswordSecretKey -}}
+{{- .Values.existingPasswordSecretKey -}}
+{{- else -}}
+"neo4j-password"
+{{- end -}}
+{{- end -}}
+
 {{- define "neo4j.commonConfig.fullname" -}}
 {{ template "neo4j.fullname" . }}-common-config
 {{- end -}}
