@@ -1,4 +1,5 @@
-* xref::index.adoc[Neo4j Helm User Guide]
+* xref::https://neo4j.com/labs/neo4j-helm/[Home]
+* xref::index.adoc[Overview]
 * xref::prerequisites.adoc[Prerequisites]
 * xref::quickstart.adoc[Quick Start]
 * xref::installation.adoc[Installation]
