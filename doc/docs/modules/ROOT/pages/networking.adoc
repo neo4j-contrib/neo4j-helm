@@ -35,10 +35,10 @@ Immediately after deploying Neo4j, as the pods are created the cluster begins to
 After installing, your cluster will start with the password you supplied as the neo4jPassword setting. This is stored in a kubernetes secret that is attached to your deployment. Given a deployment named “my-graph”, you can find the password as the “neo4j-password” key under the mygraph-neo4j-secrets configuration item in Kubernetes. The password is base64 encoded, and can be recovered as plaintext by authorized users with this command:
 
 ```shell
-export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o yaml | grep password | sed 's/.*: //' | base64 -d)
+export NEO4J_PASSWORD=$(kubectl get secrets {{ template "neo4j.secrets.fullname" . }} -o jsonpath='{.data.neo4j-password}' | base64 -d)
 ```
 
-Alternatively: if you set `existingPasswordSecret` that secret name should be used instead.
+Alternatively: if you set `existingPasswordSecret` that secret name should be used instead. If `existingPasswordSecretKey` is set make sure that your `jsonpath` also matches this key.
 
 This password applies for the base administrative user named “neo4j”.
 

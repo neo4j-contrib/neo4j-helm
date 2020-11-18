@@ -67,7 +67,7 @@ spec:
                 {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
                 {{- end}}
-                key: neo4j-password
+                key: {{ template "neo4j.secrets.key" . }}
           {{- end }}
         command:
           - "/bin/bash"
@@ -108,7 +108,7 @@ spec:
         {{- if .Values.metrics.jmx.enabled }}
         - containerPort: 3637
           name: jmx
-        {{- end }}  
+        {{- end }}
         volumeMounts:
         - name: init-script
           mountPath: /helm-init
@@ -173,7 +173,7 @@ spec:
 {{- end }}
       volumes:
         - name: init-script
-          configMap: 
+          configMap:
             name: "{{ .Release.Name }}-init-script"
         {{ if .Values.readReplica.restore.enabled }}
         - name: credentials

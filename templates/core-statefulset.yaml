@@ -66,8 +66,8 @@ spec:
                 {{- else }}
                 name: {{ template "neo4j.secrets.fullname" . }}
                 {{- end}}
-                key: neo4j-password
-          {{- end }}      
+                key: {{ template "neo4j.secrets.key" . }}
+          {{- end }}
         command:
           - "/bin/bash"
           - "-c"
@@ -167,7 +167,7 @@ spec:
 {{- end }}
       volumes:
         - name: init-script
-          configMap: 
+          configMap:
             name: "{{ .Release.Name }}-init-script"
         {{ if .Values.core.restore.enabled }}
         - name: credentials
