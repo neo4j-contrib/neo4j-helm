@@ -301,4 +301,5 @@ dbms:
 
 serviceAccount:
   annotations: {}
-  name: '{{ template "neo4j.fullname" . }}-sa'
+  # If empty, name will be generated from the chart's fullname
+  name:
