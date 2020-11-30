@@ -306,6 +306,8 @@ serviceAccount:
   # If empty, name will be generated from the chart's fullname
   name:
 
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 7474
+securityContext: {}
+# Following values for securityContext are possible/recommended, but depend on
+# volume and filesystem settings local to you
+#  runAsNonRoot: true
+#  runAsUser: 7474
