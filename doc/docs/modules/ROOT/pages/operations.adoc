@@ -173,3 +173,7 @@ If scaling down, do not scale below three core nodes; this is the minimum necess
 For productionized installs, anti-affinity rules are recommended, where pod deployment is intentionally spread out among Kubernetes worker nodes. This improves Neo4j's failure characteristics. If Kubernetes inadvertently deploys all 3 core Neo4j pods to a single worker node, and the underlying worker node VM fails -- then the entire cluster will go down. For this reason, anti-affinity rules are recommended to "spread the deployment out".
 
 An example of how to configure this with references to documentation is provided in the deployment scenarios directory.
+
+## Service account annotation
+
+The helm chart settings which allow to annotate the service account used by core & replica services. This allows to bind the Kubernetes service account to a cloud IAM role for better security. Refer to the documentation for [AWS](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-technical-overview.html) and [GCP](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity) for more details.

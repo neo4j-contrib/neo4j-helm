@@ -57,6 +57,14 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Extra / custom annotations to apply to core & replica statefulset pods.
 | `{}`
 
+| `serviceAccount.annotations`
+| Extra / custom annotations to apply to core & replica service account.
+| `{}`
+
+| `serviceAccount.name`
+| Custom core & replica service account name. If empty, name will be generated from the chart's fullname.
+| (none)
+
 |===
 
 ## Neo4j Core Members

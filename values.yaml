@@ -300,3 +300,8 @@ dbms:
       max_size: ""
     pagecache:
       size: ""
+
+serviceAccount:
+  annotations: {}
+  # If empty, name will be generated from the chart's fullname
+  name:
