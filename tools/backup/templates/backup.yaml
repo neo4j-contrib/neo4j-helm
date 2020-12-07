@@ -16,6 +16,11 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            {{-  range $key, $value := .Values.podLabels }}
+            {{ $key }}: "{{ $value }}"
+            {{- end }}
         spec:
           restartPolicy: Never
           containers:
