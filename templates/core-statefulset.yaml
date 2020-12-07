@@ -46,6 +46,8 @@ spec:
       - name: {{ template "neo4j.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        securityContext:
+{{ toYaml .Values.securityContext | indent 10 }}
         envFrom:
           - configMapRef:
               name: {{ template "neo4j.commonConfig.fullname" . }}

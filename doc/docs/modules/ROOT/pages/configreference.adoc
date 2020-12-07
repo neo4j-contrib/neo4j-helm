@@ -65,6 +65,10 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Custom core & replica service account name. If empty, name will be generated from the chart's fullname.
 | (none)
 
+| `securityContext`
+| The https://kubernetes.io/docs/tasks/configure-pod-container/security-context/[SecurityContext] for the pods in the statefulsets
+| The default is `{}`, but you may opt to use `{ runAsNonRoot: true, runAsUser: 7474 }` if you wish. https://github.com/neo4j-contrib/neo4j-helm/issues/135[More information here].
+
 |===
 
 ## Neo4j Core Members
