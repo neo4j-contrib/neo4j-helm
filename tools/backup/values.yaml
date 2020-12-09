@@ -1,6 +1,7 @@
 image: gcr.io/neo4j-helm/backup
 imageTag: 4.2.0-1
 podLabels: {}
+podAnnotations: {}
 neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
 # In case of azure the bucket is used as the container where the backup is stored
 # bucket: azure-storage-container
