@@ -17,6 +17,10 @@ spec:
     spec:
       template:
         metadata:
+        {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
           labels:
             {{-  range $key, $value := .Values.podLabels }}
             {{ $key }}: "{{ $value }}"
