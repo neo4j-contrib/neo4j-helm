@@ -19,3 +19,33 @@ checkGraph: "true"
 checkLabelScanStore: "true"
 checkPropertyOwners: "false"
 jobSchedule: "0 */12 * * *"
+
+# When running in mesh
+shareProcessNamespace: false # Needs to be true for the below example configuration to work
+sidecarContainers: []
+  # This implementation was inspired by this comment: https://github.com/linkerd/linkerd2/issues/1869#issuecomment-595456178
+  # And found in this post which describes the problem: https://suraj.io/post/how-to-gracefully-kill-kubernetes-jobs-with-a-sidecar/
+  # This sidecar monitors the backup process that runs the main job and kills the consul-proxy once backup is finished.
+  # Note that it's necessary to set `shareProcessNamespace: true` in `spec.template.spec` for this to work.
+  # - name: consul-terminator
+  #   image: ubuntu:19.04
+  #   command:
+  #    - sh
+  #    - "-c"
+  #     - |
+  #       /bin/bash <<'EOSCRIPT'
+  #       set -e
+  #       # Check for the java process and sleep 5 seconds until the java process exits.
+  #       while true; do pgrep backup.sh || break; echo "backup still running. wait 5" && sleep 5; done
+  #       # After the backup process exits,
+  #       echo "backup finished. Kill consul if running" 
+  #       kill $(pgrep envoy) || echo "Envoy not running"
+  #       kill $(pgrep consul-k8s) || echo "Lifecycle not running"
+  #       EOSCRIPT
+  #   resources:
+  #     limits:
+  #       cpu: 10m
+  #       memory: 20M
+  #     requests:
+  #       cpu: 10m
+  #       memory: 20M
