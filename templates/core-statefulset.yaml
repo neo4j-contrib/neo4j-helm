@@ -46,8 +46,6 @@ spec:
       - name: {{ template "neo4j.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
-        securityContext:
-{{ toYaml .Values.securityContext | indent 10 }}
         envFrom:
           - configMapRef:
               name: {{ template "neo4j.commonConfig.fullname" . }}
@@ -86,6 +84,7 @@ spec:
             export NEO4J_causal__clustering_discovery__advertised__address="$DISCOVERY_HOST:5000"
             export NEO4J_causal__clustering_transaction__advertised__address="$DISCOVERY_HOST:6000"
             export NEO4J_causal__clustering_raft__advertised__address="$DISCOVERY_HOST:7000"
+            export NEO4J_dbms_routing_advertised__address=$HOST:7688
             {{- end }}
 
             echo "Starting Neo4j CORE $core_idx on $HOST"
@@ -101,6 +100,8 @@ spec:
           name: tcp-browser
         - containerPort: 7687
           name: tcp-bolt
+        - containerPort: 7688
+          name: tcp-boltrouting
         {{- if .Values.metrics.prometheus.enabled }}
         - containerPort: 2004
           name: tcp-prometheus
@@ -167,6 +168,8 @@ spec:
 {{- if .Values.core.initContainers }}
 {{ toYaml .Values.core.initContainers | indent 6 }}
 {{- end }}
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
       volumes:
         - name: init-script
           configMap:
