@@ -57,11 +57,8 @@ data:
       # underscores doubled, dots -> _
       # So dbms.memory.heap.max_size=9000m => export NEO4J_dbms_memory_heap_max__size=9000m
 
-      # Try and read the cgroup memory setting
-      local memrec_args="$( [ -e /sys/fs/cgroup/memory/memory.limit_in_bytes ] && echo "--memory=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)B" || echo '' )"
-
       echo '' > /var/lib/neo4j/conf/memory-recommendations.sh
-      for line in $( /var/lib/neo4j/bin/neo4j-admin memrec ${memrec_args} | grep -v '^\#' ) ; do
+      for line in $( /var/lib/neo4j/bin/neo4j-admin memrec | grep -v '^\#' ) ; do
           # print out the memory recommendation that is being applied
           echo "${line}"
           echo "export $( echo "${line}" | sed 's/_/__/g' | sed 's/\./_/g' | sed 's/^/NEO4J_/g' )" >> /var/lib/neo4j/conf/memory-recommendations.sh
