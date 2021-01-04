@@ -17,12 +17,17 @@ spec:
     spec:
       template:
         metadata:
+        {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
           labels:
             {{-  range $key, $value := .Values.podLabels }}
             {{ $key }}: "{{ $value }}"
             {{- end }}
         spec:
           restartPolicy: Never
+          shareProcessNamespace: {{ .Values.shareProcessNamespace }}
           containers:
             - name: graph-backup
               image: {{ .Values.image }}:{{ .Values.imageTag }}
@@ -56,6 +61,9 @@ spec:
                 - name: credentials
                   mountPath: /credentials
                   readOnly: true
+{{- if .Values.sidecarContainers }}
+{{ toYaml .Values.sidecarContainers | indent 12 }}
+{{- end }}
           volumes:
             - name: credentials
               secret:
