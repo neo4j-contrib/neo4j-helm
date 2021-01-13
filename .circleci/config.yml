@@ -249,6 +249,7 @@ jobs:
             # If "latest" backup pointer files exist in a dir that is specific to this
             # build number, we should be good.
             NAMESPACE=ns-$CIRCLE_BUILD_NUM
+            sleep 65
             kubectl get all -n $NAMESPACE
             export LOGFILE=$BUILD_ARTIFACTS/azure-backup.log
             kubectl get job --namespace $NAMESPACE | tee -a $LOGFILE
