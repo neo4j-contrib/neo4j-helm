@@ -7,7 +7,7 @@ name: "neo4j"
 
 # Specs for the Neo4j docker image
 image: "neo4j"
-imageTag: "4.2.0-enterprise"
+imageTag: "4.2.2-enterprise"
 imagePullPolicy: "IfNotPresent"
 # imagePullSecret: registry-secret
 acceptLicenseAgreement: "no"
@@ -158,7 +158,7 @@ core:
   restore:
     enabled: false
     image: gcr.io/neo4j-helm/restore
-    imageTag: 4.2.0-1
+    imageTag: 4.2.2-1
     secretName: neo4j-gcp-credentials
     database: neo4j,system
     cloudProvider: gcp
