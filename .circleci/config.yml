@@ -283,7 +283,7 @@ jobs:
 
               echo "MATCH (n) RETURN count(n) as n;" | kubectl run -i --rm cypher-shell \
                 --namespace $NAMESPACE \
-                --image=neo4j:4.2.0-enterprise --restart=Never \
+                --image=neo4j:4.2.2-enterprise --restart=Never \
                 --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
                 -a neo4j://$NAME_RESTORE-neo4j.$NAMESPACE.svc.cluster.local 2>&1 | tee restore-result.log
               cp restore-result.log $BUILD_ARTIFACTS/
