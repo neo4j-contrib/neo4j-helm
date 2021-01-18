@@ -32,6 +32,9 @@ You may set any of the following settings. The helm chart accepts these settings
 * `dbms.memory.heap.initial_size`
 * `dbms.memory.heap.max_size`
 * `dbms.memory.pagecache.size`
+* `dbms.memory.transaction.memory_allocation`
+* `dbms.memory.transaction.max_size`
+* `dbms.memory.transaction.global_max_size`
 
 Their meanings, formats, and defaults are the same as found in the operations manual. See the section "Passing Custom Configuration as a ConfigMap" for how to set these settings for your database.
 
