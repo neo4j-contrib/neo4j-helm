@@ -300,6 +300,13 @@ dbms:
       max_size: ""
     pagecache:
       size: ""
+    transaction:
+      memory_allocation: ""
+      # maximum size of an individual transaction
+      max_size: ""
+      # maximum size of all transactions combined
+      global_max_size: ""
+
 
 serviceAccount:
   annotations: {}

@@ -16,7 +16,11 @@ dbms:
             initial_size: 1024m
             max_size: 1024m
         pagecache:
-            size: 567m
+            size: 123m
+        transaction:
+            memory_allocation: ON_HEAP
+            max_size: 60m
+            global_max_size: 200m
 
 acceptLicenseAgreement: "yes"
 neo4jPassword: mySecretPassword
