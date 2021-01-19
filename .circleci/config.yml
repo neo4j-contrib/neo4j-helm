@@ -97,7 +97,7 @@ jobs:
             # a running system.
             kubectl create secret generic my-secret-config \
               --namespace $NAMESPACE \
-              --from-literal=NEO4J_dbms_transaction_concurrent_maximum=0
+              --from-literal=NEO4J_dbms_transaction_concurrent_maximum=100
 
             echo "export ACCOUNT_NAME=$ACCOUNT_NAME" >> azure-credentials.sh
             echo "export ACCOUNT_KEY=$ACCOUNT_KEY" >> azure-credentials.sh
