@@ -1,3 +1,4 @@
+{{- $saName := print (include "neo4j.fullname" .) "-sa" -}}
 {{- if not .Values.core.standalone }}
 # The ReadReplica deployment only happens for clustered installs.
 apiVersion: "apps/v1"
@@ -39,7 +40,7 @@ spec:
         {{- end }}
       {{- end }}
     spec:
-      serviceAccountName: "{{ template "neo4j.fullname" . }}-sa"
+      serviceAccountName: {{ default $saName .Values.serviceAccount.name }}
       # High value permits checkpointing on Neo4j shutdown.  See: https://neo4j.com/developer/kb/checkpointing-and-log-pruning-interactions/
       terminationGracePeriodSeconds: {{ .Values.readReplica.terminationGracePeriodSeconds }}
       containers:

@@ -308,7 +308,12 @@ dbms:
       global_max_size: ""
 
 
+# Create Role and RoleBinding
+rbac:
+  create: true
+
 serviceAccount:
+  create: true
   annotations: {}
   # If empty, name will be generated from the chart's fullname
   name:
