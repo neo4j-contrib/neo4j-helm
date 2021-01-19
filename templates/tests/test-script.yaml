@@ -105,7 +105,7 @@ data:
        getconfig="call dbms.listConfig() yield name, value where name='dbms.transaction.concurrent.maximum' return value;"
        res=$(cypher "$getconfig" $ENDPOINT)
 
-       echo $res | grep '"0"'
+       echo $res | grep '"100"'
        if [ $? -eq 0 ] ; then
          succeed "$test"
        else
