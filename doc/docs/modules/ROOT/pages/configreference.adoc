@@ -57,6 +57,14 @@ Reference tables with a list of all configurable parameters and their defaults.
 | Extra / custom annotations to apply to core & replica statefulset pods.
 | `{}`
 
+| `rbac.create`
+| Whether to create Role & RoleBinding for this chart.
+| `true`
+
+| `serviceAccount.create`
+| Whether to create a ServiceAccount for this chart.
+| `true`
+
 | `serviceAccount.annotations`
 | Extra / custom annotations to apply to core & replica service account.
 | `{}`

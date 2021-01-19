@@ -301,6 +301,7 @@ dbms:
     pagecache:
       size: ""
 
+# Create Role and RoleBinding
 rbac:
   create: true
 
