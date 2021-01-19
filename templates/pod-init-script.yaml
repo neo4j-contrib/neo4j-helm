@@ -90,9 +90,9 @@ data:
       NEO4J_SETTINGS[NEO4J_dbms_memory_transaction_global__max__size]={{ .Values.dbms.memory.transaction.global_max_size }}
       {{- end }}
 
-      {{ - if .Values.dbms.memory.transaction.memory_allocation }}
+      {{- if .Values.dbms.memory.transaction.memory_allocation }}
       NEO4J_SETTINGS[NEO4J_dbms_tx__state_memory__allocation]={{ .Values.dbms.memory.transaction.memory_allocation }}
-      {{ - end }}
+      {{- end }}
     {{- end }}
 
     echo "Configuration override prefix = $override_prefix"
