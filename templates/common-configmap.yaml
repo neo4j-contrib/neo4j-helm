@@ -30,7 +30,7 @@ data:
   NEO4J_metrics_csv_enabled: "{{ .Values.metrics.csv.enabled }}"
   NEO4J_metrics_csv_interval: "{{ .Values.metrics.csv.interval }}"
   NEO4J_metrics_jmx_enabled: "{{ .Values.metrics.jmx.enabled }}"
-  {{- if "{{ .Values.plugins }}" }}
+  {{- if .Values.plugins }}
   NEO4JLABS_PLUGINS: {{ .Values.plugins | toJson }}
   NEO4J_apoc_import_file_use__neo4j__config: "true"
   {{- end }}
