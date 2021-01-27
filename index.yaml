@@ -72,6 +72,7 @@ entries:
       - https://github.com/neo4j-contrib/neo4j-helm
       urls:
       - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.2.2-1/neo4j-4.2.2-1.tgz
+      version: 4.2.2-1
     - created: 2020-11-30T00:09:00.499814565-06:00
       description: 4.2.0-1
       digest: 5714ecc77821fcbf00398da7fa9f2eb62913ece97dc45124bf35f977380ed435
