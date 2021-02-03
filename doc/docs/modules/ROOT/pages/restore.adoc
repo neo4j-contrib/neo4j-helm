@@ -2,7 +2,7 @@
 # Restoring Neo4j Containers
 
 [NOTE]
-**This approach assumes you have redentials and wish to store your backups
+**This approach assumes you have credentials and wish to store your backups
 on Google Cloud Storage, AWS S3, or Azure Blob Storage**.  If this is not the case, you 
 will need to adjust the restore script for your desired cloud storage method, but the 
 approach will work for any backup location.
