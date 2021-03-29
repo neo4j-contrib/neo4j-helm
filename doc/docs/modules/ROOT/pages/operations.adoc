@@ -44,14 +44,14 @@ To see an example of this custom configuration in use with a single instance, pl
 
 This chart supports the same monitoring configuration settings as described in the Neo4j Operations Manual. These have been ommitted from the table above because they are documented in the operational manual, but here are three quick examples:
 
-* To publish prometheus metrics, `--set metrics.prometheus.enabled=true,metrics.prometheus.endpoint=localhost:2004`
+* To publish prometheus metrics, `--set metrics.prometheus.enabled=true,metrics.prometheus.endpoint=0.0.0.0:2004`
 * To publish graphite metrics, `--set metrics.graphite.enabled=true,metrics.graphite.server=localhost:2003,metrics.graphite.interval=3s`
 * To adjust CSV metrics (enabled by default) use `metrics.csv.enabled` and `metrics.csv.interval`.
 * To disable JMX metrics (enabled by default) use `metrics.jmx.enabled=false`.
 
 ## Data Persistence
 
-The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to `Per`sistentVolumeClaims` (PVCs) in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
+The most important data is kept in the `/data` volume attached to each of the core cluster members. These in turn are mapped to `PersistentVolumeClaims` (PVCs) in Kubernetes, and they are not deleted when you run `helm uninstall mygraph`.
 
 It is recommended that you investigate the `storageClass` option for persistent volume claims, and to choose low-latency SSD disks for best performance with Neo4j.  The `storageClass` name you need to choose will vary with different distributions of Kubernetes.
 
