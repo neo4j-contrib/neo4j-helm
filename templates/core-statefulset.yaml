@@ -151,6 +151,9 @@ spec:
         volumeMounts:
           - name: datadir
             mountPath: /data
+            {{- if .Values.core.persistentVolume.subPath }}
+            subPath: {{ .Values.core.persistentVolume.subPath }}
+            {{- end }}
           - name: credentials
             mountPath: /credentials
             readOnly: true
