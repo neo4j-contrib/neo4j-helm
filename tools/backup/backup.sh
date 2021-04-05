@@ -180,12 +180,16 @@ function backup_database() {
 }
 
 function activate_gcp() {
-  echo "Activating google credentials before beginning"
-  gcloud auth activate-service-account --key-file "/credentials/credentials"
-
-  if [ $? -ne 0 ]; then
-    echo "Credentials failed; no way to copy to google."
-    exit 1
+  local credentials="/credentials/credentials"
+  if [[ -f "${credentials}" ]]; then
+    echo "Activating google credentials before beginning"
+    gcloud auth activate-service-account --key-file "${credentials}"
+    if [ $? -ne 0 ]; then
+      echo "Credentials failed; no way to copy to google."
+      exit 1
+    fi
+  else
+    echo "No credentials file found. Assuming workload identity is configured"
   fi
 }
 
