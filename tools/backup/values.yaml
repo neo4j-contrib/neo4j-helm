@@ -9,6 +9,7 @@ bucket: gs://test-neo4j
 database: neo4j,system
 # cloudProvider can be either gcp, aws, or azure
 cloudProvider: gcp
+# set secretName to NULL if using workload-identity in gcp
 secretName: "neo4j-gcp-credentials"
 pageCache: 2G
 heapSize: 2G
@@ -19,6 +20,9 @@ checkGraph: "true"
 checkLabelScanStore: "true"
 checkPropertyOwners: "false"
 jobSchedule: "0 */12 * * *"
+
+# Set to name of an existing Service Account to use if desired
+serviceAccountName: ""
 
 # When running in mesh
 shareProcessNamespace: false # Needs to be true for the below example configuration to work

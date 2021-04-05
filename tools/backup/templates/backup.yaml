@@ -26,6 +26,9 @@ spec:
             {{ $key }}: "{{ $value }}"
             {{- end }}
         spec:
+          {{- if .Values.serviceAccountName }}
+          serviceAccountName: {{ .Values.serviceAccountName }}
+          {{- end }}
           restartPolicy: Never
           shareProcessNamespace: {{ .Values.shareProcessNamespace }}
           containers:
@@ -57,13 +60,16 @@ spec:
                   value: "{{ .Values.checkLabelScanStore }}"
                 - name: CHECK_PROPERTY_OWNERS
                   value: "{{ .Values.checkPropertyOwners }}"
+              {{- if .Values.secretName }}
               volumeMounts:
                 - name: credentials
                   mountPath: /credentials
                   readOnly: true
+              {{- end }}
 {{- if .Values.sidecarContainers }}
 {{ toYaml .Values.sidecarContainers | indent 12 }}
 {{- end }}
+{{- if .Values.secretName }}
           volumes:
             - name: credentials
               secret:
@@ -71,3 +77,4 @@ spec:
                 items:
                   - key: credentials
                     path: credentials
+{{- end }}
