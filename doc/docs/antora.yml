@@ -9,3 +9,6 @@ asciidoc:
   attributes:
     docs-version: 1.0.0
     copyright: Neo4j Inc.
+    page-product: Neo4j Helm
+    page-type: Neo4j Helm Manual
+    page-canonical-root: /labs
