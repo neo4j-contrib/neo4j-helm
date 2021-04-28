@@ -25,6 +25,23 @@ the `backup` container in this same code repository.  We recommend you use that 
 inspect the `restore.sh` script, because it needs to make certain assumptions about
 directory structure that come out of archived backups in order to restore properly.
 
+In order to read the backup files from cloud storage the container needs to provide some credentials or authentication. The mechanisms available depends on the cloud service provider.
+
+### Use Service Account to access cloud storage (Google Cloud only)
+
+**GCP**
+
+> Workload Identity is the recommended way to access Google Cloud services from applications running within GKE due to its improved security properties and manageability.
+
+Follow the https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity[GCP instructions] to:
+
+ - Enable Workload Identity on your GKE cluster
+ - Create a Google Cloud IAMServiceAccount that has read permissions for your backup location
+ - Bind the IAMServiceAccount to the Neo4j deployment's Kubernetes ServiceAccount*
+
+[*] you can configure the name of the Kubernetes ServiceAccount that a Neo4j deployment uses by setting `serviceAccountName` in values.yaml. To check the name of the Kubernetes ServiceAccount that a Neo4j deployment is using run `kubectl get pods -o=jsonpath='{.spec.serviceAccountName}{"\n"}' <your neo4j pod name>`
+
+If you are unable to use Workload Identity with GKE then you can create a service key secret instead as described in the next section.
 
 ### Create a service key secret to access cloud storage
 
@@ -47,6 +64,8 @@ kubectl create secret generic neo4j-aws-credentials \
 ```
 
 **GCP**
+
+You do NOT need to follow the steps in this section if you are using Workload Identity for GCP.
 
 - You must create the credential file and this file should look like this:
 ```gcp-credentials.json
@@ -108,7 +127,7 @@ core:
   ...
   restore:
     enabled: true
-    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials) #required
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials|NULL) #required. Set NULL if using Workload Identity in GKE.
     database: neo4j,system #required
     cloudProvider: (gcp|aws|azure) #required
     bucket: (gs|s3)://test-neo4j #required
@@ -119,7 +138,7 @@ readReplica:
   ...
   restore:
     enabled: true
-    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials) #required
+    secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials|NULL) #required. Set NULL if using Workload Identity in GKE.
     database: neo4j,system #required
     cloudProvider: (gcp|aws|azure) #required
     bucket: (gs|s3)://test-neo4j #required
@@ -134,8 +153,7 @@ readReplica:
 helm install \
     neo4j neo4j/neo4j \
     -f values.yaml \
-    --set acceptLicenseAgreement=yes \
-    --version 4.1.1-1
+    --set acceptLicenseAgreement=yes
 ```
 
 ## Warnings & Indications

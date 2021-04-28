@@ -41,6 +41,7 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ default $saName .Values.serviceAccount.name }}
+      automountServiceAccountToken: true
       # High value permits checkpointing on Neo4j shutdown.  See: https://neo4j.com/developer/kb/checkpointing-and-log-pruning-interactions/
       terminationGracePeriodSeconds: {{ .Values.readReplica.terminationGracePeriodSeconds }}
       containers:
