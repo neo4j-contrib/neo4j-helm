@@ -30,6 +30,12 @@ customize you should bear these requirements in mind:
 The default for Neo4j is to listen only on 127.0.0.1, which will not
 work as other containers would not be able to access the backup port.
 
+### Backup Storage
+
+Backups are stored in a temporary local volume before they are uploaded to cloud. By default an ephemeral Kubernetes `emptyDir` Volume is used.
+
+If the database being backed up is large there might not be sufficient space in local storage. To use alternative storage set `tempVolume` in values.yaml to a different https://kubernetes.io/docs/concepts/storage/volumes[Kubernetes Volume] object.
+
 ### Backup Pointers
 
 All backups will turn into .tar.gz files with date strings when they were taken, such as: `neo4j-2020-06-16-12:32:57.tar.gz`.  They are named after the database
