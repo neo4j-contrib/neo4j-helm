@@ -69,6 +69,14 @@ function fetch_backup_from_cloud() {
   esac
 }
 
+function print_volumes_state {
+    # This data is output because of the way neo4j-admin works.  It writes the restored set to
+    # /var/lib/neo4j by default.  This can fail if volumes aren't sized appropriately, so this
+    # aids in debugging.
+    echo "Volume mounts and sizing"
+    df -h
+}
+
 function restore_database {
     db=$1
 
@@ -90,6 +98,10 @@ function restore_database {
     # Pass the force flag to the restore operation, which will overwrite
     # whatever is there, if and only if FORCE_OVERWRITE=true.
     if [ "$FORCE_OVERWRITE" = true ]; then
+         # Danger: we are destroying previous data on disk.  On purpose.
+         # Optional: you can move the database out of the way to preserve the data just in case,
+         # but we don't do it this way because for large DBs this will just rapidly fill the disk
+         # and cause out of disk errors.
         echo "We will be force-overwriting any data present"
         FORCE_FLAG="--force"
     else
@@ -172,23 +184,29 @@ function restore_database {
     echo "Set to restore from $RESTORE_FROM - size on disk:"
     du -hs "$RESTORE_FROM"
 
+    # Destination docker directories.
+    mkdir -p /data/databases
+    mkdir -p /data/transactions
+
     cd /data && \
     echo "Dry-run command"
     echo neo4j-admin restore \
-        --from="$RESTORE_FROM" \
-        --database="$db" $FORCE_FLAG \
-        --verbose
+         --from="$RESTORE_FROM" \
+         --database="$db" $FORCE_FLAG \
+         --to-data-directory /data/databases/ \
+         --to-data-tx-directory /data/transactions/ \
+         --move \
+         --verbose
 
-    # This data is output because of the way neo4j-admin works.  It writes the restored set to
-    # /var/lib/neo4j by default.  This can fail if volumes aren't sized appropriately, so this 
-    # aids in debugging.
-    echo "Volume mounts and sizing"
-    df -h
+    print_volumes_state
 
     echo "Now restoring"
     neo4j-admin restore \
         --from="$RESTORE_FROM" \
         --database="$db" $FORCE_FLAG \
+        --to-data-directory /data/databases/ \
+        --to-data-tx-directory /data/transactions/ \
+        --move \
         --verbose
 
     RESTORE_EXIT_CODE=$?
@@ -196,37 +214,9 @@ function restore_database {
     if [ "$RESTORE_EXIT_CODE" -ne 0 ]; then 
         echo "Restore process failed; will not continue"
         echo "Failed to restore $db"
+        print_volumes_state
         return $RESTORE_EXIT_CODE
     fi
-
-    # Shell utils automatically place data in /var/lib/neo4j -- this is problematic in docker,
-    # because it needs to be in /data per the docker spec.  This can get squirrely when users
-    # have volume mounts set up in certain ways.
-    echo "Rehoming database $db"
-    # echo "Restored to:"
-    # ls -l /var/lib/neo4j/data/databases
-    # echo "TRANSACTIONS:"
-    # ls -l /var/lib/neo4j/data/transactions
-
-    # Destination docker directories.
-    mkdir -p /data/databases
-    mkdir -p /data/transactions
-
-    # Danger: we are destroying previous data on disk.  On purpose.
-    # Optional: you can move the database out of the way to preserve the data just in case,
-    # but we don't do it this way because for large DBs this will just rapidly fill the disk
-    # and cause out of disk errors.
-    for loc in databases transactions ; do
-        if [ -d "/data/$loc/$db" ] ; then
-            if [ "$FORCE_OVERWRITE" = "true" ] ; then
-                echo "Removing previous $loc because FORCE_OVERWRITE=true"
-                rm -rf "/data/$loc/$db"
-            fi
-        fi
-    done
-
-    mv "/var/lib/neo4j/data/databases/$db" /data/databases/
-    mv "/var/lib/neo4j/data/transactions/$db" /data/transactions/
 
     # Modify permissions/group, because we're running as root.
     chown -R neo4j /data/databases 
@@ -251,12 +241,16 @@ function restore_database {
 }
 
 function activate_gcp() {
-  echo "Activating google credentials before beginning"
-  gcloud auth activate-service-account --key-file "/credentials/credentials"
-
-  if [ $? -ne 0 ]; then
-    echo "Credentials failed; no way to copy to google."
-    exit 1
+  local credentials="/credentials/credentials"
+  if [[ -f "${credentials}" ]]; then
+    echo "Activating google credentials before beginning"
+    gcloud auth activate-service-account --key-file "${credentials}"
+    if [ $? -ne 0 ]; then
+      echo "Credentials failed; no way to copy to google."
+      exit 1
+    fi
+  else
+    echo "No credentials file found. Assuming workload identity is configured"
   fi
 }
 
@@ -321,6 +315,8 @@ gcp)
   ;;
 esac
 
+print_volumes_state
+
 # See: https://neo4j.com/docs/operations-manual/current/backup/restoring/#backup-restoring-cluster
 echo "Unbinding previous cluster state, if applicable"
 neo4j-admin unbind
@@ -328,8 +324,9 @@ neo4j-admin unbind
 # Split by comma
 IFS=","
 read -a databases <<< "$DATABASE"
-for db in "${databases[@]}"; do  
+for db in "${databases[@]}"; do
    restore_database "$db"
+   print_volumes_state
 done
 
 echo "All finished"

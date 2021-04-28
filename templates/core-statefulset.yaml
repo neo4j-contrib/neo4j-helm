@@ -41,6 +41,7 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ default $saName .Values.serviceAccount.name }}
+      automountServiceAccountToken: true
       # High value permits checkpointing on Neo4j shutdown.  See: https://neo4j.com/developer/kb/checkpointing-and-log-pruning-interactions/
       terminationGracePeriodSeconds: {{ .Values.core.terminationGracePeriodSeconds }}
       containers:
@@ -154,9 +155,11 @@ spec:
             {{- if .Values.core.persistentVolume.subPath }}
             subPath: {{ .Values.core.persistentVolume.subPath }}
             {{- end }}
+          {{- if and .Values.core.restore.enabled .Values.core.restore.secretName }}
           - name: credentials
             mountPath: /credentials
             readOnly: true
+          {{- end }}
         env:
           - name: DATABASE
             value: {{ .Values.core.restore.database }}
@@ -180,14 +183,14 @@ spec:
         - name: init-script
           configMap:
             name: "{{ .Release.Name }}-init-script"
-        {{ if .Values.core.restore.enabled }}
+        {{- if and .Values.core.restore.enabled .Values.core.restore.secretName }}
         - name: credentials
           secret:
             secretName: {{ .Values.core.restore.secretName }}
             items:
               - key: credentials
                 path: credentials
-        {{ end }}
+        {{- end }}
         {{- if not .Values.core.persistentVolume.enabled }}
         - name: datadir
           emptyDir: {}
