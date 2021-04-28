@@ -24,6 +24,14 @@ jobSchedule: "0 */12 * * *"
 # Set to name of an existing Service Account to use if desired
 serviceAccountName: ""
 
+# volume used as temporary storage for files before they are uploaded to cloud. In the case of a large store nodes may not have sufficient space to stage
+# the backup files on local storage. In that case set an ephemeral or persistent volume with sufficient space here
+tempVolume:
+  emptyDir: {}
+tempVolumeMount:
+  # Subdirectory of temporary volume to mount. useful if volume is not empty
+  # subPath: backups/
+
 # When running in mesh
 shareProcessNamespace: false # Needs to be true for the below example configuration to work
 sidecarContainers: []
