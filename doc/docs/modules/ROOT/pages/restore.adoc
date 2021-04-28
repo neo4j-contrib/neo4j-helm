@@ -27,7 +27,7 @@ directory structure that come out of archived backups in order to restore proper
 
 In order to read the backup files from cloud storage the container needs to provide some credentials or authentication. The mechanisms available depends on the cloud service provider.
 
-### Use Service Account to access cloud storage (Google Cloud only)
+### Use a Service Account to access cloud storage (Google Cloud only)
 
 **GCP**
 

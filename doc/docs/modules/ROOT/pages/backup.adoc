@@ -51,6 +51,23 @@ In Neo4j 4.0, the system can be multidatabase; most systems have at least 2 DBs,
 
 ## Steps to Take a Backup
 
+### Use a Service Account to access cloud storage (Google Cloud only)
+
+**GCP**
+
+> Workload Identity is the recommended way to access Google Cloud services from applications running within GKE due to its improved security properties and manageability.
+
+Follow the https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity[GCP instructions] to:
+
+- Enable Workload Identity on your GKE cluster
+- Create a Google Cloud IAMServiceAccount that has read and write permissions for your backup location
+- Bind the IAMServiceAccount to the Neo4j deployment's Kubernetes ServiceAccount*
+
+[*] you can configure the name of the Kubernetes ServiceAccount that a Neo4j deployment uses by setting `serviceAccountName` in values.yaml. To check the name of the Kubernetes ServiceAccount that a Neo4j deployment is using run `kubectl get pods -o=jsonpath='{.spec.serviceAccountName}{"\n"}' <your neo4j pod name>`
+
+If you are unable to use Workload Identity with GKE then you can create a service key secret instead as described in the next section.
+
+
 ### Create a service key secret to access cloud storage
 
 First you want to create a kubernetes secret that contains the content of your account service key.  This key must have permissions to access the bucket and backup set that you're trying to restore. 
@@ -92,6 +109,8 @@ kubectl create secret generic neo4j-aws-credentials \
 ```
 
 #### GCP
+
+You do NOT need to follow the steps in this section if you are using Workload Identity for GCP.
 
 Download a JSON formatted service key from Google Cloud that looks like this:
 
@@ -140,7 +159,19 @@ helm install my-neo4j-backup . \
     --set jobSchedule="0 */12 * * *"
 ```
 
-**GCP**
+**GCP with Workload Identity**
+```shell
+helm install my-neo4j-backup . \
+    --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
+    --set bucket=gs://my-bucket \
+    --set database="neo4j\,system" \
+    --set cloudProvider=gcp \
+    --set secretName=NULL \
+    --set serviceAccountName=my-neo4j-backup-sa \
+    --set jobSchedule="0 */12 * * *"
+```
+
+**GCP with service key secret**
 ```shell
 helm install my-neo4j-backup . \
     --set neo4jaddr=my-neo4j.default.svc.cluster.local:6362 \
@@ -193,8 +224,11 @@ discovery address.
 * `databases` a comma separated list of databases to back up.  The default is
 `neo4j,system`.  If your DBMS has many individual databases, you should change this.
 * `cloudProvider` Which cloud service do you want to keep backups on?(gcp or aws)
-* `secretName` the name of the secret you created (neo4j-gcp-credentials|neo4j-aws-credentials)
 * `jobSchedule` what intervals do you want to take backup? It should be cron like "0 */12 * * *". You can set your own schedule(https://crontab.guru/#0_*/12_*_*_*)
+
+At least one of `secretName` and `serviceAccountName` must be set.
+* `secretName` the name of the secret you created (set NULL if using Workload Identity on GKE)
+* `serviceAccountName` the name of the Kubernetes ServiceAccount to use for the backup Job (required if using Workload Identity on GKE)
 
 **Optional environment variables**
 
