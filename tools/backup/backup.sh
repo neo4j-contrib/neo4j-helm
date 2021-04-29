@@ -52,6 +52,15 @@ if [ -z $CHECK_PROPERTY_OWNERS ]; then
   export CHECK_PROPERTY_OWNERS="false"
 fi
 
+if [ -z $REMOVE_EXISTING_FILES ]; then
+  export REMOVE_EXISTING_FILES="true"
+fi
+
+function clean_backups_directory() {
+  echo "Removing any existing files from /backups"
+  rm -rfv /backups/*
+}
+
 function cloud_copy() {
   backup_path=$1
   database=$2
@@ -118,7 +127,7 @@ function backup_database() {
   export LATEST_POINTER="$db-latest.tar.gz"
 
   echo "=============== BACKUP $db ==================="
-  echo "Beginning backup from $NEO4J_ADDR to /data/$BACKUP_SET"
+  echo "Beginning backup from $NEO4J_ADDR to /backups/$BACKUP_SET"
   echo "Using heap size $HEAP_SIZE and page cache $PAGE_CACHE"
   echo "FALLBACK_TO_FULL=$FALLBACK_TO_FULL, CHECK_CONSISTENCY=$CHECK_CONSISTENCY"
   echo "CHECK_GRAPH=$CHECK_GRAPH CHECK_INDEXES=$CHECK_INDEXES"
@@ -128,7 +137,7 @@ function backup_database() {
 
   neo4j-admin backup \
     --from="$NEO4J_ADDR" \
-    --backup-dir=/data \
+    --backup-dir=/backups \
     --database=$db \
     --pagecache=$PAGE_CACHE \
     --fallback-to-full=$FALLBACK_TO_FULL \
@@ -154,14 +163,14 @@ function backup_database() {
   fi
 
   echo "Backup size:"
-  du -hs "/data/$db"
+  du -hs "/backups/$db"
 
   echo "Final Backupset files"
-  ls -l "/data/$db"
+  ls -l "/backups/$db"
 
-  echo "Archiving and Compressing -> /data/$BACKUP_SET.tar"
+  echo "Archiving and Compressing -> /backups/$BACKUP_SET.tar"
 
-  tar -zcvf "/data/$BACKUP_SET.tar.gz" "/data/$db" --remove-files
+  tar -zcvf "/backups/$BACKUP_SET.tar.gz" "/backups/$db" --remove-files
 
   if [ $? -ne 0 ]; then
     echo "BACKUP ARCHIVING OF $db FAILED"
@@ -169,13 +178,16 @@ function backup_database() {
   fi
 
   echo "Zipped backup size:"
-  du -hs "/data/$BACKUP_SET.tar.gz"
+  du -hs "/backups/$BACKUP_SET.tar.gz"
 
-  cloud_copy "/data/$BACKUP_SET.tar.gz" $db
+  cloud_copy "/backups/$BACKUP_SET.tar.gz" $db
 
   if [ $? -ne 0 ]; then
     echo "Storage copy of backup for $db FAILED"
     exit 1
+  else
+    echo "Removing /backups/$BACKUP_SET.tar.gz"
+    rm "/backups/$BACKUP_SET.tar.gz"
   fi
 }
 
@@ -224,6 +236,10 @@ function activate_azure() {
     exit 1
   fi
 }
+
+if [ "${REMOVE_EXISTING_FILES}" == "true" ]; then
+  clean_backups_directory
+fi
 
 case $CLOUD_PROVIDER in
 azure)

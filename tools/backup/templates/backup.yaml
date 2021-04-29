@@ -62,21 +62,28 @@ spec:
                   value: "{{ .Values.checkLabelScanStore }}"
                 - name: CHECK_PROPERTY_OWNERS
                   value: "{{ .Values.checkPropertyOwners }}"
-              {{- if .Values.secretName }}
               volumeMounts:
+                {{- if .Values.secretName }}
                 - name: credentials
                   mountPath: /credentials
                   readOnly: true
-              {{- end }}
+                {{- end }}
+                - name: "backup"
+                  mountPath: "/backups"
+                  {{- if .Values.tempVolumeMount }}{{- if .Values.tempVolumeMount.subPath }}
+                  subPath: "{{ .Values.tempVolumeMount.subPath }}"
+                  {{- end }}{{- end }}
 {{- if .Values.sidecarContainers }}
 {{ toYaml .Values.sidecarContainers | indent 12 }}
 {{- end }}
-{{- if .Values.secretName }}
           volumes:
+            {{- if .Values.secretName }}
             - name: credentials
               secret:
-                secretName: {{ .Values.secretName }}
+                secretName: "{{ .Values.secretName }}"
                 items:
                   - key: credentials
                     path: credentials
-{{- end }}
+            {{- end }}
+            - name: "backup"
+              {{ toYaml .Values.tempVolume }}
