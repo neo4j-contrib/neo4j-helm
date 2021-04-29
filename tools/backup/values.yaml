@@ -1,5 +1,5 @@
 image: gcr.io/neo4j-helm/backup
-imageTag: 4.2.2-1
+imageTag: 4.2.5-1
 podLabels: {}
 podAnnotations: {}
 neo4jaddr: holder-neo4j.default.svc.cluster.local:6362
@@ -24,7 +24,7 @@ jobSchedule: "0 */12 * * *"
 # Set to name of an existing Service Account to use if desired
 serviceAccountName: ""
 
-# Volume to used as temporary storage for files before they are uploaded to cloud. For large databases local storage may not have sufficient space. In that case set an ephemeral or persistent volume with sufficient space here
+# Volume to use as temporary storage for files before they are uploaded to cloud. For large databases local storage may not have sufficient space. In that case set an ephemeral or persistent volume with sufficient space here
 tempVolume:
   emptyDir: {}
 tempVolumeMount:
