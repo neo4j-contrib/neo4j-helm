@@ -4,7 +4,8 @@
 
 Before CI is run it's necessary to build and push docker images.
 
-* Ensure that you have bumped the version number before pushing docker images *
+**Ensure that you have bumped the version number before pushing docker images**
+
 ```
 cd tools
 make docker_build
