@@ -24,8 +24,7 @@ jobSchedule: "0 */12 * * *"
 # Set to name of an existing Service Account to use if desired
 serviceAccountName: ""
 
-# volume used as temporary storage for files before they are uploaded to cloud. In the case of a large store nodes may not have sufficient space to stage
-# the backup files on local storage. In that case set an ephemeral or persistent volume with sufficient space here
+# Volume to used as temporary storage for files before they are uploaded to cloud. For large databases local storage may not have sufficient space. In that case set an ephemeral or persistent volume with sufficient space here
 tempVolume:
   emptyDir: {}
 tempVolumeMount:
