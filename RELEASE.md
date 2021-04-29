@@ -48,3 +48,8 @@ Generally a manual change is pushed to the `index.yaml` file.  The entire github
 This file gets pushed to master. This file is fairly important though, because it gets reprocessed by other hosting sites such as [Artifact Hub](https://artifacthub.io/packages/helm/neo4j-helm/neo4j) which are used by the community.
 
 There is another repo [cr](https://github.com/helm/chart-releaser) that contains automation tools for working with the helm chart release process, but there hasn't been time to make use of it yet.
+
+## Monitoring Downloads
+
+You can view the number of times that a release has been downloaded at https://tooomm.github.io/github-release-stats/?username=neo4j-contrib&repository=neo4j-helm
+
