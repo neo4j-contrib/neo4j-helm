@@ -40,9 +40,11 @@ In general, release notes are broken into enhancements, bugfixes, and other; sim
 
 ## Update the Helm Repository
 
-Generally a manual change is pushed to the `index.yaml` file.  The entire github repo functions as a "helm repository" or a provider of helm charts, similar to how a website may be a debian repository.  The `index.yaml` file controls all of that.  The changes to this repo file are basically to put a release date, title, version, and description in, along with a sha hash of the file.  This file gets pushed to
-master.
+Generally a manual change is pushed to the `index.yaml` file.  The entire github repo functions as a "helm repository" or a provider of helm charts, similar to how a website may be a debian repository.  The `index.yaml` file controls all of that.  The changes to this repo file are basically
+- title, version, and description
+- a release date `gdate "+%Y-%m-%dT%H:%M:%S.%9N%:z"`
+- a sha hash of the file `sha256sum neoj-<version>.tgz neoj-backup-<version>.tgz`
 
-This file is fairly important though, because it gets reprocessed by other hosting sites such as [Artifact Hub](https://artifacthub.io/packages/helm/neo4j-helm/neo4j) which are used by the community.
+This file gets pushed to master. This file is fairly important though, because it gets reprocessed by other hosting sites such as [Artifact Hub](https://artifacthub.io/packages/helm/neo4j-helm/neo4j) which are used by the community.
 
 There is another repo [cr](https://github.com/helm/chart-releaser) that contains automation tools for working with the helm chart release process, but there hasn't been time to make use of it yet.
