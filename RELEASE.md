@@ -1,5 +1,18 @@
 # Release Process
 
+## Docker Images
+
+Before CI is run it's necessary to build and push docker images.
+
+* Ensure that you have bumped the version number before pushing docker images *
+```
+cd tools
+make docker_build
+make docker_push
+```
+
+## Circle CI
+
 Neo4j-helm is built & tested on CircleCI.  You can see a dashboard of builds [here](https://app.circleci.com/pipelines/github/neo4j-contrib/neo4j-helm) for the master
 branch.  All releases are done from the master branch.
 
