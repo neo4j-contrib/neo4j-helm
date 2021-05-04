@@ -331,5 +331,5 @@ securityContext: {}
 #  runAsNonRoot: true
 #  runAsUser: 7474
 containerSecurityContext: {}
-# Sets securityContext at the container level. As Pod level securityContext options are limited.
+# Sets securityContext at the container level. As certian security options can only be set at this level.
 #   allowPrivilegeEscalation: false
