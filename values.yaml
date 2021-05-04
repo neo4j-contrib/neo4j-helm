@@ -330,3 +330,6 @@ securityContext: {}
 # volume and filesystem settings local to you
 #  runAsNonRoot: true
 #  runAsUser: 7474
+containerSecurityContext: {}
+# Sets securityContext at the container level. As Pod level securityContext options are limited.
+#   allowPrivilegeEscalation: false
