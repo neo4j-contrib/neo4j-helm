@@ -46,6 +46,8 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.core.terminationGracePeriodSeconds }}
       containers:
       - name: {{ template "neo4j.fullname" . }}
+        securityContext:
+          {{ toYaml .Values.containerSecurityContext | indent 10 }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
         envFrom:
