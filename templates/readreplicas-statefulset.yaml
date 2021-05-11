@@ -48,6 +48,8 @@ spec:
       - name: neo4j
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        securityContext:
+          {{ toYaml .Values.containerSecurityContext | indent 10 }}
         # Most pod config is factored into a different configMap, which is user overrideable.
         envFrom:
           - configMapRef:
