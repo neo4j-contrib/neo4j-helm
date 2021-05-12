@@ -126,7 +126,7 @@ Reference tables with a list of all configurable parameters and their defaults.
 
 | `core.persistentVolume.size`
 | Size of data volume
-| `10Gi`
+| `1Ti`
 
 | `core.persistentVolume.mountPath`
 | Persistent Volume mount root path
