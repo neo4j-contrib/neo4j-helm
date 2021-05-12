@@ -86,7 +86,7 @@ core:
 
     ## core server data Persistent Volume size
     ##
-    size: 10Gi
+    size: 1Ti
 
     ## core server data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
@@ -190,7 +190,7 @@ readReplica:
   persistentVolume:
     enabled: true
     mountPath: /data
-    size: 10Gi
+    size: 1Ti
     ## subPath: ""
     ## read replica data Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
