@@ -74,8 +74,12 @@ Reference tables with a list of all configurable parameters and their defaults.
 | (none)
 
 | `securityContext`
-| The https://kubernetes.io/docs/tasks/configure-pod-container/security-context/[SecurityContext] for the pods in the statefulsets
-| The default is `{}`, but you may opt to use `{ runAsNonRoot: true, runAsUser: 7474 }` if you wish. https://github.com/neo4j-contrib/neo4j-helm/issues/135[More information here].
+| The https://kubernetes.io/docs/tasks/configure-pod-container/security-context/[SecurityContext] for the Neo4j pod(s).
+| The default is `{}`, but we recommend to use `{ runAsNonRoot: true, runAsUser: 7474 }` so that pods do not run as root. https://github.com/neo4j-contrib/neo4j-helm/issues/135[More information here].
+
+| `containerSecurityContext`
+| The https://kubernetes.io/docs/tasks/configure-pod-container/security-context/[SecurityContext] for the Neo4j database container(s).
+| The default is `{}`, we recommend to only set containerSecurityContext if the pod security context cannot be used.
 
 |===
 

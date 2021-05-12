@@ -326,10 +326,12 @@ serviceAccount:
   name:
 
 securityContext: {}
-# Following values for securityContext are possible/recommended, but depend on
-# volume and filesystem settings local to you
+# Sets securityContext at the pod level.
+# The following values for securityContext are recommended but may depend on your specific volume and filesystem settings
 #  runAsNonRoot: true
 #  runAsUser: 7474
+
 containerSecurityContext: {}
-# Sets securityContext at the container level. As certian security options can only be set at this level.
+# Sets securityContext at the container level.
+# We recommend to only use this if (pod) securityContext cannot be used. For example certain security options can only be set at this level.
 #   allowPrivilegeEscalation: false
