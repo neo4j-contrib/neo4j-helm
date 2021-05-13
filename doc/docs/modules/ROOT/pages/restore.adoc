@@ -192,5 +192,3 @@ cluster comes live, it will be populated with the data.
 - If you want usernames, passwords, and permissions to be restored, you must include
 a restore of the system graph.
 - Container has not yet been tested with incremental backups
-- For the time being, only google storage as a cloud storage option is implemented, 
-but adapting this approach to S3 or other storage should be fairly straightforward with modifications to `restore.sh`
