@@ -130,7 +130,7 @@ core:
     secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials|NULL) #required. Set NULL if using Workload Identity in GKE.
     database: neo4j,system #required
     cloudProvider: (gcp|aws|azure) #required
-    bucket: (gs|s3)://test-neo4j #required
+    bucket: (gs://|s3://)test-neo4j #required
     timestamp: "latest" #optional #default:"latest"
     forceOverwrite: true #optional #default:true
     purgeOnComplete: true #optinal #default:true
@@ -141,14 +141,14 @@ readReplica:
     secretName: (neo4j-gcp-credentials|neo4j-aws-credentials|neo4j-azure-credentials|NULL) #required. Set NULL if using Workload Identity in GKE.
     database: neo4j,system #required
     cloudProvider: (gcp|aws|azure) #required
-    bucket: (gs|s3)://test-neo4j #required
+    bucket: (gs://|s3://)test-neo4j #required
     timestamp: "2020-06-16-12:32:57" #optional #default:"latest"
     forceOverwrite: true #optional #default:true
     purgeOnComplete: true #optinal #default:true
 ...
 ```
 
-- standard neo4j installation
+- standard neo4j installation run from the root of neo4j-helm - not tools/restore.  Further, it could be the same command you ran to create the cores/replicas originally.
 ```
 helm install \
     neo4j neo4j/neo4j \
@@ -173,10 +173,12 @@ need them, or you should keep a very regular backup schedule to minimize this da
 loss is under no circumstances acceptable, do not automate restores for single node deploys.
 
 [NOTE]
-**Special notes for Azure Storage**.  Parameters require a "bucket" but for Azure storage, 
-the naming is slightly different; the bucket specified is the "blob container name" 
-where the files will be placed.  Relative paths will be respected; if you set bucket 
-to be `container/path/to/directory`, this expects your backup files to be stored in 
+**Special notes for Azure Storage**.  Parameters require a "bucket", but for Azure storage the 
+naming is slightly different.  There is no protocol scheme as there would be for AWS or Google.
+The bucket specified is the "blob container name", not the account name. where the
+files were be placed by the backup, and is the same "blob container name" you used in the Backup
+Chapter, assuming you followed the examples there.  Relative paths will be respected; if you set 
+bucket to be `container/path/to/directory`, this expects your backup files to be stored in 
 `container` at the path `/path/to/directory/db/db-TIMESTAMP.tar.gz` where "db" is the 
 name of the database being backed up (i.e. neo4j and system).
 
