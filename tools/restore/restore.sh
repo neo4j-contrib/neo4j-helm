@@ -97,7 +97,7 @@ function restore_database {
 
     # Pass the force flag to the restore operation, which will overwrite
     # whatever is there, if and only if FORCE_OVERWRITE=true.
-    if [ "$FORCE_OVERWRITE" = true ]; then
+    if [ "$FORCE_OVERWRITE" = true ] ; then
          # Danger: we are destroying previous data on disk.  On purpose.
          # Optional: you can move the database out of the way to preserve the data just in case,
          # but we don't do it this way because for large DBs this will just rapidly fill the disk
@@ -147,7 +147,11 @@ function restore_database {
 
         if [ -z $BACKUP_SET_DIR ] ; then
             echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
-            RESTORE_FROM="$RESTORE_ROOT/data/$UNTARRED_BACKUP_DIR"
+            if [ -d "$RESTORE_ROOT/backups" ] ; then
+                RESTORE_FROM="$RESTORE_ROOT/backups/$UNTARRED_BACKUP_DIR"
+            else
+                RESTORE_FROM="$RESTORE_ROOT/data/$UNTARRED_BACKUP_DIR"
+            fi
         else 
             RESTORE_FROM="$RESTORE_ROOT/$BACKUP_SET_DIR"
         fi
@@ -166,7 +170,11 @@ function restore_database {
 
         if [ -z $BACKUP_SET_DIR ] ; then
             echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
-            RESTORE_FROM="$RESTORE_ROOT/data/$db"
+            if [ -d "$RESTORE_ROOT/backups" ] ; then
+                RESTORE_FROM="$RESTORE_ROOT/backups/$db"
+            else
+                RESTORE_FROM="$RESTORE_ROOT/data/$db"
+            fi
         else
             RESTORE_FROM="$RESTORE_ROOT/$BACKUP_SET_DIR"
         fi
