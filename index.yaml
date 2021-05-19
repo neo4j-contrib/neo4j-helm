@@ -13,7 +13,7 @@ entries:
         - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.2.6-1/neo4j-backup-4.2.6-1.tgz
       version: 4.2.6-1
     - created: 2021-04-29T21:17:54.857071000+02:00
-      description: Neo4j 4.2.5
+      description: Neo4j 4.2.6
       digest: 3d131b91367caa95a05534194c6e757ee677d0fc157b7eef207e35a0fee3bc87
       home: https://github.com/neo4j-contrib/neo4j-helm
       name: neo4j
