@@ -1,5 +1,7 @@
 # Release Process
 
+##
+
 ## Docker Images
 
 Before CI is run it's necessary to build and push docker images.
@@ -9,6 +11,13 @@ Before CI is run it's necessary to build and push docker images.
 ```
 cd tools
 make docker_build
+```
+
+** double check that the built images are tagged with the correct version **
+
+If you are sure now you can push
+
+```
 make docker_push
 ```
 
