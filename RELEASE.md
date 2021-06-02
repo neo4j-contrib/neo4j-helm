@@ -1,12 +1,18 @@
 # Release Process
 
-##
+## Bump all the version numbers
+
+Find-and-replace current version string "X.Y.Z" with new version string "X.Y.Z"
+
+Create a commit with that change and put it in a branch but do not create a PR yet (currently CI will fail)
 
 ## Docker Images
 
-Before CI is run it's necessary to build and push docker images.
+Before CI can run for the new beanch it's necessary to build and push docker images from that branch.
 
 **Ensure that you have bumped the version number before pushing docker images**
+
+If you have not bumped the version number then you may overwrite existing docker images for the *old* version - which would cause all kinds of problems.
 
 ```
 cd tools
