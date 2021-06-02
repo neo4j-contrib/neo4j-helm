@@ -152,7 +152,8 @@ function backup_database() {
     --check-indexes=$CHECK_INDEXES \
     --check-label-scan-store=$CHECK_LABEL_SCAN_STORE \
     --check-property-owners=$CHECK_PROPERTY_OWNERS \
-    --verbose
+    --verbose \
+    | tee "${REPORT_DIR}/backup.log"
 
   # Docs: see exit codes here: https://neo4j.com/docs/operations-manual/current/backup/performing/#backup-performing-command
   backup_result=$?
