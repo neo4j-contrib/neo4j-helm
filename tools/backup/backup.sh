@@ -120,6 +120,30 @@ function cloud_copy() {
   esac
 }
 
+function upload_report() {
+  echo "Archiving and Compressing -> ${REPORT_DIR}/$BACKUP_SET.tar"
+
+  tar -zcvf "backups/$BACKUP_SET.report.tar.gz" "${REPORT_DIR}" --remove-files
+
+  if [ $? -ne 0 ]; then
+    echo "REPORT ARCHIVING OF ${REPORT_DIR} FAILED"
+    exit 1
+  fi
+
+  echo "Zipped report size:"
+  du -hs "/backups/$BACKUP_SET.report.tar.gz"
+
+  cloud_copy "/backups/$BACKUP_SET.report.tar.gz" $db
+
+  if [ $? -ne 0 ]; then
+    echo "Storage copy of report for ${REPORT_DIR} FAILED"
+    exit 1
+  else
+    echo "Removing /backups/$BACKUP_SET.report.tar.gz"
+    rm "/backups/$BACKUP_SET.report.tar.gz"
+  fi
+}
+
 function backup_database() {
   db=$1
 
@@ -167,9 +191,9 @@ function backup_database() {
   echo "Backup report(s):"
   du -hs "${REPORT_DIR}"
   ls -l "${REPORT_DIR}"
-  cat "${REPORT_DIR}"/*
 
   if [ $backup_result -eq 1 ]; then
+    upload_report
     echo "Aborting other actions; backup failed"
     exit 1
   fi
@@ -202,28 +226,7 @@ function backup_database() {
     rm "/backups/$BACKUP_SET.tar.gz"
   fi
 
-
-  echo "Archiving and Compressing -> ${REPORT_DIR}/$BACKUP_SET.tar"
-
-  tar -zcvf "backups/$BACKUP_SET.report.tar.gz" "${REPORT_DIR}" --remove-files
-
-  if [ $? -ne 0 ]; then
-    echo "REPORT ARCHIVING OF ${REPORT_DIR} FAILED"
-    exit 1
-  fi
-
-  echo "Zipped report size:"
-  du -hs "/backups/$BACKUP_SET.report.tar.gz"
-
-  cloud_copy "/backups/$BACKUP_SET.report.tar.gz" $db
-
-  if [ $? -ne 0 ]; then
-    echo "Storage copy of report for ${REPORT_DIR} FAILED"
-    exit 1
-  else
-    echo "Removing /backups/$BACKUP_SET.report.tar.gz"
-    rm "/backups/$BACKUP_SET.report.tar.gz"
-  fi
+  upload_report
 }
 
 function activate_gcp() {
