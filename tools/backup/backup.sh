@@ -120,8 +120,37 @@ function cloud_copy() {
   esac
 }
 
+function upload_report() {
+  echo "Archiving and Compressing -> ${REPORT_DIR}/$BACKUP_SET.tar"
+
+  tar -zcvf "backups/$BACKUP_SET.report.tar.gz" "${REPORT_DIR}" --remove-files
+
+  if [ $? -ne 0 ]; then
+    echo "REPORT ARCHIVING OF ${REPORT_DIR} FAILED"
+    exit 1
+  fi
+
+  echo "Zipped report size:"
+  du -hs "/backups/$BACKUP_SET.report.tar.gz"
+
+  cloud_copy "/backups/$BACKUP_SET.report.tar.gz" $db
+
+  if [ $? -ne 0 ]; then
+    echo "Storage copy of report for ${REPORT_DIR} FAILED"
+    exit 1
+  else
+    echo "Removing /backups/$BACKUP_SET.report.tar.gz"
+    rm "/backups/$BACKUP_SET.report.tar.gz"
+  fi
+}
+
 function backup_database() {
   db=$1
+
+  export REPORT_DIR="/backups/.report_$db"
+  mkdir -p "${REPORT_DIR}"
+  echo "Removing any existing files from ${REPORT_DIR}"
+  rm -rfv "${REPORT_DIR}"/*
 
   export BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
   export LATEST_POINTER="$db-latest.tar.gz"
@@ -142,11 +171,13 @@ function backup_database() {
     --pagecache=$PAGE_CACHE \
     --fallback-to-full=$FALLBACK_TO_FULL \
     --check-consistency=$CHECK_CONSISTENCY \
+    --report-dir="${REPORT_DIR}" \
     --check-graph=$CHECK_GRAPH \
     --check-indexes=$CHECK_INDEXES \
     --check-label-scan-store=$CHECK_LABEL_SCAN_STORE \
     --check-property-owners=$CHECK_PROPERTY_OWNERS \
-    --verbose
+    --verbose \
+    | tee "${REPORT_DIR}/backup.log"
 
   # Docs: see exit codes here: https://neo4j.com/docs/operations-manual/current/backup/performing/#backup-performing-command
   backup_result=$?
@@ -157,7 +188,12 @@ function backup_database() {
   3) echo "Backup succeeded but consistency check found inconsistencies - $db" ;;
   esac
 
+  echo "Backup report(s):"
+  du -hs "${REPORT_DIR}"
+  ls -l "${REPORT_DIR}"
+
   if [ $backup_result -eq 1 ]; then
+    upload_report
     echo "Aborting other actions; backup failed"
     exit 1
   fi
@@ -189,6 +225,8 @@ function backup_database() {
     echo "Removing /backups/$BACKUP_SET.tar.gz"
     rm "/backups/$BACKUP_SET.tar.gz"
   fi
+
+  upload_report
 }
 
 function activate_gcp() {
