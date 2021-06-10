@@ -34,10 +34,9 @@ spec:
         {{ $key }}: "{{ $value }}"
         {{- end }}
       {{- if .Values.podAnnotations }}
-      annotations:
-        {{-  range $key, $value := .Values.podAnnotations }}
-        {{ $key }}: "{{ $value }}"
-        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- end }}
     spec:
       serviceAccountName: {{ default $saName .Values.serviceAccount.name }}
