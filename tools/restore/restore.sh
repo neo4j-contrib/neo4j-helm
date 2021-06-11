@@ -268,6 +268,10 @@ function activate_aws() {
     echo "Activating aws credentials before beginning"
     mkdir -p /root/.aws/
     cp /credentials/credentials ~/.aws/config
+    if [ $? -ne 0 ]; then
+      echo "Credentials failed; no way to copy to aws."
+      exit 1
+    fi
     aws sts get-caller-identity
     if [ $? -ne 0 ]; then
       echo "Credentials failed; no way to copy to aws."
