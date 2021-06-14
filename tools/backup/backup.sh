@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export TIMESTAMP="$(date "+%Y-%m-%d-%H:%M:%S")"
 if [ -z $NEO4J_ADDR ]; then
   echo "You must specify a NEO4J_ADDR env var with port, such as my-neo4j:6362"
   exit 1
@@ -64,6 +65,7 @@ function clean_backups_directory() {
 function cloud_copy() {
   backup_path=$1
   database=$2
+  artifact_type=$3
 
   bucket_path=""
   if [ "${BUCKET: -1}" = "/" ]; then
@@ -77,11 +79,15 @@ function cloud_copy() {
   case $CLOUD_PROVIDER in
   aws)
     aws s3 cp $backup_path $bucket_path
-    aws s3 cp $backup_path "${bucket_path}${LATEST_POINTER}"
+    if [ "${artifact_type}" = "backup" ]; then
+      aws s3 cp $backup_path "${bucket_path}${LATEST_POINTER}"
+    fi
     ;;
   gcp)
     gsutil cp $backup_path $bucket_path
-    gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
+    if [ "${artifact_type}" = "backup" ]; then
+      gsutil cp $backup_path "${bucket_path}${LATEST_POINTER}"
+    fi
     ;;
   azure)
     # Container is specified via BUCKET input, which can contain a path, i.e.
@@ -105,17 +111,19 @@ function cloud_copy() {
                        --account-name "$ACCOUNT_NAME" \
                        --account-key "$ACCOUNT_KEY"
 
-    latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
-    # Remove all leading and doubled slashes to avoid creating empty folders in azure
-    latest_name=$(echo "$latest_name" | sed 's|^/*||')
-    latest_name=$(echo "$latest_name" | sed s'|//|/|g')
+    if [ "${artifact_type}" = "backup" ]; then
+      latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
+      # Remove all leading and doubled slashes to avoid creating empty folders in azure
+      latest_name=$(echo "$latest_name" | sed 's|^/*||')
+      latest_name=$(echo "$latest_name" | sed s'|//|/|g')
 
-    echo "Azure storage blob copy to $CONTAINER :: $latest_name"
-    az storage blob upload --container-name "$CONTAINER" \
-                       --file "$backup_path" \
-                       --name "$latest_name" \
-                       --account-name "$ACCOUNT_NAME" \
-                       --account-key "$ACCOUNT_KEY"
+      echo "Azure storage blob copy to $CONTAINER :: $latest_name"
+      az storage blob upload --container-name "$CONTAINER" \
+                             --file "$backup_path" \
+                             --name "$latest_name" \
+                             --account-name "$ACCOUNT_NAME" \
+                             --account-key "$ACCOUNT_KEY"
+    fi
     ;;
   esac
 }
@@ -133,7 +141,7 @@ function upload_report() {
   echo "Zipped report size:"
   du -hs "/backups/$BACKUP_SET.report.tar.gz"
 
-  cloud_copy "/backups/$BACKUP_SET.report.tar.gz" $db
+  cloud_copy "/backups/$BACKUP_SET.report.tar.gz" $db "report"
 
   if [ $? -ne 0 ]; then
     echo "Storage copy of report for ${REPORT_DIR} FAILED"
@@ -152,7 +160,7 @@ function backup_database() {
   echo "Removing any existing files from ${REPORT_DIR}"
   rm -rfv "${REPORT_DIR}"/*
 
-  export BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
+  export BACKUP_SET="$db-${TIMESTAMP}"
   export LATEST_POINTER="$db-latest.tar.gz"
 
   echo "=============== BACKUP $db ==================="
@@ -216,7 +224,7 @@ function backup_database() {
   echo "Zipped backup size:"
   du -hs "/backups/$BACKUP_SET.tar.gz"
 
-  cloud_copy "/backups/$BACKUP_SET.tar.gz" $db
+  cloud_copy "/backups/$BACKUP_SET.tar.gz" $db "backup"
 
   if [ $? -ne 0 ]; then
     echo "Storage copy of backup for $db FAILED"
