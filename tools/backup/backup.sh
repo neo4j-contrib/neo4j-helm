@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export TIMESTAMP="$(date "+%Y-%m-%d-%H:%M:%S")"
 if [ -z $NEO4J_ADDR ]; then
   echo "You must specify a NEO4J_ADDR env var with port, such as my-neo4j:6362"
   exit 1
@@ -159,7 +160,7 @@ function backup_database() {
   echo "Removing any existing files from ${REPORT_DIR}"
   rm -rfv "${REPORT_DIR}"/*
 
-  export BACKUP_SET="$db-$(date "+%Y-%m-%d-%H:%M:%S")"
+  export BACKUP_SET="$db-${TIMESTAMP}"
   export LATEST_POINTER="$db-latest.tar.gz"
 
   echo "=============== BACKUP $db ==================="
