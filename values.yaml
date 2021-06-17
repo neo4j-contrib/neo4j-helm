@@ -281,6 +281,12 @@ livenessProbe:
   tcpSocket:
     port: 7687
 
+# Startup probes are used to know when a container application has started.
+# If such a probe is configured, it disables liveness and readiness checks until it succeeds
+startupProbe:
+  failureThreshold: 2000
+  periodSeconds: 25
+
 ## (OPTIONAL) Expose Neo4j metrics
 # The structure of this object matches the Neo4j config syntax
 # Found in chapter 13 of the operations manual:
