@@ -286,6 +286,8 @@ livenessProbe:
 startupProbe:
   failureThreshold: 2000
   periodSeconds: 25
+  tcpSocket:
+    port: 7687
 
 ## (OPTIONAL) Expose Neo4j metrics
 # The structure of this object matches the Neo4j config syntax
