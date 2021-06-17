@@ -160,7 +160,7 @@ core:
     enabled: false
     image: gcr.io/neo4j-helm/restore
     imageTag: 4.3.2-1
-    secretName: neo4j-gcp-credentials
+    secretName: null
     database: neo4j,system
     cloudProvider: gcp
     bucket: gs://test-neo4j
@@ -249,7 +249,7 @@ readReplica:
     enabled: false
     image: gcr.io/neo4j-helm/restore
     imageTag: 4.1.0-1
-    secretName: neo4j-gcp-credentials
+    secretName: null
     database: neo4j,system
     cloudProvider: gcp
     bucket: gs://test-neo4j
