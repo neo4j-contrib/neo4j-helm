@@ -19,6 +19,8 @@ checkIndexes: "true"
 checkGraph: "true"
 checkLabelScanStore: "true"
 checkPropertyOwners: "false"
+removeExistingFiles: "true"
+removeBackupFiles: "true"
 jobSchedule: "0 */12 * * *"
 
 # Set to name of an existing Service Account to use if desired

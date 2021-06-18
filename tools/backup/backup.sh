@@ -57,6 +57,10 @@ if [ -z $REMOVE_EXISTING_FILES ]; then
   export REMOVE_EXISTING_FILES="true"
 fi
 
+if [ -z $REMOVE_BACKUP_FILES ]; then
+  export REMOVE_BACKUP_FILES="true"
+fi
+
 function clean_backups_directory() {
   echo "Removing any existing files from /backups"
   rm -rfv /backups/*
@@ -213,8 +217,12 @@ function backup_database() {
   ls -l "/backups/$db"
 
   echo "Archiving and Compressing -> /backups/$BACKUP_SET.tar"
-
-  tar -zcvf "/backups/$BACKUP_SET.tar.gz" "/backups/$db" --remove-files
+  
+  if [ "${REMOVE_BACKUP_FILES}" == "true" ]; then
+    tar -zcvf "/backups/$BACKUP_SET.tar.gz" "/backups/$db" --remove-files
+  else
+    tar -zcvf "/backups/$BACKUP_SET.tar.gz" "/backups/$db"
+  fi
 
   if [ $? -ne 0 ]; then
     echo "BACKUP ARCHIVING OF $db FAILED"
