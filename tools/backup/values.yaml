@@ -26,8 +26,8 @@ serviceAccountName: ""
 
 # Volume to use as temporary storage for files before they are uploaded to cloud. For large databases local storage may not have sufficient space. In that case set an ephemeral or persistent volume with sufficient space here
 # The chart defaults to an emptyDir, use this to overwrite default behavior
-# tempVolume:
-#   emptyDir: {}
+tempVolume:
+  emptyDir: {}
 
 tempVolumeMount:
   # Subdirectory of temporary volume to mount. useful if volume is not empty
