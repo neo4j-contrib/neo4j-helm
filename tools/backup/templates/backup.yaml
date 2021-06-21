@@ -86,8 +86,6 @@ spec:
                     path: credentials
             {{- end }}
             - name: "backup"
-{{- if .Values.tempVolume }}
-{{ toYaml .Values.tempVolume | indent 14 }}
-{{- else }}
-              emptyDir: {}
+{{- with .Values.tempVolume.emptyDir }}
+{{- toYaml . | nindent 14 }}
 {{- end }}
