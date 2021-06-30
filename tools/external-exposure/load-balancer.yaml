@@ -6,8 +6,7 @@ metadata:
     app.kubernetes.io/instance: $DEPLOYMENT
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: neo4j
-    statefulset.kubernetes.io/pod-name: $DEPLOYMENT-neo4j-core-$IDX
-  name: $DEPLOYMENT-neo4j-external-$IDX
+  name: $DEPLOYMENT-neo4j-external
 spec:
   loadBalancerIP: $IP
   externalTrafficPolicy: Local
@@ -25,6 +24,8 @@ spec:
     protocol: TCP
     targetPort: 7473
   selector:
-    statefulset.kubernetes.io/pod-name: $DEPLOYMENT-neo4j-core-$IDX
+    app.kubernetes.io/name: neo4j
+    app.kubernetes.io/instance: $DEPLOYMENT
+    app.kubernetes.io/component: core
   sessionAffinity: None
   type: LoadBalancer
