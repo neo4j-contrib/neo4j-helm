@@ -12,6 +12,7 @@ data:
   NEO4J_ACCEPT_LICENSE_AGREEMENT: "{{ .Values.acceptLicenseAgreement }}"
   NUMBER_OF_CORES: "{{ .Values.core.numberOfServers }}"
   AUTH_ENABLED: "{{ .Values.authEnabled }}"
+  NEO4J_dbms_allow__upgrade: "true"
   # Enable listening for backups; default port 6362
   NEO4J_dbms_backup_enabled: "true"
   NEO4J_dbms_backup_listen__address: "0.0.0.0:6362"
