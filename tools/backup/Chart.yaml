@@ -9,7 +9,7 @@ keywords:
   - database
   - cypher
   - backup
-icon: http://info.neo4j.com/rs/773-GON-065/images/neo4j_logo.png
+icon: https://info.neo4j.com/rs/773-GON-065/images/neo4j_logo.png
 sources:
   - https://github.com/neo4j-contrib/neo4j-helm/tools/backup
 maintainers:
