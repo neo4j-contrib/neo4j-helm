@@ -12,7 +12,8 @@
   "dependencies": {
     "@antora/cli": "^2.3.4",
     "@antora/site-generator-default": "^2.3.4",
-    "cheerio": "^1.0.0-rc.3"
+    "cheerio": "^1.0.0-rc.3",
+    "glob-parent": "^5.1.2"
   },
   "devDependencies": {
     "express": "^4.17.1"
