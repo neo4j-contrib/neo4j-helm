@@ -132,6 +132,8 @@ spec:
         {{- if .Values.core.additionalVolumeMounts }}
 {{ toYaml .Values.core.additionalVolumeMounts | indent 8}}
         {{- end }}
+        startupProbe:
+{{ toYaml .Values.startupProbe | indent 10 }}
         readinessProbe:
 {{ toYaml .Values.readinessProbe | indent 10 }}
         livenessProbe:
