@@ -1,0 +1,254 @@
+[#externalexposure]
+# External Exposure of Neo4j Clusters when using client routing
+
+[abstract]
+This chapter describes how to route traffic from the outside world or Internet to a Neo4j cluster running in Kubernetes when using client routing.
+
+Generally these instructions are only required for versions of Neo4j before 4.3.0. If you are using Neo4j 4.3.0 or later look at xref::externalexposure.adoc[external exposure instructions]
+
+## Overview / Problem
+
+As described in the user guide, by default when you install Neo4j, each
+node in your cluster gets a private internal DNS address, which it advertises to its clients.
+
+This works "out of the box" without any knowledge of your local addressing or DNS situation.  The
+downside is that external clients cannot use the bolt+routing or neo4j protocols to connect to the cluster,
+because they cannot route traffic to strictly cluster internal DNS names.  With the default helm install,
+connections from the outside fail even with proper exposure of the pods, because:
+
+1. The client connects to Neo4j
+2. Fetches a routing table, which contains entries like `graph-neo4j-core-0.graph-neo4j.default.svc.cluster.local`
+3. External clients attempt and fail to connect to routing table entries
+4. Overall connection fails or times out.
+
+https://medium.com/neo4j/neo4j-considerations-in-orchestration-environments-584db747dca5[This article discusses these background issues] in depth.  These instructions are
+intended as a quick method of exposing Neo4j Clusters, but you may have to do additional work 
+depending on your configuration.
+
+## Solution Approach
+
+To fix external clients, we need two things:
+
+1. The `dbms.connector.*_address` settings inside of each Neo4j node set to the externally routable address
+2. An externally valid DNS name or IP address that clients can connect to, that routes traffic to the kubernetes pod
+
+Some visual diagrams about what's going on https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing[can be found in the architectural documentation here].
+
+We're going to address point 1 with some special configuration of the Neo4j pods themselves.  I'll explain
+the Neo4j config bits first, and then we'll tie it together with the external.  The most complex bit of this
+is ensuring each pod has the right config.
+
+We're going to address point 2 with Kubernetes Load Balancers.  We will create one per pod in our Neo4j
+stateful set.  We will associate static IP addresses to those load balancers.  This enables packets to flow from
+outside of Kubernetes to the right pod / Neo4j cluster member.
+
+## Proper Neo4j Pod Config
+
+In the helm chart within this repo, Neo4j core members are part of a stateful set, and get indexes.  
+Given a deployment in a particular namespace, you end up with the following hostnames:
+
+* `<deployment>-neo4j-core-0.<deployment>-neo4j.<namespace>.svc.cluster.local`
+* `<deployment>-neo4j-core-1.<deployment>-neo4j.<namespace>.svc.cluster.local`
+* `<deployment>-neo4j-core-2.<deployment>-neo4j.<namespace>.svc.cluster.local`
+
+The helm chart in this repo can take a configurable ConfigMap for setting env vars on these pods.  So
+we can define our own configuration and pass it to the StatefulSet on startup.   The `custom-core-configmap.yml`
+file in this directory is an example of that.
+
+### Create Static IP addresses for inbound cluster traffic
+
+I'm using GCP, so it is done like this.  Important notes here, on GCP the region must match your GKE
+region, and the network tier must be premium.  On other clouds, the conceptual step here is the same,
+but the details will differ: you need to allocate 3 static IP addresses, which we'll use in a later
+step.
+
+```shell
+# Customize these next 2 for the region of your GKE cluster,
+# and your GCP project ID
+REGION=us-central1
+PROJECT=my-gcp-project-id
+
+for idx in 0 1 2 ; do 
+   gcloud compute addresses create \
+      neo4j-static-ip-$idx --project=$PROJECT \
+      --network-tier=PREMIUM --region=$REGION
+
+   echo "IP$idx:"
+   gcloud compute addresses describe neo4j-static-ip-$idx \
+      --region=$REGION --project=$PROJECT --format=json | jq -r '.address'
+done
+```
+
+**If you are doing this with Azure** please note that the static IP addresses must be in the same 
+resource group as your kubernetes cluster, and can be created with 
+link:https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest#az-network-public-ip-create[az network public-ip create] like this (just one single sample):
+`az network public-ip create -g resource_group_name -n core01 --sku standard --dns-name neo4jcore01 --allocation-method Static`.  The Azure SKU used must be standard, and the resource group you need can be found in the kubernetes Load Balancer that [following the Azure Tutorial](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough) sets up for you.
+
+For the remainder of this tutorial, let's assume that the core IP addresses I've allocated here are
+as follows; I'll refer to them as these environment variables:
+
+```shell
+export IP0=35.202.123.82
+export IP1=34.71.151.230
+export IP2=35.232.116.39
+```
+
+We will also need 3 exposure addresses that we want to advertise to the clients.  I'm going to set these
+to be the same as the IP addresses, but if you have mapped DNS, you could use DNS names instead here.
+
+It's important for later steps that we have *both* IPs *and* addresses, because they're used differently.
+
+```shell
+export ADDR0=$IP0
+export ADDR1=$IP1
+export ADDR2=$IP2
+```
+
+### Per-Host Configuration
+
+Recall that the Helm chart will let us configure core nodes with a custom config map.   That's good.
+But the problem with 1 configmap for all 3 cores is that each host needs *different config* for proper exposure.
+So in the helm chart, we've divided the neo4j settings into basic settings, and over-rideable settings.  In
+the custom configmap example, you'll see lines like this:
+
+```yaml
+$DEPLOYMENT_neo4j_core_0_NEO4J_dbms_default__advertised__address: $ADDR0
+$DEPLOYMENT_neo4j_core_1_NEO4J_dbms_default__advertised__address: $ADDR0
+```
+
+In a minute, after expanding $DEPLOYMENT to be "graph", 
+these variables have "host prefixes" - `graph_neo4j_core_0_*` settings will only apply to the host
+`graph-neo4j-core-0`.  (The dashes are changed to _ because dashes aren't supported in env var naming).
+Very important to notice that these override settings have the pod name/hostname already "baked into them",
+so it's important to know how you're planning to deploy Neo4j prior to setting this up.
+
+These "address settings" need to be changed to match the 3 static IPs that we allocated in the previous 
+step.  There are four critical env vars, all of which need to be configured, for each host:
+* `NEO4J_dbms_default__advertised__address`
+* `NEO4J_dbms_connector_bolt_advertised__address`
+* `NEO4J_dbms_connector_http_advertised__address`
+* `NEO4J_dbms_connector_https_advertised__address`
+
+With overrides, that's 12 special overrides (4 vars each for 3 containers)
+
+So using this "override approach" we can have *1 ConfigMap* that specifies all the config for 3 members
+of a cluster, while still allowing per-host configuration settings to differ.  The override approach in 
+question is implemented in a small amount of bash that is in the `core-statefulset.yaml` file.  It simply
+reads the environment and applies default values, permitting overrides if the override matches the host
+where the changes are being applied.
+
+In the next command, we'll apply the custom configmap.  Here you use the IP addresses from the previous
+step as ADDR0, ADDR1, and ADDR2.  Alternatively, if those IP addresses are associated with DNS entries,
+you can use those DNS names instead.  We're calling them addresses because they can be any address you
+want to advertise, and don't have to be an IP.  But these addresses must resolve to the static IPs we
+created in the earlier step.
+
+```shell
+export DEPLOYMENT=graph
+export NAMESPACE=default
+export ADDR0=35.202.123.82
+export ADDR1=34.71.151.230
+export ADDR2=35.232.116.39
+
+cat tools/external-exposure-legacy/custom-core-configmap.yaml | envsubst | kubectl apply -f -
+```
+
+Once customized, we now have a ConfigMap we can point our Neo4j deployment at, to advertise properly.
+
+### Installing the Helm Chart
+
+From the root of this repo, navigate to stable/neo4j and issue this command to install the helm chart 
+with a deployment name of "graph".  The deployment name *must match what you did in previous steps*,
+because remember we gave pod-specific overrides in the previous step.
+
+```shell
+export DEPLOYMENT=graph
+helm install $DEPLOYMENT . \
+  --set core.numberOfServers=3 \
+  --set readReplica.numberOfServers=0 \
+  --set core.configMap=$DEPLOYMENT-neo4j-externally-addressable-config \
+  --set acceptLicenseAgreement=yes \
+  --set neo4jPassword=mySecretPassword
+```
+
+Note the custom configmap that is passed.
+
+## External Exposure
+
+After a few minutes you'll have a fully-formed cluster whose pods show ready, and which you can connect
+to, *but* it will be advertising values that Kubernetes isn't routing yet. So what we need to do next is to
+create a load balancer *per Neo4j core pod*, and set the `loadBalancerIP` to be the static IP address we
+reserved in the earlier step, and advertised with the custom ConfigMap.
+
+A `load-balancer.yaml` file has been provided as a template, here's how to make 3 of them for given static
+IP addresses:
+
+```shell
+export DEPLOYMENT=graph
+
+# Reuse IP0, etc. from the earlier step here.
+# These *must be IP addresses* and not hostnames, because we're
+# assigning load balancer IP addresses to bind to.
+export CORE_ADDRESSES=($IP0 $IP1 $IP2)
+
+for x in 0 1 2 ; do 
+   export IDX=$x
+   export IP=${CORE_ADDRESSES[$x]}
+   echo $DEPLOYMENT with IDX $IDX and IP $IP ;
+
+   cat tools/external-exposure-legacy/load-balancer.yaml | envsubst | kubectl apply -f -
+done
+```
+
+You'll notice we're using 3 load balancers for 3 pods.  In a sense it's silly to "load balance" a single
+pod.  But without a lot of extra software and configuration, this is the best option, because LBs will
+support TCP connections (ingresses won't), and LBs can get their own independent IP addresses which can be
+associated with DNS later on.  Had we used NodePorts, we'd be at the mercy of more dynamic IP assignment,
+and also have to worry about a Kubernetes cluster member itself falling over.  ClusterIPs aren't suitable
+at all, as they don't give you external addresses.
+
+Inside of these services, we use an `externalTrafficPolicy: Local`.  Because we're routing to single pods and
+don't need any load spreading, local is fine.  link:https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/[Refer to the kubernetes docs] for more information on this topic.
+
+There are other fancier options, such as the link:https://kubernetes.github.io/ingress-nginx/[nginx-ingress controller]
+but in this config we're shooting for something as simple as possible that you can do with existing
+kubernetes primities without installing new packages you might not already have.
+
+[NOTE]
+**Potential Trip-up point**: On GKE, the only thing needed to associate the static IP to the 
+load balancer is this `loadBalancerIP` field in the YAML.  On other clouds, there may be additional steps 
+to allocate the static IP to the Kubernetes cluster.  Consult your local cloud documentation.
+
+## Putting it All Together
+
+We can verify our services are running nicely like this:
+
+```
+$ kubectl get service | grep neo4j-external
+zeke-neo4j-external-0   LoadBalancer   10.0.5.183   35.202.123.82     7687:30529/TCP,7474:30843/TCP,7473:30325/TCP   115s
+zeke-neo4j-external-1   LoadBalancer   10.0.9.182   34.71.151.230     7687:31059/TCP,7474:31288/TCP,7473:31009/TCP   115s
+zeke-neo4j-external-2   LoadBalancer   10.0.12.38   35.232.116.39     7687:30523/TCP,7474:30844/TCP,7473:31732/TCP   114s
+```
+
+After all of these steps, you should end up with a cluster properly exposed.   We can recover our password
+like so, and connect to any of the 3 static IPs.
+
+```shell
+export NEO4J_PASSWORD=$(kubectl get secrets graph-neo4j-secrets -o yaml | grep password | sed 's/.*: //' | base64 -d)
+cypher-shell -a neo4j://34.66.183.174:7687 -u neo4j -p "$NEO4J_PASSWORD"
+```
+
+Additionally, since we exposed port 7474, you can go to any of the static IPs on port 7474 and end up with
+Neo4j browser and be able to connect.
+
+## Where to Go Next
+
+* If you have static IPs, you can of course associate DNS with them, and obtain signed
+certificates.
+* This in turn will let you expose signed cert HTTPS using standard Neo4j techniques, and
+will also permit advertising DNS instead of a bare IP if you wish.
+
+## References
+
+* For background on general Kubernetes network exposure issues, I'd recommend this article:
+https://medium.com/google-cloud/kubernetes-$TYPE-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0[Kubernetes $TYPE vs. LoadBalancer vs. Ingress?  When should I use what?]

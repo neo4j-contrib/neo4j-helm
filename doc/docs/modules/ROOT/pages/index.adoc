@@ -3,10 +3,17 @@
 
 Neo4j-helm allows users to deploy multi-node Neo4j Enterprise Causal Clusters to Kubernetes instances, with configuration options for the most common scenarios. It represents a rapid way to get started running the world leading native graph database on top of Kubernetes.
 
+[NOTE]
+====
+**For Neo4j standalone (i.e . excluding Neo4j Causal Cluster) productized Helm charts for are available for Neo4j 4.3 and above.**
+
+That is the recommended way to run a standalone Neo4j server in Kubernetes. Full details are in the https://neo4j.com/docs/operations-manual/current/kubernetes/[Kubernetes section of the Neo4j operations manual]
+====
+
 This guide is intended only as a supplement to the Neo4j Operations Manual. Neo4j-helm is a docker container based deploy of Neo4j Causal Cluster. All of the information in the Operations Manual applies to its operation, and this guide will focus only on kubernetes-specific concerns.
 
 [NOTE]
-**In addition to the information in this user guide, a set of slides is available on the deployment architecture and chart structure of this repository. https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing:[Neo4j Helm Chart Structure]**
+In addition to the information in this user guide, a set of slides is available on the deployment architecture and chart structure of this repository. https://docs.google.com/presentation/d/14ziuwTzB6O7cp7fq0mA1lxWwZpwnJ9G4pZiwuLxBK70/edit?usp=sharing:[Neo4j Helm Chart Structure]
 
 == Versioning
 

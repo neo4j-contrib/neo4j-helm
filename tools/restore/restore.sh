@@ -38,6 +38,7 @@ function fetch_backup_from_cloud() {
   fi
   backup_path="${bucket_path}$database-$TIMESTAMP.tar.gz"
 
+  echo "dbms.allow_upgrade=true" >> /var/lib/neo4j/conf/neo4j.conf
   echo "Fetching $backup_path -> $restore_path"
 
   case $CLOUD_PROVIDER in

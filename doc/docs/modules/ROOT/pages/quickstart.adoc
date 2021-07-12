@@ -13,6 +13,13 @@ You must set `acceptLicenseAgreement=yes` to accept the license, or your deploym
 
 == Standalone (Single Server)
 
+[NOTE]
+====
+**For Neo4j standalone (i.e . excluding Neo4j Causal Cluster) productized Helm charts for are available for Neo4j 4.3 and above.**
+
+That is the recommended way to run a standalone Neo4j server in Kubernetes. Full details are in the https://neo4j.com/docs/operations-manual/current/kubernetes/[Kubernetes section of the Neo4j operations manual]
+====
+
 ```shell
 helm install mygraph RELEASE_URL \
     --set core.standalone=true \
