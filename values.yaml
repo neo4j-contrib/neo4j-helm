@@ -271,7 +271,17 @@ readinessProbe:
   timeoutSeconds: 2
   periodSeconds: 10
   tcpSocket:
-    port: 7687 
+    port: 7687
+
+# If you wish to use other probes, like httpGet, input your full probe params here
+readinessProbeOverride:
+  # initialDelaySeconds: 120
+  # failureThreshold: 3
+  # timeoutSeconds: 2
+  # periodSeconds: 10
+  # httpGet:
+  #   path: /db/mydatabase/cluster/available
+  #   port: 7474
 
 livenessProbe:
   initialDelaySeconds: 300
@@ -281,6 +291,16 @@ livenessProbe:
   tcpSocket:
     port: 7687
 
+# If you wish to use other probes, like httpGet, input your full livenessProbe params here
+livenessProbeOverride:
+  # initialDelaySeconds: 300
+  # periodSeconds: 10
+  # failureThreshold: 3
+  # timeoutSeconds: 2
+  # httpGet:
+  #   path: /db/mydatabase/cluster/available
+  #   port: 7474
+
 # Startup probes are used to know when a container application has started.
 # If such a probe is configured, it disables liveness and readiness checks until it succeeds
 startupProbe:
@@ -288,6 +308,13 @@ startupProbe:
   periodSeconds: 25
   tcpSocket:
     port: 7687
+
+startupProbeOverride:
+  # failureThreshold: 2000
+  # periodSeconds: 25
+  # httpGet:
+  #   path: /db/mydatabase/cluster/available
+  #   port: 7474
 
 ## (OPTIONAL) Expose Neo4j metrics
 # The structure of this object matches the Neo4j config syntax

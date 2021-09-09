@@ -129,11 +129,23 @@ spec:
 {{ toYaml .Values.readReplica.additionalVolumeMounts | indent 8}}
         {{- end }}
         startupProbe:
+{{- if .Values.startupProbeOverride }}
+{{ toYaml .Values.startupProbeOverride | indent 10 }}
+{{- else }}
 {{ toYaml .Values.startupProbe | indent 10 }}
+{{- end }}
         readinessProbe:
+{{- if .Values.readinessProbeOverride }}
+{{ toYaml .Values.readinessProbeOverride | indent 10 }}
+{{- else }}
 {{ toYaml .Values.readinessProbe | indent 10 }}
+{{- end }}
         livenessProbe:
+{{- if .Values.livenessProbeOverride }}
+{{ toYaml .Values.livenessProbeOverride | indent 10 }}
+{{- else }}
 {{ toYaml .Values.livenessProbe | indent 10 }}
+{{- end }}
         resources:
 {{ toYaml .Values.readReplica.resources | indent 10 }}
 {{- if .Values.core.sidecarContainers }}
