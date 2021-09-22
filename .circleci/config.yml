@@ -182,7 +182,7 @@ jobs:
               sleep 5
               kubectl get all -n $NAMESPACE
               echo "Taking a backup"
-              kubectl create job --namespace $NAMESPACE --from=cronjob/standalone-backup-gcp-job gcp-hot-backup
+              kubectl create job --namespace $NAMESPACE --from=cronjob.batch/standalone-backup-gcp-job gcp-hot-backup
 
       - run:
           name: Install Azure Backup chart on standalone
