@@ -176,7 +176,8 @@ jobs:
                 --set database="neo4j\,system" \
                 --set cloudProvider=gcp \
                 --set jobSchedule="0 */12 * * *" \
-                --set secretName=neo4j-service-key
+                --set secretName=neo4j-service-key \
+                --debug
               
               sleep 5
               kubectl get all -n $NAMESPACE
