@@ -18,7 +18,8 @@ gcloud container clusters create $CLUSTER \
     --enable-ip-alias \
     --no-enable-autoupgrade \
     --max-nodes "10" \
-    --enable-autoscaling
+    --enable-autoscaling \
+    --cluster-version "1.19"
 
 echo "Fixing kubectl credentials to talk to $CLUSTER"
 gcloud container clusters get-credentials $CLUSTER \
