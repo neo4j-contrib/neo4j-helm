@@ -9,7 +9,7 @@ MACHINE=n1-highmem-4
 NODES=4
 API=beta
 
-echo "Creating GKE cluster $CLUSTER..."
+echo "Creating GKE cluster $CLUSTER... without using beta"
 gcloud container clusters create $CLUSTER \
     --zone "$ZONE" \
     --project $PROJECT \
