@@ -160,6 +160,11 @@ jobs:
               cp *.tgz $BUILD_ARTIFACTS/
 
       - run:
+          name: Kubectl update
+          command: |
+            kubectl version
+
+      - run:
           name: Install GCP Backup chart on standalone
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
