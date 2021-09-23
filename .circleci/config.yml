@@ -160,6 +160,11 @@ jobs:
               cp *.tgz $BUILD_ARTIFACTS/
 
       - run:
+          name: Kubectl update
+          command: |
+            kubectl version
+
+      - run:
           name: Install GCP Backup chart on standalone
           command: |
               NAMESPACE=ns-$CIRCLE_BUILD_NUM
@@ -171,7 +176,7 @@ jobs:
                 --set database="neo4j\,system" \
                 --set cloudProvider=gcp \
                 --set jobSchedule="0 */12 * * *" \
-                --set secretName=neo4j-service-key
+                --set secretName=neo4j-service-key \
               
               sleep 5
               kubectl get all -n $NAMESPACE
@@ -287,13 +292,13 @@ jobs:
 
               echo "MATCH (n) RETURN count(n) as n;" | kubectl run -i --rm cypher-shell \
               --namespace $NAMESPACE \
-              --image=neo4j:4.3.2-enterprise --restart=Never \
+              --image=neo4j:4.3.3-enterprise --restart=Never \
               --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
               -a bolt://$NAME_RESTORE-neo4j.$NAMESPACE.svc.cluster.local 2>&1 | tee restore-result.log
 
               echo "MATCH (n) RETURN count(n) as n;" | kubectl run -i --rm cypher-shell \
                 --namespace $NAMESPACE \
-                --image=neo4j:4.3.2-enterprise --restart=Never \
+                --image=neo4j:4.3.3-enterprise --restart=Never \
                 --command -- ./bin/cypher-shell -u neo4j -p "$NEO4J_PASSWORD" \
                 -a neo4j://$NAME_RESTORE-neo4j.$NAMESPACE.svc.cluster.local 2>&1 | tee restore-result.log
               cp restore-result.log $BUILD_ARTIFACTS/
