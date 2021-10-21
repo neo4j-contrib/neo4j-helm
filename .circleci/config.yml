@@ -38,11 +38,6 @@ jobs:
           name: Setup GCP Tooling
           command: |
             echo $GCLOUD_SERVICE_KEY > $SERVICE_KEY_FILE
-            echo "Printing PATH :- " $PATH
-            echo "which docker"
-            which docker
-            echo "which gcloud"
-            which gcloud
             gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=$SERVICE_KEY_FILE
