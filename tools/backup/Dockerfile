@@ -2,7 +2,7 @@ FROM launcher.gcr.io/google/debian9
 RUN apt-get update && apt-get install -y bash curl wget gnupg apt-transport-https apt-utils lsb-release \
  && rm -rf /var/lib/apt/lists/*
 RUN wget -O - https://debian.neo4j.com/neotechnology.gpg.key | apt-key add -
-RUN echo 'deb https://debian.neo4j.com stable 4.2' | tee -a /etc/apt/sources.list.d/neo4j.list
+RUN echo 'deb https://debian.neo4j.com stable 4.3' | tee -a /etc/apt/sources.list.d/neo4j.list
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk-$(lsb_release -c -s) main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 RUN echo "deb https://httpredir.debian.org/debian stretch-backports main" | tee -a /etc/apt/sources.list.d/stretch-backports.list
