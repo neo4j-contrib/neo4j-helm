@@ -23,7 +23,7 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debia
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 
 RUN apt-get install -y google-cloud-sdk wget make gettext-base jq nodejs npm \
- && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
