@@ -38,10 +38,10 @@ jobs:
           name: Setup GCP Tooling
           command: |
             echo $GCLOUD_SERVICE_KEY > $SERVICE_KEY_FILE
-            cat $SERVICE_KEY_FILE
             gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=$SERVICE_KEY_FILE
+            gcloud info --run-diagnostics --verbosity=debug
             gcloud auth configure-docker --verbosity=debug
                
       - run:
