@@ -41,9 +41,9 @@ jobs:
             gcloud auth activate-service-account \
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=$SERVICE_KEY_FILE
-            gcloud info --run-diagnostics --verbosity=debug
-            gcloud beta auth configure-docker --verbosity=debug
-            cat ~/.docker/config.json
+            gcloud info --run-diagnostics
+            gcloud auth configure-docker
+
                
       - run:
           name: Setup Azure Tooling
