@@ -42,7 +42,7 @@ jobs:
                 $GCLOUD_SERVICE_ACCOUNT \
                 --key-file=$SERVICE_KEY_FILE
             gcloud info --run-diagnostics
-            gcloud auth configure-docker
+            gcloud auth configure-docker --quiet
 
                
       - run:
