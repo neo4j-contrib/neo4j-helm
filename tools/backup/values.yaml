@@ -22,6 +22,7 @@ checkPropertyOwners: "false"
 removeExistingFiles: "true"
 removeBackupFiles: "true"
 jobSchedule: "0 */12 * * *"
+backoffLimit: 6
 
 # Set to name of an existing Service Account to use if desired
 serviceAccountName: ""

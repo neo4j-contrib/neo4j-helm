@@ -15,6 +15,7 @@ spec:
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      backoffLimit: {{ .Values.backoffLimit }}
       template:
         metadata:
         {{- with .Values.podAnnotations }}
