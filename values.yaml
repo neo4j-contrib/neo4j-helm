@@ -128,24 +128,24 @@ core:
   ## This service is intended for clients running in kubernetes to connect to
   ## the cluster.
   ## Default: ClusterIP (headless)
-  service:
-    type: ClusterIP
-    annotations: {}
-    labels: {}
-    loadBalancerSourceRanges: []
+  services:
+  # A ClusterIP service with the same name as the Helm Release name should be used for Neo4j Driver connections originating inside the
+  # Kubernetes cluster.
+  default:
+    # Annotations for the K8s Service object
+    annotations: { }
 
-  ## This creates a discovery Service for each member in the core set, and ties
-  ## to the use of the Neo4j discovery type "K8S" with the configured selectors.
-  ## Default: ClusterIP (headless)
-  discoveryService:
-    type: ClusterIP
-    annotations: {}
-    labels: {}
-    loadBalancerSourceRanges: []
-    # Controls how many services get created.  Usually want to over-provision so cores can
-    # scale up for things like rolling upgrades.
-    instances: [0, 1, 2, 3, 4, 5]
-    standaloneOnly: [0]
+  # A LoadBalancer Service for external Neo4j driver applications and Neo4j Browser
+  neo4j:
+    enabled: true
+
+    # Annotations for the K8s Service object
+    annotations: { }
+
+    spec:
+      # Type of service.
+      type: LoadBalancer
+
 
   ## specify additional volumes to mount in the core container, this can be used
   ## to specify additional storage of material or to inject files from ConfigMaps
