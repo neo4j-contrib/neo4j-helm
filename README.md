@@ -1,5 +1,10 @@
 [![CircleCI](https://circleci.com/gh/neo4j-contrib/neo4j-helm.svg?style=svg)](https://circleci.com/gh/neo4j-contrib/neo4j-helm)
 
+# DEPRECATED
+This project is deprecated and no further support will be provided.
+Please use the newly designed helm charts which support both Neo4j standalone and Neo4j cluster.
+You can find more info [here](https://github.com/neo4j-contrib/neo4j-helm.git) on the new helm charts
+
 # Neo4j-Helm
 
 This repository contains a Helm chart that starts Neo4j >= 4.0 Enterprise Edition clusters in Kubernetes.

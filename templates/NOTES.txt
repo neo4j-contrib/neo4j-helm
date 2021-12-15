@@ -1,3 +1,9 @@
+#### DEPRECATED ####
+####################
+This project is deprecated and no further support will be provided.
+Please use the newly designed helm charts which support both Neo4j standalone and Neo4j cluster.
+You can find more info [here](https://github.com/neo4j-contrib/neo4j-helm.git) on the new helm charts
+
 {{- if and (.Values.core.standalone) (gt (.Values.readReplica.numberOfServers | int) 0)}}
 You have specified standalone mode and also read replicas.  The read replicas argument has
 been ignored - only Neo4j clusters may have read replicas.
