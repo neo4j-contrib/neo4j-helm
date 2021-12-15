@@ -6,7 +6,8 @@ From version 4.3, Neo4j publishes a productized and supported version of Helm Ch
 For Neo4j standalone, productized Helm charts are available for Neo4j 4.3 and above.<br /> 
 For Neo4j Causal Cluster, productized Helm charts are available for Neo4j 4.4 and above.
 
-That is the recommended way to run Neo4j in Kubernetes. Full details are in the [Kubernetes section of the Neo4j operations manual](https://neo4j.com/docs/operations-manual/current/kubernetes/)
+That is the recommended way to run Neo4j in Kubernetes. <br/> 
+Full details are in the [Kubernetes section of the Neo4j operations manual](https://neo4j.com/docs/operations-manual/current/kubernetes/)
 
 The neo4j-helm Labs Helm charts described here will keep being updated for 4.4.x , but updates will stop from the next major release 5.0
 # Neo4j-Helm
