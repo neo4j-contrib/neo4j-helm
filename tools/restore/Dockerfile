@@ -1,4 +1,4 @@
-FROM neo4j:4.4.1-enterprise
+FROM neo4j:4.4.2-enterprise
 RUN apt-get update \
  && apt-get install -y curl wget gnupg apt-transport-https apt-utils lsb-release unzip less \
  && rm -rf /var/lib/apt/lists/*
