@@ -2,6 +2,16 @@ apiVersion: v1
 generated: 2021-04-29T21:17:54.857071000+02:00
 entries:
   neo4j-backup:
+    - created: 2022-06-15T18:20:28.124024000+01:00
+      description: Neo4j 4.3.14
+      digest: f417a648eb039306ef30b655d26e8420d204a12e3a2747f040638d2f463640ad
+      home: https://github.com/neo4j-contrib/neo4j-helm
+      name: neo4j
+      sources:
+        - https://github.com/neo4j-contrib/neo4j-helm
+      urls:
+        - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.3.14/neo4j-backup-4.3.14.tgz
+      version: 4.3.14
     - created: 2022-06-15T10:03:59.125255000+01:00
       description: Neo4j 4.3.13
       digest: dce5b3ae7340f0c0ce553d4131146571d60db1bced3726a36bf606a008a38760
@@ -323,6 +333,16 @@ entries:
       - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.0.5-1/neo4j-backup-4.0.5-1.tgz
       version: 4.0.4-1
   neo4j:
+    - created: 2022-06-15T18:20:28.124024000+01:00
+      description: Neo4j 4.3.14
+      digest: 5cc4f6d0fec01f552fe6ffad684976e271e9a437b7c615d74679a7c3e0f24fba
+      home: https://github.com/neo4j-contrib/neo4j-helm
+      name: neo4j
+      sources:
+        - https://github.com/neo4j-contrib/neo4j-helm
+      urls:
+        - https://github.com/neo4j-contrib/neo4j-helm/releases/download/4.3.14/neo4j-4.3.14.tgz
+      version: 4.3.14
     - created: 2022-06-15T10:04:34.732134000+01:00
       description: Neo4j 4.3.13
       digest: 273c8e3f9bda4e737f7de82a8a5ad0807e08afc07384900890a7a065e9458a6e
