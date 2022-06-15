@@ -1,8 +1,8 @@
 apiVersion: v1
 name: neo4j-backup
 home: https://www.neo4j.com
-version: 4.4.7
-appVersion: 4.4.7
+version: 4.4.8
+appVersion: 4.4.8
 description: Neo4j Backup Utility
 keywords:
   - graph

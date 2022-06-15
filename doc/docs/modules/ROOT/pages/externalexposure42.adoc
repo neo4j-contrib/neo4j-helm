@@ -225,9 +225,9 @@ We can verify our services are running nicely like this:
 
 ```
 $ kubectl get service | grep neo4j-external
-zeke-neo4j-external-0   LoadBalancer   10.0.5.183   35.202.123.82     7687:30529/TCP,74.4.70843/TCP,7473:30325/TCP   115s
-zeke-neo4j-external-1   LoadBalancer   10.0.9.182   34.71.151.230     7687:31059/TCP,74.4.71288/TCP,7473:31009/TCP   115s
-zeke-neo4j-external-2   LoadBalancer   10.0.12.38   35.232.116.39     7687:30523/TCP,74.4.70844/TCP,7473:31732/TCP   114s
+zeke-neo4j-external-0   LoadBalancer   10.0.5.183   35.202.123.82     7687:30529/TCP,74.4.80843/TCP,7473:30325/TCP   115s
+zeke-neo4j-external-1   LoadBalancer   10.0.9.182   34.71.151.230     7687:31059/TCP,74.4.81288/TCP,7473:31009/TCP   115s
+zeke-neo4j-external-2   LoadBalancer   10.0.12.38   35.232.116.39     7687:30523/TCP,74.4.80844/TCP,7473:31732/TCP   114s
 ```
 
 After all of these steps, you should end up with a cluster properly exposed.   We can recover our password
