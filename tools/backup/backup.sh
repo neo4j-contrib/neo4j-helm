@@ -113,7 +113,8 @@ function cloud_copy() {
                        --file "$backup_path" \
                        --name $CONTAINER_FILE \
                        --account-name "$ACCOUNT_NAME" \
-                       --account-key "$ACCOUNT_KEY"
+                       --account-key "$ACCOUNT_KEY" \
+                       --overwrite "true"
 
     if [ "${artifact_type}" = "backup" ]; then
       latest_name=$CONTAINER_PATH/$database/${LATEST_POINTER}
