@@ -7,7 +7,7 @@ core:
   restore:
     enabled: true
     image: gcr.io/neo4j-helm/restore
-    imageTag: 4.4.9
+    imageTag: 4.4.10
     secretName: neo4j-gcp-credentials #neo4j-aws-credentials
     database: neo4j,system
     cloudProvider: gcp #aws
@@ -20,7 +20,7 @@ readReplica:
   restore:
     enabled: true
     image: gcr.io/neo4j-helm/restore
-    imageTag: 4.4.9
+    imageTag: 4.4.10
     secretName: neo4j-gcp-credentials #neo4j-aws-credentials
     database: neo4j,system
     cloudProvider: gcp #aws
