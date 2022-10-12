@@ -342,6 +342,10 @@ securityContext: {}
 #  runAsNonRoot: true
 #  runAsUser: 7474
 
+## Priority for pod scheduling
+## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+priorityClassName: ""
+
 containerSecurityContext: {}
 # Sets securityContext at the container level.
 # We recommend to only use this if (pod) securityContext cannot be used. For example certain security options can only be set at this level.
