@@ -1,0 +1,22 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-internal-ssl-config
+data:
+  NEO4J_unsupported_dbms_ssl_system_ignore__dot__files: "true"
+
+  # Cluster ssl policy
+  NEO4J_dbms_ssl_policy_cluster_enabled: "true"
+  NEO4J_dbms_ssl_policy_cluster_client__auth: "REQUIRE"
+  NEO4J_dbms_ssl_policy_cluster_verify__hostname: "true"
+
+  # Fabric ssl policy
+  NEO4J_dbms_ssl_policy_fabric_enabled: "true"
+  NEO4J_dbms_ssl_policy_fabric_client__auth: "REQUIRE"
+  NEO4J_dbms_ssl_policy_fabric_verify__hostname: "true"
+
+  # Backup ssl policy
+  NEO4J_dbms_ssl_policy_backup_enabled: "true"
+  NEO4J_dbms_ssl_policy_backup_client__auth: "REQUIRE"
+  NEO4J_dbms_ssl_policy_backup_verify__hostname: "false"

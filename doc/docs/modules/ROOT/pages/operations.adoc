@@ -66,6 +66,18 @@ The helm chart supports values for `additionalVolumes` and `additionalVolumeMoun
 
 Use of additional volumes and mounts is not supported though, and in order to use this feature you must be very comfortable with filesystem basics in Kubernetes and Neo4j directory configuration.
 
+## Transport Layer Security (TLS/SSL)
+
+You can store public certificates in ConfigMaps and private keys in Kubernetes Secrets and use the helm chart's `additonalVolumes` and `additionalVolumeMounts` values to mount them into the Neo4j container.
+
+The following neo4j config setting is required to support directly mounting certificates or keys from Kubernetes:
+
+* `unsupported.dbms.ssl.system.ignore_dot_files=true`
+
+Full details of SSL configuration can be found in the Neo4j operations manual. See the section "SSL Framework".
+
+For an example of using certificates and keys stored in Kubernetes to secure internal traffic in a Neo4j Causal cluster please see the https://github.com/neo4j-contrib/neo4j-helm/blob/master/deployment-scenarios/cluster-internal-ssl/[cluster-internal-ssl deployment scenario].
+
 ## Fabric
 
 In Neo4j 4.0+, https://neo4j.com/docs/operations-manual/current/fabric/introduction/[fabric] is a feature that can be enabled with regular configuration in `neo4j.conf`. All of the fabric configuration that is referenced in the manual can be done via custom ConfigMaps described in this documentation.
