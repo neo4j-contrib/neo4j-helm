@@ -1,17 +1,17 @@
-name: Trigger Publish
+# name: Trigger Publish
 
-on:
-  push:
-    branches: [ master ]
+# on:
+#   push:
+#     branches: [ master ]
 
-jobs:
-  trigger_publish:
-    runs-on: ubuntu-latest
+# jobs:
+#   trigger_publish:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Trigger Developer Event
-        uses: peter-evans/repository-dispatch@v1.1.1
-        with:
-          token: ${{ secrets.BUILD_ACCESS_TOKEN }}
-          repository: neo4j-documentation/docs-refresh
-          event-type: developer
+#     steps:
+#       - name: Trigger Developer Event
+#         uses: peter-evans/repository-dispatch@v1.1.1
+#         with:
+#           token: ${{ secrets.BUILD_ACCESS_TOKEN }}
+#           repository: neo4j-documentation/docs-refresh
+#           event-type: developer
